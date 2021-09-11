@@ -22,7 +22,6 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     
     if fpath == None:
         raise ValueError('"fpath" parameter must be passed to the plotting function.')
-    
 
     fig = plt.figure()
     fig.set_size_inches(10, 6)
@@ -59,11 +58,12 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
 
 
 
-def accuracy_curves_plotter(accuracies_list, value_type=1, fpath=None, filename="", labels=[], label_step=10):
+def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=None, filename="", labels=[], label_step=10):
     """
     accuracy_curves_plotter:
     Plot the accuracy curves of different Neural Networks.
     Inputs:
+        -   percentages: The x-axis datapoints.
         -   accuracies_list: A list of arrays. Each array contains accuracy values for each % of faulty devices.
         -   value_type: An integer determining the type of fault. Acceptable values are 1, 2, or 3. Default: 1.
         -   fpath: The FontProperties object containing information about the font to use. Default: None.
@@ -80,9 +80,10 @@ def accuracy_curves_plotter(accuracies_list, value_type=1, fpath=None, filename=
     if fpath == None:
         raise ValueError('"fpath" parameter must be passed to the plotting function.')
     
+    if len(labels) != len(accuracies_list):
+        raise ValueError("Not enough labels were passed to the function.")
+    
     faults_tuple = ("Cannot electroform", "HRS", "LRS")
-
-    faulty_devices_percentages = np.arange(0,101,10)
 
     fig = plt.figure()
     fig.set_size_inches(10, 6)
@@ -95,7 +96,7 @@ def accuracy_curves_plotter(accuracies_list, value_type=1, fpath=None, filename=
         x_label = "Percentage of devices which are stuck at " + faults_tuple[value_type-1] + " (%)"
 
     for count, accuracy in enumerate(accuracies_list):
-        plt.plot(faulty_devices_percentages, accuracy, label=labels[count])
+        plt.plot(percentages*100, accuracy, label=labels[count])
 
     plt.xlabel(x_label, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
