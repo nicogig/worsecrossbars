@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def training_validation_plotter (epochs, training, validation, value_type="", fpath=None, filename="", label_step=1):
+def training_validation_plotter(epochs, training, validation, value_type="", fpath=None, filename="", label_step=1):
     """
     training_validation_plotter:
     Plot the Training and Validation curves with respect to the Epochs.
@@ -10,7 +10,7 @@ def training_validation_plotter (epochs, training, validation, value_type="", fp
         -   training: An array (list) containing the values obtained from the training stage.
         -   validation: An array (list) containing the values obtained from the validation stage.
         -   value_type: A string describing the type of data. Allowed values are "Accuracy" and "Loss". 
-        -   fpath: The FontProperties object containing information about the stop to use.
+        -   fpath: The FontProperties object containing information about the font to use.
     Optional Input:
         -   label_step: The step for the labels on the x-axis. Defaults to 1.
     Output:
@@ -45,6 +45,70 @@ def training_validation_plotter (epochs, training, validation, value_type="", fp
     if value_type.lower() == "accuracy":
         L = plt.legend(fontsize=15, loc='lower right')
     elif value_type.lower() == "loss":
+        L = plt.legend(fontsize=15, loc='upper right')
+    else:
+        L = plt.legend(fontsize=15)
+    
+    plt.setp(L.texts, font=fpath)
+
+    if filename != "":
+        plt.savefig(filename + ".png")
+    
+    plt.title(title, font=fpath, fontsize=20)
+    plt.show()
+
+
+
+def accuracy_curves_plotter(accuracies_list, value_type=1, fpath=None, filename="", labels=[], label_step=10):
+    """
+    accuracy_curves_plotter:
+    Plot the accuracy curves of different Neural Networks.
+    Inputs:
+        -   accuracies_list: A list of arrays. Each array contains accuracy values for each % of faulty devices.
+        -   value_type: An integer determining the type of fault. Acceptable values are 1, 2, or 3. Default: 1.
+        -   fpath: The FontProperties object containing information about the font to use. Default: None.
+        -   filename: The name of the file that is going to be output by the function, without extension. Default: "".
+        -   labels: An array of strings containing the names of the curves to be plotted. Default: [].
+        -   label_step: The step for the labels on the x-axis. Defaults to 10.
+    Outputs:
+        - A graph, both inline (if using Jupyter), and as a png (if a filename was provided).
+    """
+
+    if value_type not in (1, 2, 3):
+        raise ValueError('"value_type" parameter must be an integer comprised between 1 and 3.')
+    
+    if fpath == None:
+        raise ValueError('"fpath" parameter must be passed to the plotting function.')
+    
+    faults_tuple = ("Cannot electroform", "HRS", "LRS")
+
+    faulty_devices_percentages = np.arange(0,101,10)
+
+    fig = plt.figure()
+    fig.set_size_inches(10, 6)
+
+    title = 'Accuracy curves: "' + faults_tuple[value_type-1] + '" fault'
+
+    if value_type == 1:
+        x_label = "Percentage of devices which cannot electroform (%)"
+    else:
+        x_label = "Percentage of devices which are stuck at " + faults_tuple[value_type-1] + " (%)"
+
+    for count, accuracy in enumerate(accuracies_list):
+        plt.plot(faulty_devices_percentages, accuracy, label=labels[count])
+
+    plt.xlabel(x_label, font=fpath, fontsize=20)
+    plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
+    plt.grid()
+    plt.tight_layout()
+    plt.xticks(np.arange(0, 100, step=label_step), font=fpath, fontsize=15)
+    plt.yticks(font=fpath, fontsize=15)
+
+    if value_type == 1:
+        L = plt.legend(fontsize=15, loc='upper right')
+    elif value_type == 2:
+        L = plt.legend(fontsize=15, loc='lower left')
+    elif value_type == 3:
         L = plt.legend(fontsize=15, loc='upper right')
     else:
         L = plt.legend(fontsize=15)
