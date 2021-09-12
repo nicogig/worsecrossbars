@@ -27,12 +27,21 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     fig.set_size_inches(10, 6)
 
     title = "Training and validation {}".format(value_type.lower())
-    y_label = "{} (%)".format(value_type.title())
-    training_legend_label = "Training {} (%)".format(value_type.lower())
-    validation_legend_label = "Validation {} (%)".format(value_type.lower())
-    
-    plt.plot(epochs, training*100, '-bo', markersize=7, label=training_legend_label, linewidth=2)
-    plt.plot(epochs, validation*100, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
+
+    if value_type.lower() == "accuracy":
+        y_label = "{} (%)".format(value_type.title())
+        training_legend_label = "Training {} (%)".format(value_type.lower())
+        validation_legend_label = "Validation {} (%)".format(value_type.lower())
+        plt.plot(epochs, training*100, '-bo', markersize=7, label=training_legend_label, linewidth=2)
+        plt.plot(epochs, validation*100, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
+        L = plt.legend(fontsize=15, loc='lower right')
+    else:
+        y_label = value_type.title()
+        training_legend_label = "Training {}".format(value_type.lower())
+        validation_legend_label = "Validation {}".format(value_type.lower())
+        plt.plot(epochs, training, '-bo', markersize=7, label=training_legend_label, linewidth=2)
+        plt.plot(epochs, validation, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
+        L = plt.legend(fontsize=15, loc='upper right')
 
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(y_label, font=fpath, fontsize=20)
@@ -40,18 +49,11 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     plt.tight_layout()
     plt.xticks(np.arange(0, len(epochs) + 1, step=label_step), font=fpath, fontsize=15)
     plt.yticks(font=fpath, fontsize=15)
-
-    if value_type.lower() == "accuracy":
-        L = plt.legend(fontsize=15, loc='lower right')
-    elif value_type.lower() == "loss":
-        L = plt.legend(fontsize=15, loc='upper right')
-    else:
-        L = plt.legend(fontsize=15)
     
     plt.setp(L.texts, font=fpath)
 
     if filename != "":
-        plt.savefig(filename + ".png")
+        plt.savefig("images/{}.png".format(filename))
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
@@ -117,7 +119,7 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     plt.setp(L.texts, font=fpath)
 
     if filename != "":
-        plt.savefig(filename + ".png")
+        plt.savefig("images/{}.png".format(filename))
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
