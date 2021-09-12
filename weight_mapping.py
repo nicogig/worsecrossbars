@@ -44,3 +44,25 @@ def create_weight_interval(list_of_extremes, no_of_weights):
         return_list.append(np.linspace(element[1], element[0], no_of_weights))
     return return_list
 
+def discretise_weights(network_weights, network_weight_intervals):
+    """
+    discretise_weights:
+        Alter the weights in the network so that they conform to the list of allowed weights.
+    Inputs:
+        -   network_weights: The weights as outputted by the training functions.
+        -   network_weight_intervals: A list of lists of evenly spaced weights. One list per synaptic layer.
+    Output:
+        -   The altered network weights, now discretised.
+    """
+    altered_weights = copy.deepcopy(network_weights)
+    index = 0
+    for count, layer_weights in enumerate(altered_weights):
+        if count % 2 == 0:
+            index += 1
+            original_shape = layer_weights.shape
+            layer_weights = np.flatten(layer_weights)
+            weight_intervals_as_numpy = np.array(network_weight_intervals[index])
+            layer_weights = weight_intervals_as_numpy[abs(layer_weights[None, :] - weight_intervals_as_numpy[:, None]).argmin(axis=0)]
+            layer_weights = np.reshape(layer_weights, original_shape)
+    
+    return altered_weights
