@@ -13,6 +13,7 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
         - A list of tuples, (w_max, w_min), with the maximum and minimum 
         discrete weights in a layer.
     """
+    
     return_list = []
     for list_weights in network_weights:
         array_weights = np.array(list_weights)

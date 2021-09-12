@@ -11,13 +11,15 @@ def compute_output_currents(device_resistances, applied_voltages):
     voltage_matrix[:device_resistances.size, ] = np.repeat(applied_voltages, device_resistances.shape[1], axis=0)
     word_line_voltages = distribute_array(voltage_matrix[:device_resistances.size, ], device_resistances)
     bit_line_voltages = distribute_array(voltage_matrix[device_resistances.size:, ], device_resistances)
-    # Extracted Voltages, proceeding to currents
+
+    # Extracted voltages, proceeding to currents
     if word_line_voltages.ndim > 2:
         device_resistances_currents = np.repeat(device_resistances[:, :, np.newaxis],
                                                 word_line_voltages.shape[2],
                                                 axis=2)
     voltage_diff = word_line_voltages - bit_line_voltages
     device_currents = voltage_diff / device_resistances
+
     # Extracting output currents
     output_currents = np.sum(device_currents, axis=0)
     if output_currents.ndim == 1:

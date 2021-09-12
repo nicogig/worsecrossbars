@@ -26,13 +26,13 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    title = "Training and validation " + value_type.lower()
-    y_label = value_type.title()
-    training_legend_label = "Training " + value_type.lower()
-    validation_legend_label = "Validation " + value_type.lower()
+    title = "Training and validation {}".format(value_type.lower())
+    y_label = "{} (%)".format(value_type.title())
+    training_legend_label = "Training {} (%)".format(value_type.lower())
+    validation_legend_label = "Validation {} (%)".format(value_type.lower())
     
-    plt.plot(epochs, training, '-bo', markersize=7, label=training_legend_label, linewidth=2)
-    plt.plot(epochs, validation, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
+    plt.plot(epochs, training*100, '-bo', markersize=7, label=training_legend_label, linewidth=2)
+    plt.plot(epochs, validation*100, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
 
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(y_label, font=fpath, fontsize=20)
@@ -88,12 +88,12 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    title = 'Accuracy curves: "' + faults_tuple[value_type-1] + '" fault'
+    title = 'Accuracy curves: "{}" fault'.format(faults_tuple[value_type-1])
 
     if value_type == 1:
         x_label = "Percentage of devices which cannot electroform (%)"
     else:
-        x_label = "Percentage of devices which are stuck at " + faults_tuple[value_type-1] + " (%)"
+        x_label = "Percentage of devices which are stuck at {} (%)".format(faults_tuple[value_type-1])
 
     for count, accuracy in enumerate(accuracies_list):
         plt.plot(percentages*100, accuracy*100, label=labels[count], linewidth=2)

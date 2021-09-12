@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 
-def cannot_electroform_weigths(network_weights, failure_percentage=0.2):
+def cannot_electroform(network_weights, failure_percentage=0.2):
     """
 
     """
@@ -18,3 +18,27 @@ def cannot_electroform_weigths(network_weights, failure_percentage=0.2):
             layer[np.unravel_index(indices, layer.shape)] = 0
     
     return altered_weights
+
+
+
+def stuck_at_HRS(network_weights, failure_percentage=0.2):
+    """
+    
+    """
+
+    # For the time being, only synapse parameters (i.e. weights, not neuron biases) are being altered. This is achieved by only modifying even-numbered layers,
+    # given that, in a densely-connected MLP built with Keras, odd-numbered layers contain neuron biases.
+
+    pass
+
+
+
+def stuck_at_LRS(network_weights, failure_percentage=0.2):
+    """
+    
+    """
+
+    # For the time being, only synapse parameters (i.e. weights, not neuron biases) are being altered. This is achieved by only modifying even-numbered layers,
+    # given that, in a densely-connected MLP built with Keras, odd-numbered layers contain neuron biases.
+
+    pass
