@@ -1,6 +1,9 @@
 import numpy as np
 
 def compute_output_currents(device_resistances, applied_voltages):
+    """
+    """
+
     # TODO: Make sure that inputs are good
     # TODO: At the moment, we assume all node voltages are known.
 
@@ -24,6 +27,9 @@ def compute_output_currents(device_resistances, applied_voltages):
 
 
 def distribute_array (flattened_array, model_array):
+    """
+    """
+    
     reshaped_array = flattened_array.reshape((model_array.shape[0], model_array.shape[1], flattened_array.shape[1]))
     if reshaped_array.ndim == 3:
         if reshaped_array.shape[2] == 1:

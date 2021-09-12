@@ -1,11 +1,14 @@
 import numpy as np
 import copy
 
-def cannot_electroform(network_weights, failure_percentage=0.2):
+def cannot_electroform_weigths(network_weights, failure_percentage=0.2):
+    """
+
+    """
 
     # For the time being, only synapse parameters (i.e. weights, not neuron biases) are being altered. This is achieved by only modifying even-numbered layers,
     # given that, in a densely-connected MLP built with Keras, odd-numbered layers contain neuron biases.
-
+    
     altered_weights = copy.deepcopy(network_weights)
     
     for count, layer in enumerate(altered_weights):

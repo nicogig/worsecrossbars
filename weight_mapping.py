@@ -14,6 +14,7 @@ def choose_extremes(W, HRS_LRS_ratio, excluded_weights_proportion):
         - A tuple, (w_max, w_min), with the maximum and minimum 
         discrete weights.
     """
+    
     W_abs = np.absolute(W)
     W_abs_sort = np.argsort(-W_abs)
     s = W_abs_sort.size

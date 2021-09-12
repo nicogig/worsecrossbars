@@ -96,14 +96,14 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
         x_label = "Percentage of devices which are stuck at " + faults_tuple[value_type-1] + " (%)"
 
     for count, accuracy in enumerate(accuracies_list):
-        plt.plot(percentages*100, accuracy, label=labels[count], linewidth=2)
+        plt.plot(percentages*100, accuracy*100, label=labels[count], linewidth=2)
 
     plt.xlabel(x_label, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
     plt.grid()
     plt.tight_layout()
     plt.xticks(np.arange(0, 101, step=label_step), font=fpath, fontsize=15)
-    plt.yticks(font=fpath, fontsize=15)
+    plt.yticks(np.arange(0, 101, step=label_step), font=fpath, fontsize=15)
 
     if value_type == 1:
         L = plt.legend(fontsize=15, loc='upper right')
@@ -121,3 +121,4 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
+    
