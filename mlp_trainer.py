@@ -15,7 +15,7 @@ def dataset_creation():
 
     # Dataset download
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-    print() # Prints a newline after the dataset download info
+    # print() # Prints a newline after the dataset download info
 
     # Data reshaping
     MLP_train_images = train_images.reshape((60000, 28 * 28)).astype('float32') / 255

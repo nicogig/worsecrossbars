@@ -31,8 +31,8 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     training_legend_label = "Training " + value_type.lower()
     validation_legend_label = "Validation " + value_type.lower()
     
-    plt.plot(epochs, training, '-bo', markersize=7, label=training_legend_label)
-    plt.plot(epochs, validation, '-rD', markersize=7, label=validation_legend_label)
+    plt.plot(epochs, training, '-bo', markersize=7, label=training_legend_label, linewidth=2)
+    plt.plot(epochs, validation, '-rD', markersize=7, label=validation_legend_label, linewidth=2)
 
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(y_label, font=fpath, fontsize=20)
@@ -96,13 +96,13 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
         x_label = "Percentage of devices which are stuck at " + faults_tuple[value_type-1] + " (%)"
 
     for count, accuracy in enumerate(accuracies_list):
-        plt.plot(percentages*100, accuracy, label=labels[count])
+        plt.plot(percentages*100, accuracy, label=labels[count], linewidth=2)
 
     plt.xlabel(x_label, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
     plt.grid()
     plt.tight_layout()
-    plt.xticks(np.arange(0, 100, step=label_step), font=fpath, fontsize=15)
+    plt.xticks(np.arange(0, 101, step=label_step), font=fpath, fontsize=15)
     plt.yticks(font=fpath, fontsize=15)
 
     if value_type == 1:
