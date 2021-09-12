@@ -26,3 +26,17 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
         return_list.append((w_max, w_min))
     return return_list
 
+
+def create_weight_interval(w_max, w_min, no_of_weights):
+    """
+    create_weight_interval:
+        Create an evenly spaced weight interval.
+    Inputs:
+        -   w_max: The maximum value for the weights, as given by choose_extremes()
+        -   w_min: The minimum value for the weights, as given by choose_extremes()
+        -   no_of_weights: The number of weights needed.
+    Output:
+        -   A list of evenly spaced weights.
+    """
+    return np.linspace(w_min, w_max, no_of_weights)
+
