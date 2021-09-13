@@ -40,7 +40,7 @@ def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, ex
 
 
 
-def run_simulation(percentages_array, weights, number_of_simulations, network_model, fault_type=1, HRS_LRS_ratio=None, excluded_weights_proportion=None):
+def run_simulation(percentages_array, weights, number_of_simulations, network_model, dataset, fault_type=1, HRS_LRS_ratio=None, excluded_weights_proportion=None):
     """
     run_simulation:
         Simulates a fault in a RRAM network with the given topology and weights, for a number of times.
@@ -60,21 +60,23 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
         extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
         
 
-    accuracies = np.zeros(len(percentages))
+    accuracies = np.zeros(len(percentages_array))
 
-    for simulation in number_of_simulations:
+    for simulation in range(number_of_simulations):
 
         accuracies_list = []
 
-        for percentage in percentage:
+        for percentage in percentages_array:
             
             altered_weights = weight_alterations(weights, fault_type, percentage, extremes_list)
 
             # The "set_weights" function sets the ANN's weights to the values specified in the list of arrays "altered_weights"
             network_model.set_weights(altered_weights)
-            accuracies_list.append(MNIST_MLP.evaluate(MNIST_dataset[1][0], MNIST_dataset[1][1], verbose=0)[1])
+            accuracies_list.append(network_model.evaluate(dataset[1][0], dataset[1][1], verbose=0)[1])
         
         accuracies += np.array(accuracies_list)
         gc.collect()
     
-    return accuracies /= len(weights_list)
+    accuracies /= number_of_simulations
+    
+    return accuracies

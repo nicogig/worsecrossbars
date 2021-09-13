@@ -18,16 +18,16 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
     return_list = []
     for count, layer_weights in enumerate(network_weights):
         if count % 2 == 0:
-            array_weights = np.flatten(layer_weights)
+            array_weights = layer_weights.flatten()
             W_abs = np.abs(array_weights)
             W_abs_sort = np.argsort(-W_abs)
             s = W_abs_sort.size
             index = int(excluded_weights_proportion * s)
-            w_max = W_abs_sort(index)
+            w_max = W_abs_sort[index]
             w_min = w_max / HRS_LRS_ratio
             return_list.append((w_max, w_min))
         else:
-            return_list.append((,))
+            return_list.append((None, ))
     return return_list
 
 
