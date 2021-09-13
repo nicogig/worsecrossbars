@@ -20,7 +20,7 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
         if count % 2 == 0:
             array_weights = layer_weights.flatten()
             W_abs = np.abs(array_weights)
-            W_abs_sort = np.argsort(-W_abs)
+            W_abs_sort = np.sort(W_abs)
             s = W_abs_sort.size
             index = int(excluded_weights_proportion * s)
             w_max = W_abs_sort[index]
@@ -62,14 +62,21 @@ def discretise_weights(network_weights, network_weight_intervals):
         -   The altered network weights, now discretised.
     """
     altered_weights = copy.deepcopy(network_weights)
-    index = 0
+    weight_int_count = -1
     for count, layer_weights in enumerate(altered_weights):
         if count % 2 == 0:
-            index += 1
+            weight_int_count += 1
             original_shape = layer_weights.shape
-            layer_weights = np.flatten(layer_weights)
-            weight_intervals_as_numpy = np.array(network_weight_intervals[index])
-            layer_weights = weight_intervals_as_numpy[abs(layer_weights[None, :] - weight_intervals_as_numpy[:, None]).argmin(axis=0)]
+            layer_weights = layer_weights.flatten()
+            req_int = network_weight_intervals[weight_int_count]
+            index = np.searchsorted(req_int, layer_weights)
+            mask = index > len(req_int) - 1
+            index[mask] = len(req_int) - 1
+            index_new = np.array(
+                [index[i] - 1 if abs(req_int[index[i] - 1] - layer_weights[i]) < abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
+            )
+            layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)
+            altered_weights[count] = layer_weights
     
     return altered_weights
