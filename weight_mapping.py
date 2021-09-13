@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion):
     """
@@ -28,6 +29,7 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
     return return_list
 
 
+
 def create_weight_interval(list_of_extremes, no_of_weights):
     """
     create_weight_interval:
@@ -43,6 +45,8 @@ def create_weight_interval(list_of_extremes, no_of_weights):
     for element in list_of_extremes:
         return_list.append(np.linspace(element[1], element[0], no_of_weights))
     return return_list
+
+
 
 def discretise_weights(network_weights, network_weight_intervals):
     """
