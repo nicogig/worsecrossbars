@@ -26,6 +26,8 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
             w_max = W_abs_sort(index)
             w_min = w_max / HRS_LRS_ratio
             return_list.append((w_max, w_min))
+        else:
+            return_list.append((,))
     return return_list
 
 
@@ -42,8 +44,9 @@ def create_weight_interval(list_of_extremes, no_of_weights):
     """
 
     return_list = []
-    for element in list_of_extremes:
-        return_list.append(np.linspace(element[1], element[0], no_of_weights))
+    for count, element in enumerate(list_of_extremes):
+        if count % 2 == 0:
+            return_list.append(np.linspace(element[1], element[0], no_of_weights))
     return return_list
 
 

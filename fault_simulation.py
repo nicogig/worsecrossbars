@@ -1,12 +1,14 @@
 import numpy as np
 import copy
+import gc
 from tensorflow.keras import layers
 from tensorflow.keras import models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.utils import plot_model
+from weight_mapping import choose_extremes
 
-def weight_alterations(network_weights, fault_value=0, failure_percentage=0.2):
+def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, extremes_list=[]):
     """
     weight_alterations:
         Alter the weights in a Neural Network to simulate a fault in a RRAM Crossbar Array.
@@ -26,6 +28,10 @@ def weight_alterations(network_weights, fault_value=0, failure_percentage=0.2):
     
     for count, layer in enumerate(altered_weights):
         if count % 2 == 0:
+            if fault_type == 1:
+                fault_value = 0
+            else:
+                fault_value = extremes_list[count][fault_type - 1]
             indices = np.random.choice(layer.shape[1]*layer.shape[0], replace=False, 
                                size=int(layer.shape[1]*layer.shape[0]*failure_percentage))
             layer[np.unravel_index(indices, layer.shape)] = fault_value
@@ -34,33 +40,41 @@ def weight_alterations(network_weights, fault_value=0, failure_percentage=0.2):
 
 
 
-def run_simulation(percentages_array, weights, number_of_simulations):
+def run_simulation(percentages_array, weights, number_of_simulations, network_model, fault_type=1, HRS_LRS_ratio=None, excluded_weights_proportion=None):
     """
-    
+    run_simulation:
+        Simulates a fault in a RRAM network with the given topology and weights, for a number of times.
+    Inputs:
+        -   percentages_array: A numpy array formed of decimal values representing the percentage of synapses in the network that are faulty.
+        -   weights: The weights of the neural network.
+        -   number_of_simulations: An integer representing the number of times the simulation will be run.
+        -   network_model: A Keras model of the network.
+        -   fault_type: The type of fault, expressed by an integer.
+    Output:
+        -   A list of average accuracies obtained by running the fault simulations "number_of_simulations" times.
     """
+
+    if fault_type not in (1, 2, 3):
+        raise ValueError("fault_type is an illegal integer.")
+    else:
+        extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
+        
 
     accuracies = np.zeros(len(percentages))
 
-    MNIST_MLP = generator_functions[number_of_hidden_layers]()
-    MNIST_MLP.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
-
-    for count, weights in enumerate(weights_list):
+    for simulation in number_of_simulations:
 
         accuracies_list = []
 
-        for percentage in percentages:
+        for percentage in percentage:
             
-            altered_weights = alteration_functions[fault_type](weights, percentage)
-            
+            altered_weights = weight_alterations(weights, fault_type, percentage, extremes_list)
+
             # The "set_weights" function sets the ANN's weights to the values specified in the list of arrays "altered_weights"
-            MNIST_MLP.set_weights(altered_weights)
+            network_model.set_weights(altered_weights)
             accuracies_list.append(MNIST_MLP.evaluate(MNIST_dataset[1][0], MNIST_dataset[1][1], verbose=0)[1])
-
-        accuracies += np.array(accuracies_list)
-
-        if (count+1) % 5 == 0 and count != 0:
-            print("Finished evaluating weight set #{}.".format(count+1))
         
+        accuracies += np.array(accuracies_list)
         gc.collect()
-
+    
     return accuracies /= len(weights_list)
