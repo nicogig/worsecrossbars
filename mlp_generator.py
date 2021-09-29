@@ -4,6 +4,10 @@ from tensorflow.keras import models
 def one_layer():
     """
     """
+
+    # This network architecture was implemented to have one hidden layer, with about the same number of trainable
+    # parameters as the two-layered architecture. This was done to ensure that variability in fault simulation results
+    # was indeeed due to the number of layers being altered, rather than to a different number of weights being implemented.
     
     # 89,050 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
@@ -38,6 +42,10 @@ def three_layers():
     """
     """
 
+    # This network architecture was implemented to have three hidden layers, with about the same number of trainable
+    # parameters as the two-layered architecture. This was done to ensure that variability in fault simulation results
+    # was indeeed due to the number of layers being altered, rather than to a different number of weights being implemented.
+
     # 89,375 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
     MNIST_MLP.add(layers.Dense(90, activation="sigmoid", input_shape=(784,), name="MNIST_MLP_L1"))
@@ -47,9 +55,14 @@ def three_layers():
     return MNIST_MLP
 
 
+
 def four_layers():
     """
     """
+
+    # This network architecture was implemented to have four hidden layers, with about the same number of trainable
+    # parameters as the two-layered architecture. This was done to ensure that variability in fault simulation results
+    # was indeeed due to the number of layers being altered, rather than to a different number of weights being implemented.
 
     # 89,515 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")

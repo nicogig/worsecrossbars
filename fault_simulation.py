@@ -6,7 +6,7 @@ from tensorflow.keras import models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.utils import plot_model
-from weight_mapping import choose_extremes
+from weight_mapping import choose_extremes, create_weight_interval, discretise_weights
 
 def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, extremes_list=[]):
     """
@@ -31,11 +31,15 @@ def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, ex
             if fault_type == 1:
                 fault_value = 0
             else:
-                fault_value = extremes_list[count][fault_type - 1]
+                fault_value = extremes_list[count][fault_type - 2]
             indices = np.random.choice(layer.shape[1]*layer.shape[0], replace=False, 
                                size=int(layer.shape[1]*layer.shape[0]*failure_percentage))
-            layer[np.unravel_index(indices, layer.shape)] = fault_value
-    
+            
+            # Creating a sign mask to ensure that devices stuck at HRS/LRS retain the correct sign (i.e. that the associated weights remain negative if they were negative)
+            signs_mask = np.sign(layer)
+
+            layer[np.unravel_index(indices, layer.shape)] = fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
+
     return altered_weights
 
 
@@ -58,7 +62,8 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
         raise ValueError("fault_type is an illegal integer.")
     else:
         extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
-        
+        weight_intervals = create_weight_interval(extremes_list, 12)
+        weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))
 
@@ -67,7 +72,6 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
         accuracies_list = []
 
         for percentage in percentages_array:
-            
             altered_weights = weight_alterations(weights, fault_type, percentage, extremes_list)
 
             # The "set_weights" function sets the ANN's weights to the values specified in the list of arrays "altered_weights"

@@ -19,11 +19,11 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
     for count, layer_weights in enumerate(network_weights):
         if count % 2 == 0:
             array_weights = layer_weights.flatten()
-            W_abs = np.abs(array_weights)
-            W_abs_sort = np.sort(W_abs)
-            s = W_abs_sort.size
+            w_abs = np.abs(array_weights)
+            w_abs[::-1].sort()
+            s = w_abs.size
             index = int(excluded_weights_proportion * s)
-            w_max = W_abs_sort[index]
+            w_max = w_abs[index]
             w_min = w_max / HRS_LRS_ratio
             return_list.append((w_max, w_min))
         else:
@@ -69,6 +69,7 @@ def discretise_weights(network_weights, network_weight_intervals):
             original_shape = layer_weights.shape
             layer_weights = layer_weights.flatten()
             req_int = network_weight_intervals[weight_int_count]
+            req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
