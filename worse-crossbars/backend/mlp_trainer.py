@@ -18,8 +18,8 @@ def dataset_creation():
     # print() # Prints a newline after the dataset download info
 
     # Data reshaping
-    MLP_train_images = train_images.reshape((60000, 28 * 28)).astype('float32') / 255
-    MLP_test_images = test_images.reshape((10000, 28 * 28)).astype('float32') / 255
+    MLP_train_images = train_images.reshape((60000, 28 * 28)).astype("float32") / 255
+    MLP_test_images = test_images.reshape((10000, 28 * 28)).astype("float32") / 255
     MLP_train_labels = to_categorical(train_labels)
     MLP_test_labels = to_categorical(test_labels)
 

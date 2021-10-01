@@ -6,7 +6,7 @@ from tensorflow.keras import models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.utils import plot_model
-from weight_mapping import choose_extremes, create_weight_interval, discretise_weights
+from backend.weight_mapping import choose_extremes, create_weight_interval, discretise_weights
 
 def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, extremes_list=[]):
     """
@@ -44,7 +44,7 @@ def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, ex
 
 
 
-def run_simulation(percentages_array, weights, number_of_simulations, network_model, dataset, fault_type=1, HRS_LRS_ratio=None, excluded_weights_proportion=None):
+def run_simulation(percentages_array, weights, number_of_simulations, network_model, dataset, fault_type=1, HRS_LRS_ratio=None, number_of_conductance_levels=10, excluded_weights_proportion=None):
     """
     run_simulation:
         Simulates a fault in a RRAM network with the given topology and weights, for a number of times.
@@ -62,7 +62,7 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
         raise ValueError("fault_type is an illegal integer.")
     else:
         extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
-        weight_intervals = create_weight_interval(extremes_list, 10)
+        weight_intervals = create_weight_interval(extremes_list, number_of_conductance_levels)
         weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))

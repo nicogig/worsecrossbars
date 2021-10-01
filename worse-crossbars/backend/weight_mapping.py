@@ -32,13 +32,13 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
 
 
 
-def create_weight_interval(list_of_extremes, no_of_weights):
+def create_weight_interval(list_of_extremes, number_of_levels):
     """
     create_weight_interval:
         Create an evenly spaced weight interval.
     Inputs:
         -   list_of_extremes: A list of tuples, as returned by choose_extremes()
-        -   no_of_weights: The number of weights needed.
+        -   number_of_levels: The number of weights needed.
     Output:
         -   A list of lists of evenly spaced weights.
     """
@@ -46,7 +46,8 @@ def create_weight_interval(list_of_extremes, no_of_weights):
     return_list = []
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            return_list.append(np.linspace(element[1], element[0], no_of_weights))
+            abs_elements = np.linspace(element[1], element[0], number_of_levels)
+            return_list.append(np.concatenate((np.negative(abs_elements), [0], abs_elements[::-1]), axis=None))
     return return_list
 
 
@@ -61,15 +62,14 @@ def discretise_weights(network_weights, network_weight_intervals):
     Output:
         -   The altered network weights, now discretised.
     """
-    altered_weights = copy.deepcopy(network_weights)
+    discretised_weights = copy.deepcopy(network_weights)
     weight_int_count = -1
-    for count, layer_weights in enumerate(altered_weights):
+    for count, layer_weights in enumerate(discretised_weights):
         if count % 2 == 0:
             weight_int_count += 1
             original_shape = layer_weights.shape
             layer_weights = layer_weights.flatten()
             req_int = network_weight_intervals[weight_int_count]
-            req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
@@ -78,6 +78,6 @@ def discretise_weights(network_weights, network_weight_intervals):
             )
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)
-            altered_weights[count] = layer_weights
+            discretised_weights[count] = layer_weights
     
-    return altered_weights
+    return discretised_weights

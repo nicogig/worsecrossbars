@@ -1,6 +1,6 @@
 # Suppressing warnings
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 # Utility imports
 import numpy as np
@@ -16,24 +16,25 @@ from datetime import datetime
 from backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
 from backend.mlp_trainer import dataset_creation, train_MLP
 from backend.fault_simulation import run_simulation
+from utilities.logging import Logging
 
 # Command line parser for input arguments
 
 parser=argparse.ArgumentParser()
 
-parser.add_argument("--number_hidden_layers", help="Number of hidden layers in the ANN", type=int, default=1)
-parser.add_argument("--fault_type", help="Identifier of the fault type", type=int, default=1)
-parser.add_argument("--number_ANNs", help="Number of ANNs being simulated", type=int, default=30)
-parser.add_argument("--number_simulations", help="Number of simulations being run",type=int, default=30)
-parser.add_argument("--log", help="Enable logging the output in a separate file", type=bool, default=False)
+parser.add_argument("-hl", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN", type=int, default=1)
+parser.add_argument("-ft", metavar="FAULT_TYPE", help="Identifier of the fault type", type=int, default=1)
+parser.add_argument("-a", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
+parser.add_argument("-s", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
+parser.add_argument("-l", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
 
 args=parser.parse_args()
 
 def signal_term_handler(signal, frame):
     if args.log:
-        with open('spruce.log', 'a') as the_log:
-            the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Got {signal}. Ending process.\n')
-            the_log.write(f'----- End Log {datetime.now().__str__()} -----')
+        with open("spruce.log", "a") as the_log:
+            the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Got {signal}. Ending process.\n")
+            the_log.write(f"----- End Log {datetime.now().__str__()} -----")
     sys.exit(0)
 
 
@@ -41,13 +42,13 @@ signal.signal(signal.SIGTERM, signal_term_handler)
 signal.signal(signal.SIGINT, signal_term_handler)
 
 if args.log:
-    with open('spruce.log', 'a') as the_log:
-        the_log.write(f'\n----- Begin Log {datetime.now().__str__()} -----\n')
-        the_log.write(f'Attempting Simulation with following parameters:\n')
-        the_log.write(f'number_hidden_layers: {args.number_hidden_layers}\n')
-        the_log.write(f'fault_type: {args.fault_type}\n')
-        the_log.write(f'number_ANNs: {args.number_ANNs}\n')
-        the_log.write(f'number_simulations: {args.number_simulations}\n\n')
+    with open("spruce.log", "a") as the_log:
+        the_log.write(f"\n----- Begin Log {datetime.now().__str__()} -----\n")
+        the_log.write(f"Attempting Simulation with following parameters:\n")
+        the_log.write(f"number_hidden_layers: {args.number_hidden_layers}\n")
+        the_log.write(f"fault_type: {args.fault_type}\n")
+        the_log.write(f"number_ANNs: {args.number_ANNs}\n")
+        the_log.write(f"number_simulations: {args.number_simulations}\n\n")
 
 
 # The statements below are employed to control the mode in which the Jupyter
@@ -61,6 +62,7 @@ fault_type = args.fault_type
 
 # Device parameters
 HRS_LRS_ratio = 5
+number_of_conductance_levels = 10
 excluded_weights_proportion = 0.015
 
 
@@ -83,16 +85,16 @@ for model_number in range(0, int(number_of_ANNs)):
     histories_list.append(MLP_history)
     gc.collect()
     if args.log:
-        with open('spruce.log', 'a') as the_log:
-            the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Trained Model {model_number} of {number_of_ANNs}\n')
+        with open("spruce.log", "a") as the_log:
+            the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Trained Model {model_number} of {number_of_ANNs}\n")
 
 
 
 # Computing training and validation loss and accuracy by averaging over all the models trained in the previous step
 
 if args.log:
-    with open('spruce.log', 'a') as the_log:
-        the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Done training. Computing loss and accuracy.\n')
+    with open("spruce.log", "a") as the_log:
+        the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Done training. Computing loss and accuracy.\n")
 
 epochs = range(1, len(histories_list[0].history["accuracy"]) + 1)
 accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
@@ -114,11 +116,11 @@ loss_values /= len(histories_list)
 validation_loss_values /= len(histories_list)
 
 # Saving training/validation data to file
-pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open("./saved_data/training_validation_{}HL.p".format(number_of_hidden_layers), "wb"))
+pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(f"../outputs/training_validation/training_validation_faultType{fault_type}_{number_of_hidden_layers}HL.pickle", "wb"))
 
 if args.log:
-    with open('spruce.log', 'a') as the_log:
-        the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Saved training and validation data.\n')
+    with open("spruce.log", "a") as the_log:
+        the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved training and validation data.\n")
 
 # Running "number_of_simulations" simulations for each of the "number_of_ANNs" networks trained above over the specified
 # range of faulty devices percentages
@@ -133,19 +135,19 @@ number_of_simulations = args.number_simulations
 
 for count, weights in enumerate(weights_list):
 
-    accuracies_array[count] = run_simulation(percentages, weights, int(number_of_simulations), MNIST_MLP, MNIST_dataset, fault_type, HRS_LRS_ratio, excluded_weights_proportion)
+    accuracies_array[count] = run_simulation(percentages, weights, int(number_of_simulations), MNIST_MLP, MNIST_dataset, fault_type, HRS_LRS_ratio, number_of_conductance_levels, excluded_weights_proportion)
     gc.collect()
     if args.log:
-        with open('spruce.log', 'a') as the_log:
-            the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Simulated Model {count} of {number_of_ANNs}.\n')
+        with open("spruce.log", "a") as the_log:
+            the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Simulated Model {count} of {number_of_ANNs}.\n")
 
 # Averaging the results obtained for each of the 30 sets of weights
 accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
 # Saving accuracies array to file
-pickle.dump((percentages, accuracies, fault_type), open("./saved_data/accuracies_faultType{}_{}HL.p".format(fault_type, number_of_hidden_layers), "wb"))
+pickle.dump((percentages, accuracies, fault_type), open(f"../outputs/accuracies/accuracies_faultType{fault_type}_{number_of_hidden_layers}HL.pickle", "wb"))
 
 if args.log:
-    with open('spruce.log', 'a') as the_log:
-        the_log.write(f'[{datetime.now().strftime("%H:%M:%S")}] Saved accuracies to file. Ending gracefully.\n')
-        the_log.write(f'----- End Log {datetime.now().__str__()} -----')
+    with open("spruce.log", "a") as the_log:
+        the_log.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file. Ending gracefully.\n")
+        the_log.write(f"----- End Log {datetime.now().__str__()} -----")
