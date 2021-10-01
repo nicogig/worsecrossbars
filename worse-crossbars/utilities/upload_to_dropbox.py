@@ -3,13 +3,13 @@ import os
 import dropbox
 import json
 from dropbox import DropboxOAuth2FlowNoRedirect
-import secrets
+import secret_keys
 
 dropbox_secrets = {}
 auth_checked = False
 
 def authenticate():
-    auth_flow = DropboxOAuth2FlowNoRedirect(secrets.APP_KEY, consumer_secret=secrets.APP_SECRET, token_access_type='offline',
+    auth_flow = DropboxOAuth2FlowNoRedirect(secret_keys.APP_KEY, consumer_secret=secret_keys.APP_SECRET, token_access_type='offline',
                                          scope=['account_info.read', 'files.content.read', 'files.content.write'],)
 
     authorize_url = auth_flow.start()
@@ -67,4 +67,3 @@ def upload (fault_type, number_hidden_layers):
     else:
         check_auth_presence()
         upload(fault_type, number_hidden_layers)
-        
