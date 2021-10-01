@@ -1,7 +1,7 @@
 import shutil
 import os
 import dropbox
-from . import auth_dropbox
+import auth_dropbox
 import json
 import secrets
 
