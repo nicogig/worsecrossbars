@@ -62,7 +62,7 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
         raise ValueError("fault_type is an illegal integer.")
     else:
         extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
-        weight_intervals = create_weight_interval(extremes_list, 12)
+        weight_intervals = create_weight_interval(extremes_list, 10)
         weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))
