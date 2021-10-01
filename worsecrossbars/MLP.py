@@ -4,20 +4,17 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 # Utility imports
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-from pathlib import Path
 import gc
 import pickle
-import sys, argparse, signal
+import argparse
 
 # Source imports
-from backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
-from backend.mlp_trainer import dataset_creation, train_MLP
-from backend.fault_simulation import run_simulation
-from utilities.spruce_logging import Logging
-from utilities.upload_to_dropbox import check_auth_presence, upload
-from utilities.msteams_notifier import check_webhook_presence, send_message
+from worsecrossbars.backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
+from worsecrossbars.backend.mlp_trainer import dataset_creation, train_MLP
+from worsecrossbars.backend.fault_simulation import run_simulation
+from worsecrossbars.utilities.spruce_logging import Logging
+from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, upload
+from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
 import config
 
 def main():

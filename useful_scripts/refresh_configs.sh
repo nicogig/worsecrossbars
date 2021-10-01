@@ -1,4 +1,4 @@
 #! /bin/sh
 
-rm -f ../worse-crossbars/utilities/config/msteams.json
-rm -f ../worse-crossbars/utilities/config/user_secrets.json
+rm -f ../worsecrossbars/utilities/config/msteams.json
+rm -f ../worsecrossbars/utilities/config/user_secrets.json
