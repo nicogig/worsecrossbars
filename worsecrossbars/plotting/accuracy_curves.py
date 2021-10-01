@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 from pathlib import Path
 import matplotlib.font_manager as fm
+from worsecrossbars import config
 
 from plotting import accuracy_curves_plotter
 
@@ -18,7 +19,7 @@ for number_hidden_layers in range(1, 5):
 
     for fault_type in range (1, 4):
         try:
-            data[fault_type-1].append(pickle.load(open(f"../../outputs/accuracies/accuracies_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb")))
+            data[fault_type-1].append(pickle.load(open(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "rb")))
         except FileNotFoundError:
             print(f"Fault {number_hidden_layers}HL_{fault_type}FT not yet implemented.")
 

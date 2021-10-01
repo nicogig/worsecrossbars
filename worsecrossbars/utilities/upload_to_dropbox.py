@@ -14,7 +14,7 @@ def check_auth_presence ():
         auth_dropbox.authenticate()
         check_auth_presence()
     else:
-        with open("config/user_secrets.json") as json_file:
+        with open(config.working_dir.joinpath("utilities", "config", "user_secrets.json")) as json_file:
             dropbox_secrets = json.load(json_file)
             auth_checked = True
 

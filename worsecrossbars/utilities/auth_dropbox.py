@@ -1,6 +1,7 @@
 import dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
-from . import secret_keys
+from worsecrossbars.utilities import secret_keys
+from worsecrossbars import config
 import json
 
 def authenticate():
@@ -27,5 +28,5 @@ def authenticate():
               "dropbox_expiration": oauth_result.expires_at.__str__(),
               "dropbox_refresh":oauth_result.refresh_token}
 
-    with open("./config/user_secrets.json", 'w') as outfile:
+    with open(config.working_dir.joinpath("config", "user_secrets.json"), 'w') as outfile:
         json.dump(secret, outfile)

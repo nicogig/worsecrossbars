@@ -3,7 +3,8 @@ from pathlib import Path
 import matplotlib.font_manager as fm
 import numpy as np
 
-from plotting import training_validation_plotter
+from worsecrossbars.plotting import training_validation_plotter
+from worsecrossbars import config
 
 # Importing LaTeX font for plots
 fpath = Path('cmunrm.ttf')
@@ -25,10 +26,11 @@ for number_hidden_layers in range(1, 5):
         temp_val_loss = []
 
         try:
-            temp_acc.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[0])
-            temp_val_acc.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[1])
-            temp_loss.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[2])
-            temp_val_loss.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[3])
+            directory = config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle")
+            temp_acc.append(pickle.load(open(directory, "rb"))[0])
+            temp_val_acc.append(pickle.load(open(directory, "rb"))[1])
+            temp_loss.append(pickle.load(open(directory, "rb"))[2])
+            temp_val_loss.append(pickle.load(open(directory, "rb"))[3])
         except FileNotFoundError:
             print(f"Fault {number_hidden_layers}HL_{fault_type}FT not yet implemented.")
         
