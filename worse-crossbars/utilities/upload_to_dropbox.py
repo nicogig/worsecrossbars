@@ -1,7 +1,7 @@
 import shutil
 import os
 import dropbox
-import auth_dropbox
+from . import auth_dropbox
 import json
 import secrets
 
@@ -10,11 +10,11 @@ auth_checked = False
 
 def check_auth_presence ():
     global auth_key, auth_checked, dropbox_secrets
-    if not os.path.exists("user_secrets.json"):
+    if not os.path.exists("./config/user_secrets.json"):
         auth_dropbox.authenticate()
         check_auth_presence()
     else:
-        with open("user_secrets.json") as json_file:
+        with open("./config/user_secrets.json") as json_file:
             dropbox_secrets = json.load(json_file)
             auth_checked = True
 

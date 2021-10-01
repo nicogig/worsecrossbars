@@ -16,6 +16,8 @@ from backend.mlp_generator import one_layer, two_layers, three_layers, four_laye
 from backend.mlp_trainer import dataset_creation, train_MLP
 from backend.fault_simulation import run_simulation
 from utilities.spruce_logging import Logging
+from utilities.upload_to_dropbox import check_auth_presence, upload
+from utilities.msteams_notifier import check_webhook_presence, send_message
 import config
 
 def main():
@@ -23,6 +25,13 @@ def main():
     if args.log:
         log = Logging(args.number_hidden_layers, args.fault_type, args.number_ANNs, args.number_simulations)
         log.write(special="begin")
+    
+    # Check configs for Dropbox / MS Teams Integration
+    if args.dropbox:
+        check_auth_presence()
+    if args.teams:
+        check_webhook_presence()
+        send_message(f"Using parameters: {args.number_hidden_layers} HL, {args.fault_type} fault type.", title="Started new simulation", color="028a0f")
 
     # Training variables setup
     MNIST_dataset = dataset_creation()
@@ -95,20 +104,26 @@ def main():
     if args.log:
         log.write(special="end")
         log.close()
+    
+    if args.teams:
+        send_message(f"Finished script using parameters {args.number_hidden_layers} HL, {args.fault_type} fault type.", "Finished execution", color="028a0f")
+    if args.dropbox:
+        upload(args.fault_type, args.number_hidden_layers)
 
 
 
 if __name__ == "__main__":
 
     # Command line parser for input arguments
-
     parser=argparse.ArgumentParser()
 
-    parser.add_argument("-hl", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN. Legal values: [1, 2, 3, 4]", type=int, default=1)
-    parser.add_argument("-ft", metavar="FAULT_TYPE", help="Identifier of the fault type. Legal values: [1, 2, 3]; 1: Cannot electroform, 2: Stuck at HRS, 3: Stuck at LRS", type=int, default=1)
-    parser.add_argument("-a", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
-    parser.add_argument("-s", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
-    parser.add_argument("-l", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
+    parser.add_argument("-hl", dest="number_hidden_layers", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN", type=int, default=1, choices=range(1, 5))
+    parser.add_argument("-ft", dest="fault_type", metavar="FAULT_TYPE", help="Identifier of the fault type. 1: Cannot electroform, 2: Stuck at HRS, 3: Stuck at LRS", type=int, default=1, choices=range(1, 4))
+    parser.add_argument("-a", dest="number_ANNs", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
+    parser.add_argument("-s", dest="number_simulations", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
+    parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
+    parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", help="Enable Dropbox integration", type=bool, default=False)
+    parser.add_argument("-t", dest="teams", metavar="MSTEAMS", help="Enable MS Teams integration", type=bool, default=False)
 
     args=parser.parse_args()
 
