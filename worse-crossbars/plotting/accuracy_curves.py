@@ -31,10 +31,10 @@ except IndexError:
     print("One of the necessary files is missing.")
 
 # Plotting accuracy curves for Type I (Cannot Electroform) fault
-accuracy_curves_plotter(data_cannot_electroform[0][0], [data_cannot_electroform[i][1] for i in range(0,4)], value_type=data_cannot_electroform[0][2], fpath=font, save=True, labels=accuracy_labels)
+accuracy_curves_plotter(data_cannot_electroform[0][0], [data_cannot_electroform[i][1] for i in range(0,4)], fault_type=data_cannot_electroform[0][2], fpath=font, save=True, labels=accuracy_labels)
 
 # Plotting accuracy curves for Type II (Stuck at HRS) fault
-accuracy_curves_plotter(data_stuck_at_HRS[0][0], [data_stuck_at_HRS[i][1] for i in range(0,4)], value_type=data_stuck_at_HRS[0][2], fpath=font, save=True, labels=accuracy_labels)
+accuracy_curves_plotter(data_stuck_at_HRS[0][0], [data_stuck_at_HRS[i][1] for i in range(0,4)], fault_type=data_stuck_at_HRS[0][2], fpath=font, save=True, labels=accuracy_labels)
 
 # Plotting accuracy curves for Type III (Stuck at LRS) fault
-accuracy_curves_plotter(data_stuck_at_LRS[0][0], [data_stuck_at_LRS[i][1] for i in range(0,4)], value_type=data_stuck_at_LRS[0][2], fpath=font, save=True, labels=accuracy_labels)
+accuracy_curves_plotter(data_stuck_at_LRS[0][0], [data_stuck_at_LRS[i][1] for i in range(0,4)], fault_type=data_stuck_at_LRS[0][2], fpath=font, save=True, labels=accuracy_labels)
