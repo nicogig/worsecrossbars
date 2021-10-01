@@ -6,7 +6,7 @@ from tensorflow.keras import models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.utils import plot_model
-from backend.weight_mapping import choose_extremes, create_weight_interval, discretise_weights
+from worsecrossbars.backend.weight_mapping import choose_extremes, create_weight_interval, discretise_weights
 
 def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, extremes_list=[]):
     """

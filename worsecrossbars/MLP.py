@@ -15,7 +15,7 @@ from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.spruce_logging import Logging
 from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, upload
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
-import config
+from worsecrossbars import config
 
 def main():
 
@@ -96,7 +96,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(config.working_dir.parent.joinpath("outputs", "training_validation", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), open(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "wb"))
 
     if args.log:
         log.write(special="end")
