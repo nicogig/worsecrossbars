@@ -53,7 +53,7 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     plt.setp(L.texts, font=fpath)
 
     if filename != "":
-        plt.savefig(f"images/{filename}.png")
+        plt.savefig(f"../outputs/plots/training_validation/{filename}.png")
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
@@ -107,19 +107,12 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     plt.xticks(np.arange(0, 101, step=label_step), font=fpath, fontsize=15)
     plt.yticks(np.arange(0, 101, step=label_step), font=fpath, fontsize=15)
 
-    if value_type == 1:
-        L = plt.legend(fontsize=15, loc="upper right")
-    elif value_type == 2:
-        L = plt.legend(fontsize=15, loc="lower left")
-    elif value_type == 3:
-        L = plt.legend(fontsize=15, loc="upper right")
-    else:
-        L = plt.legend(fontsize=15)
+    L = plt.legend(fontsize=15)
     
     plt.setp(L.texts, font=fpath)
 
     if filename != "":
-        plt.savefig(f"images/{filename}.png")
+        plt.savefig(f"../outputs/plots/accuracies/{filename}.png")
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
