@@ -3,7 +3,7 @@ import os
 import dropbox
 import json
 from dropbox import DropboxOAuth2FlowNoRedirect
-import secret_keys
+from . import secret_keys
 
 dropbox_secrets = {}
 auth_checked = False
