@@ -62,6 +62,7 @@ def discretise_weights(network_weights, network_weight_intervals):
     Output:
         -   The altered network weights, now discretised.
     """
+
     discretised_weights = copy.deepcopy(network_weights)
     weight_int_count = -1
     for count, layer_weights in enumerate(discretised_weights):

@@ -1,0 +1,57 @@
+import os
+import pickle
+from pathlib import Path
+import matplotlib.font_manager as fm
+import numpy as np
+
+from plotting import training_validation_plotter
+
+# Importing LaTeX font for plots
+fpath = Path('cmunrm.ttf')
+font = fm.FontProperties(fname='cmunrm.ttf', size=18)
+
+# Opening training/validation arrays from files
+accuracy_values = []
+validation_accuracy_values = []
+loss_values = []
+validation_loss_values = []
+
+for number_hidden_layers in range(1, 5):
+
+    for fault_type in range (1, 4):
+        
+        temp_acc = []
+        temp_val_acc = []
+        temp_loss = []
+        temp_val_loss = []
+
+        try:
+            temp_acc.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[0])
+            temp_val_acc.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[1])
+            temp_loss.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[2])
+            temp_val_loss.append(pickle.load(open(f"../../outputs/training_validation/training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle", "rb"))[3])
+        except FileNotFoundError:
+            print(f"Fault {number_hidden_layers}HL_{fault_type}FT not yet implemented.")
+        
+    accuracy_values.append(np.mean(np.array(temp_acc), axis=0))
+    validation_accuracy_values.append(np.mean(np.array(temp_val_acc), axis=0))
+    loss_values.append(np.mean(np.array(temp_loss), axis=0))
+    validation_loss_values.append(np.mean(np.array(temp_val_loss), axis=0))
+
+epochs = np.arange(1, len(accuracy_values[0])+1)
+
+# Plotting training/validation curves for 1-layer topology
+training_validation_plotter(epochs, accuracy_values[0], validation_accuracy_values[0], value_type="Accuracy", number_hidden_layers=1, fpath=font, save=True)
+training_validation_plotter(epochs, loss_values[0], validation_loss_values[0], value_type="Loss", number_hidden_layers=1, fpath=font, save=True)
+
+# Plotting training/validation curves for 2-layer topology
+training_validation_plotter(epochs, accuracy_values[1], validation_accuracy_values[1], value_type="Accuracy", number_hidden_layers=2, fpath=font, save=True)
+training_validation_plotter(epochs, loss_values[1], validation_loss_values[1], value_type="Loss", number_hidden_layers=2, fpath=font, save=True)
+
+# Plotting training/validation curves for 3-layer topology
+training_validation_plotter(epochs, accuracy_values[2], validation_accuracy_values[2], value_type="Accuracy", number_hidden_layers=3, fpath=font, save=True)
+training_validation_plotter(epochs, loss_values[2], validation_loss_values[2], value_type="Loss", number_hidden_layers=3, fpath=font, save=True)
+
+# Plotting training/validation curves for 4-layer topology
+training_validation_plotter(epochs, accuracy_values[3], validation_accuracy_values[3], value_type="Accuracy", number_hidden_layers=4, fpath=font, save=True)
+training_validation_plotter(epochs, loss_values[3], validation_loss_values[3], value_type="Loss", number_hidden_layers=4, fpath=font, save=True)

@@ -15,10 +15,8 @@ import sys, argparse, signal
 from backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
 from backend.mlp_trainer import dataset_creation, train_MLP
 from backend.fault_simulation import run_simulation
-from utilities.logging import Logging
+from utilities.spruce_logging import Logging
 import config
-
-
 
 def main():
 
@@ -40,6 +38,7 @@ def main():
         weights_list.append(MLP_weights)
         histories_list.append(MLP_history)
         gc.collect()
+
         if args.log:
             log.write(string=f"Trained model {model_number+1} of {args.number_ANNs}")
 
@@ -74,7 +73,6 @@ def main():
 
     # Running "args.number_simulations" simulations for each of the "args.number_ANNs" networks trained above over the specified
     # range of faulty devices percentages
-
     MNIST_MLP = generator_functions[args.number_hidden_layers]()
     MNIST_MLP.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
 

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def training_validation_plotter(epochs, training, validation, value_type="", fpath=None, filename="", label_step=1):
+def training_validation_plotter(epochs, training, validation, value_type="", number_hidden_layers=None, fpath=None, save=False, label_step=1):
     """
     training_validation_plotter:
     Plot the Training and Validation curves with respect to the Epochs.
@@ -9,16 +9,20 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
         -   epochs: The range of the epochs used to train the network.
         -   training: An array (list) containing the values obtained from the training stage.
         -   validation: An array (list) containing the values obtained from the validation stage.
-        -   value_type: A string describing the type of data. Allowed values are "Accuracy" and "Loss". 
+        -   value_type: A string describing the type of data. Allowed values are "Accuracy" and "Loss".
+        -   number_hidden_layers: An integer indicating which network topolgy is being examined.
         -   fpath: The FontProperties object containing information about the font to use.
-    Optional Input:
+        -   save: Boolean specifying whether the plot is to be saved to a file.
         -   label_step: The step for the labels on the x-axis. Defaults to 1.
     Output:
-        -   The graphs, both inline and as .png files.
+        -   A graph, both inline (if using Jupyter), and as a png (if the "save" flag is set to true).
     """
 
     if (value_type.lower() != "accuracy" and value_type.lower() != "loss"):
         raise ValueError("\"value_type\" parameter must be either \"Accuracy\" or \"Loss\".")
+    
+    if number_hidden_layers == None:
+        raise ValueError("\"number_hidden_layers\" parameter must be passed to the plotting function.")
     
     if fpath == None:
         raise ValueError("\"fpath\" parameter must be passed to the plotting function.")
@@ -26,7 +30,7 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    title = f"Training and validation {value_type.lower()}"
+    title = f"Training and validation {value_type.lower()}, {number_hidden_layers}HL"
 
     if value_type.lower() == "accuracy":
         y_label = f"{value_type.title()} (%)"
@@ -52,32 +56,32 @@ def training_validation_plotter(epochs, training, validation, value_type="", fpa
     
     plt.setp(L.texts, font=fpath)
 
-    if filename != "":
-        plt.savefig(f"../outputs/plots/training_validation/{filename}.png")
+    if save:
+        plt.savefig(f"../../outputs/plots/training_validation/training_validation_{value_type.lower()}_plot_{number_hidden_layers}HL.png")
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
 
 
 
-def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=None, filename="", labels=[], label_step=10):
+def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, fpath=None, save=False, labels=[], label_step=10):
     """
     accuracy_curves_plotter:
     Plot the accuracy curves of different Neural Networks.
     Inputs:
         -   percentages: The x-axis datapoints.
         -   accuracies_list: A list of arrays. Each array contains accuracy values for each % of faulty devices.
-        -   value_type: An integer determining the type of fault. Acceptable values are 1, 2, or 3. Default: 1.
+        -   fault_type: An integer determining the type of fault. Acceptable values are 1, 2, or 3. Default: 1.
         -   fpath: The FontProperties object containing information about the font to use. Default: None.
-        -   filename: The name of the file that is going to be output by the function, without extension. Default: "".
+        -   save: Boolean specifying whether the plot is to be saved to a file.
         -   labels: An array of strings containing the names of the curves to be plotted. Default: [].
         -   label_step: The step for the labels on the x-axis. Defaults to 10.
     Outputs:
-        - A graph, both inline (if using Jupyter), and as a png (if a filename was provided).
+        -   A graph, both inline (if using Jupyter), and as a png (if the "save" flag is set to true).
     """
 
-    if value_type not in (1, 2, 3):
-        raise ValueError("\"value_type\" parameter must be an integer comprised between 1 and 3.")
+    if fault_type not in (1, 2, 3):
+        raise ValueError("\"fault_type\" parameter must be an integer comprised between 1 and 3.")
     
     if fpath == None:
         raise ValueError("\"fpath\" parameter must be passed to the plotting function.")
@@ -90,12 +94,12 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    title = f"Accuracy curves: \"{faults_tuple[value_type-1]}\" fault"
+    title = f"Accuracy curves: \"{faults_tuple[fault_type-1]}\" fault"
 
-    if value_type == 1:
+    if fault_type == 1:
         x_label = "Percentage of devices which cannot electroform (%)"
     else:
-        x_label = f"Percentage of devices which are stuck at {faults_tuple[value_type-1]} (%)"
+        x_label = f"Percentage of devices which are stuck at {faults_tuple[fault_type-1]} (%)"
 
     for count, accuracy in enumerate(accuracies_list):
         plt.plot(percentages*100, accuracy*100, label=labels[count], linewidth=2)
@@ -111,8 +115,8 @@ def accuracy_curves_plotter(percentages, accuracies_list, value_type=1, fpath=No
     
     plt.setp(L.texts, font=fpath)
 
-    if filename != "":
-        plt.savefig(f"../outputs/plots/accuracies/{filename}.png")
+    if save:
+        plt.savefig(f"../../outputs/plots/accuracies/accuracies_plot_faultType{fault_type}.png")
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()

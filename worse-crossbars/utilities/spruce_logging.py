@@ -14,14 +14,15 @@ class Logging:
         self.number_simulations = number_simulations
 
     def write (self, string="", special=None):
-        if special is "begin":
+
+        if special == "begin":
             self.file_object.write(f"----- Begin log {datetime.now().__str__()} -----\n\
             Attempting simulation with following parameters:\n\
             number_hidden_layers: {self.hidden_layers}\n\
             fault_type: {self.fault_type}\n\
             number_ANNs: {self.number_ANNs}\n\
             number_simulations: {self.number_simulations}\n\n")
-        elif special is "end":
+        elif special == "end":
             self.file_object.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file. Ending.\n\
                 ----- End log {datetime.now().__str__()} -----")
         else:

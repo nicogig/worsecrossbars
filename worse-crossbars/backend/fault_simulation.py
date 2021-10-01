@@ -44,7 +44,7 @@ def weight_alterations(network_weights, fault_type=1, failure_percentage=0.2, ex
 
 
 
-def run_simulation(percentages_array, weights, number_of_simulations, network_model, dataset, fault_type=1, HRS_LRS_ratio=None, number_of_conductance_levels=10, excluded_weights_proportion=None):
+def run_simulation(percentages_array, weights, number_of_simulations, network_model, dataset, fault_type=1, HRS_LRS_ratio=None, number_of_conductance_levels=None, excluded_weights_proportion=None):
     """
     run_simulation:
         Simulates a fault in a RRAM network with the given topology and weights, for a number of times.

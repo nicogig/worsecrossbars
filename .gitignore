@@ -133,4 +133,5 @@ dmypy.json
 
 
 # Secrets
+user_secrets.json
 secrets.py
