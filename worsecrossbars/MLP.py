@@ -15,9 +15,14 @@ from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.spruce_logging import Logging
 from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, upload
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
-from worsecrossbars import config
+from worsecrossbars.utilities import create_folder_structure
+from worsecrossbars import configs
+
 
 def main():
+
+    create_folder_structure.user_folders()
+
 
     if args.log:
         log = Logging(args.number_hidden_layers, args.fault_type, args.number_ANNs, args.number_simulations)
@@ -72,7 +77,7 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(string=f"Saved training and validation data.")
@@ -87,7 +92,7 @@ def main():
 
     for count, weights in enumerate(weights_list):
 
-        accuracies_array[count] = run_simulation(percentages, weights, int(args.number_simulations), MNIST_MLP, MNIST_dataset, args.fault_type, config.HRS_LRS_ratio, config.number_of_conductance_levels, config.excluded_weights_proportion)
+        accuracies_array[count] = run_simulation(percentages, weights, int(args.number_simulations), MNIST_MLP, MNIST_dataset, args.fault_type, configs.HRS_LRS_ratio, configs.number_of_conductance_levels, configs.excluded_weights_proportion)
         gc.collect()
         if args.log:
             log.write(string=f"Simulated model {count+1} of {args.number_ANNs}.")
@@ -96,7 +101,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(str(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(special="end")

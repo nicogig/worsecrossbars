@@ -7,4 +7,4 @@ number_of_conductance_levels = 10
 excluded_weights_proportion = 0.015
 
 # Working directory
-working_dir = Path(os.getcwd())
+working_dir = Path.home().joinpath("worsecrossbars")

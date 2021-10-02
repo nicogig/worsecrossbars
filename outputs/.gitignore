@@ -1,5 +1,0 @@
-*.pickle
-*.png
-*.log
-!.gitignore
-!.keep
