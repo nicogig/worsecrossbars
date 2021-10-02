@@ -7,9 +7,9 @@ class Logging:
     def __init__ (self, number_hidden_layers, fault_type, number_ANNs, number_simulations):
         log_number = 1
         parent_dir = config.working_dir.parent
-        for name in glob.glob(parent_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-?.log")):
+        for name in glob.glob(str(parent_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = open(parent_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-{log_number}.log"), "a")
+        self.file_object = open(str(parent_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-{log_number}.log")), "a")
         self.hidden_layers = number_hidden_layers
         self.fault_type = fault_type
         self.number_ANNs = number_ANNs

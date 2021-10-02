@@ -137,3 +137,5 @@ user_secrets.json
 secrets.py
 msteams.json
 worse-crossbars/utilities/secret_keys.py
+
+!.keep

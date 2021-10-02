@@ -10,7 +10,7 @@ def require_webhook ():
     global webhook_url
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
     jsonified_webhook = {"msteams_webhook":webhook_url}
-    with open(config.working_dir.joinpath("config", "msteams.json"), 'w') as outfile:
+    with open(str(config.working_dir.joinpath("config", "msteams.json")), 'w') as outfile:
         json.dump(jsonified_webhook, outfile)
 
 def check_webhook_presence ():
@@ -19,7 +19,7 @@ def check_webhook_presence ():
         require_webhook()
         check_webhook_presence()
     else:
-        with open(config.working_dir.joinpath("config", "msteams.json")) as json_file:
+        with open(str(config.working_dir.joinpath("config", "msteams.json"))) as json_file:
             webhook_url = json.load(json_file)["msteams_webhook"]
             webhook_present = True
 

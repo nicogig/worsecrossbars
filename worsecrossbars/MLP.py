@@ -72,7 +72,7 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "wb"))
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(string=f"Saved training and validation data.")
@@ -96,7 +96,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), open(str(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(special="end")

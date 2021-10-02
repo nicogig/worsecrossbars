@@ -19,7 +19,7 @@ for number_hidden_layers in range(1, 5):
 
     for fault_type in range (1, 4):
         try:
-            data[fault_type-1].append(pickle.load(open(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle"), "rb")))
+            data[fault_type-1].append(pickle.load(open(str(config.working_dir.parent.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "rb")))
         except FileNotFoundError:
             print(f"Fault {number_hidden_layers}HL_{fault_type}FT not yet implemented.")
 

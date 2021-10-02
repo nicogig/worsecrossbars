@@ -26,7 +26,7 @@ for number_hidden_layers in range(1, 5):
         temp_val_loss = []
 
         try:
-            directory = config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle")
+            directory = str(config.working_dir.parent.joinpath("outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle"))
             temp_acc.append(pickle.load(open(directory, "rb"))[0])
             temp_val_acc.append(pickle.load(open(directory, "rb"))[1])
             temp_loss.append(pickle.load(open(directory, "rb"))[2])

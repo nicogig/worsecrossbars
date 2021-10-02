@@ -3,6 +3,7 @@ import os
 import dropbox
 import json
 from worsecrossbars.utilities import auth_dropbox
+from worsecrossbars.utilities import secret_keys
 from worsecrossbars import config
 
 dropbox_secrets = {}
@@ -14,17 +15,17 @@ def check_auth_presence ():
         auth_dropbox.authenticate()
         check_auth_presence()
     else:
-        with open(config.working_dir.joinpath("utilities", "config", "user_secrets.json")) as json_file:
+        with open(str(config.working_dir.joinpath("utilities", "config", "user_secrets.json"))) as json_file:
             dropbox_secrets = json.load(json_file)
             auth_checked = True
 
 
 def zip_output (fault_type, number_hidden_layers):
-    shutil.make_archive(f"output_faultType{fault_type}_{number_hidden_layers}HL", "zip", "../../outputs")
+    shutil.make_archive(f"output_faultType{fault_type}_{number_hidden_layers}HL", "zip", str(config.working_dir.parent.joinpath("outputs")))
 
 def upload (fault_type, number_hidden_layers):
     if auth_checked:
-        dbx = dropbox.Dropbox(oauth2_refresh_token=dropbox_secrets["dropbox_refresh"], app_key=secrets.APP_KEY, app_secret=secrets.APP_SECRET)
+        dbx = dropbox.Dropbox(oauth2_refresh_token=dropbox_secrets["dropbox_refresh"], app_key=secret_keys.APP_KEY, app_secret=secret_keys.APP_SECRET)
         zip_output(fault_type, number_hidden_layers)
         with open(f"output_faultType{fault_type}_{number_hidden_layers}HL.zip", 'rb') as f:
             data = f.read()
