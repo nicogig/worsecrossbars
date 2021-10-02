@@ -32,6 +32,7 @@ def authenticate():
     if not os.path.exists(configs.working_dir.joinpath("config", "app_keys.json")):
         obtain_keys()
         authenticate()
+        return
     else:
         with open(str(configs.working_dir.joinpath("config", "app_keys.json"))) as json_file:
             app_keys = json.load(json_file)
@@ -41,7 +42,7 @@ def authenticate():
                                          scope=['account_info.read', 'files.content.read', 'files.content.write'],)
 
     authorize_url = auth_flow.start()
-    print("1. Go to: " + authorize_url)
+    print(f"1. Go to: {authorize_url}")
     print("2. Click \"Allow\" (you might have to log in first).")
     print("3. Copy the authorization code.")
     auth_code = input("Enter the authorization code here: ").strip()
