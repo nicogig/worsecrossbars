@@ -1,11 +1,43 @@
 import dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
-from worsecrossbars.utilities import secret_keys
 from worsecrossbars import configs
 import json
+import os
+
+app_keys = {}
+
+def obtain_keys():
+    """
+
+    """
+
+    global app_keys
+
+    app_key = input("Enter the APP KEY from your Dropbox App: ").strip()
+    app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
+    app_keys = {"APP_KEY":app_key, "APP_SECRET":app_secret}
+
+    with open(str(configs.working_dir.joinpath("config", "app_keys.json")), 'w') as outfile:
+        json.dump(app_keys, outfile)
+
+
 
 def authenticate():
-    auth_flow = DropboxOAuth2FlowNoRedirect(secret_keys.APP_KEY, consumer_secret=secret_keys.APP_SECRET, token_access_type='offline',
+    """
+
+    """
+
+    global app_keys
+
+    if not os.path.exists(configs.working_dir.joinpath("config", "app_keys.json")):
+        obtain_keys()
+        authenticate()
+    else:
+        with open(str(configs.working_dir.joinpath("config", "app_keys.json"))) as json_file:
+            app_keys = json.load(json_file)
+
+    
+    auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"], consumer_secret=app_keys["APP_SECRET"], token_access_type='offline',
                                          scope=['account_info.read', 'files.content.read', 'files.content.write'],)
 
     authorize_url = auth_flow.start()

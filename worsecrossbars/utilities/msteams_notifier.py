@@ -6,14 +6,27 @@ from worsecrossbars import configs
 webhook_url = ""
 webhook_present = False
 
+
+
 def require_webhook ():
+    """
+
+    """
+
     global webhook_url
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
     jsonified_webhook = {"msteams_webhook":webhook_url}
     with open(str(configs.working_dir.joinpath("config", "msteams.json")), 'w') as outfile:
         json.dump(jsonified_webhook, outfile)
 
+
+
+
 def check_webhook_presence ():
+    """
+
+    """
+
     global webhook_present, webhook_url
     if not os.path.exists(configs.working_dir.joinpath("config", "msteams.json")):
         require_webhook()
@@ -23,7 +36,13 @@ def check_webhook_presence ():
             webhook_url = json.load(json_file)["msteams_webhook"]
             webhook_present = True
 
+
+
 def send_message(message, title=None, color=None):
+    """
+
+    """
+
     if webhook_present:
         msteams_message = pymsteams.connectorcard(webhook_url)
         msteams_message.text(message)

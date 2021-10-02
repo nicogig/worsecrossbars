@@ -21,8 +21,8 @@ from worsecrossbars import configs
 
 def main():
 
+    # Creating the folders required to save and load the data produced by the script
     create_folder_structure.user_folders()
-
 
     if args.log:
         log = Logging(args.number_hidden_layers, args.fault_type, args.number_ANNs, args.number_simulations)
