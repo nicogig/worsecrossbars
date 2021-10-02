@@ -28,5 +28,5 @@ def authenticate():
               "dropbox_expiration": oauth_result.expires_at.__str__(),
               "dropbox_refresh":oauth_result.refresh_token}
 
-    with open(str(config.working_dir.joinpath("config", "user_secrets.json")), 'w') as outfile:
+    with open(str(config.working_dir.joinpath("utilities", "config", "user_secrets.json")), 'w') as outfile:
         json.dump(secret, outfile)
