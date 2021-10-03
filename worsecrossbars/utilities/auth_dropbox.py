@@ -1,8 +1,8 @@
-import dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
-from worsecrossbars import configs
 import json
 import os
+
+from worsecrossbars import configs
 
 app_keys = {}
 
