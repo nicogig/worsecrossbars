@@ -12,3 +12,4 @@ def user_folders():
     home_dir.joinpath("worsecrossbars", "outputs", "plots", "training_validation").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "outputs", "training_validation").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "config").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "utils").mkdir(parents=True, exist_ok=True)

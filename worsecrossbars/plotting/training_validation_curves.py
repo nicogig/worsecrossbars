@@ -3,11 +3,11 @@ from pathlib import Path
 import matplotlib.font_manager as fm
 import numpy as np
 
-from worsecrossbars.plotting import training_validation_plotter
+from worsecrossbars.plotting.plotting import training_validation_plotter
 from worsecrossbars import configs
 
 # Importing LaTeX font for plots
-fpath = Path('cmunrm.ttf')
+fpath = configs.working_dir.joinpath("utils", "cmunrm.ttf")
 font = fm.FontProperties(fname='cmunrm.ttf', size=18)
 
 # Opening training/validation arrays from files

@@ -4,10 +4,10 @@ from pathlib import Path
 import matplotlib.font_manager as fm
 from worsecrossbars import configs
 
-from plotting import accuracy_curves_plotter
+from worsecrossbars.plotting.plotting import accuracy_curves_plotter
 
 # Importing Latex font for plots
-fpath = Path('cmunrm.ttf')
+fpath = configs.working_dir.joinpath("utils", "cmunrm.ttf")
 font = fm.FontProperties(fname='cmunrm.ttf', size=18)
 
 # Opening accuracies arrays from files
