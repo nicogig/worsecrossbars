@@ -1,14 +1,12 @@
 import pickle
-from pathlib import Path
 import matplotlib.font_manager as fm
 import numpy as np
 
-from worsecrossbars.plotting.plotting import training_validation_plotter
 from worsecrossbars import configs
+from worsecrossbars.plotting.plotting import training_validation_plotter
 
 # Importing LaTeX font for plots
-fpath = configs.working_dir.joinpath("utils", "cmunrm.ttf")
-font = fm.FontProperties(fname='cmunrm.ttf', size=18)
+font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
 
 # Opening training/validation arrays from files
 accuracy_values = []

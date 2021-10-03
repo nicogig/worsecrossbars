@@ -3,3 +3,4 @@ tensorflow
 pymsteams
 numpy
 dropbox
+wget
