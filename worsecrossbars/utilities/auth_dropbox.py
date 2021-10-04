@@ -1,4 +1,4 @@
-from dropbox import DropboxOAuth2FlowNoRedirect
+from dropbox import DropboxOAuth2FlowNoRedirect, Dropbox
 import json
 import os
 
