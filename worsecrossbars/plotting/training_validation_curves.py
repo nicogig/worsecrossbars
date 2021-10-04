@@ -1,14 +1,15 @@
 import pickle
 import matplotlib.font_manager as fm
 import numpy as np
+import os
 
 from worsecrossbars import configs
 from worsecrossbars.plotting.plotting import training_validation_plotter
 
 # Importing LaTeX font for plots
-try:
+if os.path.exists(configs.working_dir.joinpath("utils", "cmunrm.ttf")):
     font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
-except FileNotFoundError:
+else:
     font = fm.FontProperties(family="sans-serif", size=18)
 
 # Opening training/validation arrays from files
