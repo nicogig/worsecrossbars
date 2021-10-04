@@ -1,11 +1,15 @@
 import pickle
 import matplotlib.font_manager as fm
+import os
 
 from worsecrossbars import configs
 from worsecrossbars.plotting.plotting import accuracy_curves_plotter
 
 # Importing LaTeX font for plots
-font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+if os.path.exists(configs.working_dir.joinpath("utils", "cmunrm.ttf")):
+    font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+else:
+    font = fm.FontProperties(family="sans-serif", size=18)
 
 # Opening accuracies arrays from files
 data = [[], [], []]

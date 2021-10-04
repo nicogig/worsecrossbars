@@ -6,7 +6,10 @@ from worsecrossbars import configs
 from worsecrossbars.plotting.plotting import training_validation_plotter
 
 # Importing LaTeX font for plots
-font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+try:
+    font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+except FileNotFoundError:
+    font = fm.FontProperties(family="sans-serif", size=18)
 
 # Opening training/validation arrays from files
 accuracy_values = []
