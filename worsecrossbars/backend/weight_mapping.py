@@ -46,8 +46,9 @@ def create_weight_interval(list_of_extremes, number_of_levels):
     return_list = []
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            abs_elements = np.linspace(element[1], element[0], number_of_levels)
-            return_list.append(np.concatenate((np.negative(abs_elements), [0], abs_elements[::-1]), axis=None))
+            #abs_elements = np.linspace(element[1], element[0], number_of_levels)
+            #return_list.append(np.concatenate((np.negative(abs_elements), [0], abs_elements[::-1]), axis=None))
+            return_list.append(np.linspace(element[1], element[0], number_of_levels))
     return return_list
 
 
@@ -71,6 +72,7 @@ def discretise_weights(network_weights, network_weight_intervals):
             original_shape = layer_weights.shape
             layer_weights = layer_weights.flatten()
             req_int = network_weight_intervals[weight_int_count]
+            req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
