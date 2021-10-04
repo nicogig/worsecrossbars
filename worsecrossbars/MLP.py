@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, handler_stop_signals)
     signal.signal(signal.SIGTERM, handler_stop_signals)
-    if platform.system() is "Darwin" or platform.system() is "Linux":
+    if platform.system() == "Darwin" or platform.system() == "Linux":
         signal.signal(signal.SIGHUP, handler_stop_signals)
 
     main()
