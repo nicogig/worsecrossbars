@@ -13,7 +13,7 @@ class Logging:
         log_number = 1
         for name in glob.glob(str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = open(str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-{log_number}.log")), "a")
+        self.file_object = str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-{log_number}.log"))
         self.hidden_layers = number_hidden_layers
         self.fault_type = fault_type
         self.number_ANNs = number_ANNs
@@ -27,17 +27,15 @@ class Logging:
         """
 
         if special == "begin":
-            self.file_object.write(f"----- Begin log {datetime.now().__str__()} -----\n\
-            Attempting simulation with following parameters:\n\
-            number_hidden_layers: {self.hidden_layers}\n\
-            fault_type: {self.fault_type}\n\
-            number_ANNs: {self.number_ANNs}\n\
-            number_simulations: {self.number_simulations}\n\n")
+            with open(self.file_object, 'a') as file:
+                file.write(f"----- Begin log {datetime.now().__str__()} -----\nAttempting simulation with following parameters:\nnumber_hidden_layers: {self.hidden_layers}\nfault_type: {self.fault_type}\nnumber_ANNs: {self.number_ANNs}\nnumber_simulations: {self.number_simulations}\n\n")
         elif special == "end":
-            self.file_object.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file. Ending.\n\
-                ----- End log {datetime.now().__str__()} -----")
+            with open(self.file_object, 'a') as file:
+                file.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file. Ending.\n----- End log {datetime.now().__str__()} -----")
         else:
-            self.file_object.write(f"[{datetime.now().strftime('%H:%M:%S')}] {string}\n")
+            with open(self.file_object, 'a') as file:
+                file.write(f"[{datetime.now().strftime('%H:%M:%S')}] {string}\n")
 
     def close (self):
-        self.file_object.close()
+        # Archaic, here until the next code cleanup.
+        return
