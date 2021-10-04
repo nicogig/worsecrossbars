@@ -58,7 +58,7 @@ def training_validation_plotter(epochs, training, validation, value_type="", num
     plt.setp(L.texts, font=fpath)
 
     if save:
-        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "training_validation", f"training_validation_{value_type.lower()}_plot_{number_hidden_layers}HL.png")))
+        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "training_validation", f"training_validation_{value_type.lower()}_plot_{number_hidden_layers}HL.png")), dpi=200)
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
@@ -117,7 +117,7 @@ def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, fpath=No
     plt.setp(L.texts, font=fpath)
 
     if save:
-        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "accuracies", f"accuracies_plot_faultType{fault_type}.png")))
+        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "accuracies", f"accuracies_plot_faultType{fault_type}.png")), dpi=200)
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
