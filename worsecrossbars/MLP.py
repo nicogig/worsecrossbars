@@ -21,16 +21,14 @@ from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, se
 from worsecrossbars.utilities import create_folder_structure
 from worsecrossbars import configs
 
-# log = None
-# teams_presence = False
-
 def handler_stop_signals(signum, frame):
 
     if args.log is not None:
-        log.write(f"Simulation terminated unexpectedly. Got Signal {signal.Signals(signum).name}.\nEnding.\n")
+        log.write(f"Simulation terminated unexpectedly. Got signal {signal.Signals(signum).name}.\nEnding.\n")
         log.write(special="abruptend")
     if args.teams:
-        send_message(f"Simulation terminated unexpectedly. Got Signal {signal.Signals(signum).name}.\nEnding.", title="Simulation Ended", color="b90e0a")
+        hidden_layer = "hidden layer" if args.number_hidden_layers == 1 else "hidden layers"
+        send_message(f"Simulation ({args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}) terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", title="Simulation ended", color="b90e0a")
 
     gc.collect()
     sys.exit(0)
@@ -50,7 +48,8 @@ def main():
         check_auth_presence()
     if args.teams:
         check_webhook_presence()
-        send_message(f"Using parameters: {args.number_hidden_layers} HL, {args.fault_type} fault type.", title="Started new simulation", color="028a0f")
+        hidden_layer = "hidden layer" if args.number_hidden_layers == 1 else "hidden layers"
+        send_message(f"Using parameters: {args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}.", title="Started new simulation", color="028a0f")
 
     # Training variables setup
     MNIST_dataset = dataset_creation()
