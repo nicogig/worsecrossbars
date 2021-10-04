@@ -1,5 +1,6 @@
 # Suppressing warnings
 import os
+from matplotlib.pyplot import title
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 # Utility imports
@@ -7,6 +8,8 @@ import numpy as np
 import gc
 import pickle
 import argparse
+import signal, sys
+import platform
 
 # Source imports
 from worsecrossbars.backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
@@ -18,6 +21,19 @@ from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, se
 from worsecrossbars.utilities import create_folder_structure
 from worsecrossbars import configs
 
+# log = None
+# teams_presence = False
+
+def handler_stop_signals(signum, frame):
+
+    if args.log is not None:
+        log.write(f"Simulation terminated unexpectedly. Got Signal {signal.Signals(signum).name}.\nEnding.\n")
+        log.write(special="abruptend")
+    if args.teams:
+        send_message(f"Simulation terminated unexpectedly. Got Signal {signal.Signals(signum).name}.\nEnding.", title="Simulation Ended", color="b90e0a")
+
+    gc.collect()
+    sys.exit(0)
 
 def main():
 
@@ -25,6 +41,7 @@ def main():
     create_folder_structure.user_folders()
 
     if args.log:
+        global log
         log = Logging(args.number_hidden_layers, args.fault_type, args.number_ANNs, args.number_simulations)
         log.write(special="begin")
     
@@ -128,5 +145,10 @@ if __name__ == "__main__":
     parser.add_argument("-t", dest="teams", metavar="MSTEAMS", help="Enable MS Teams integration", type=bool, default=False)
 
     args=parser.parse_args()
+
+    signal.signal(signal.SIGINT, handler_stop_signals)
+    signal.signal(signal.SIGTERM, handler_stop_signals)
+    if platform.system() is "Darwin" or platform.system() is "Linux":
+        signal.signal(signal.SIGHUP, handler_stop_signals)
 
     main()

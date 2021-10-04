@@ -32,6 +32,9 @@ class Logging:
         elif special == "end":
             with open(self.file_object, 'a') as file:
                 file.write(f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file. Ending.\n----- End log {datetime.now().__str__()} -----")
+        elif special == "abruptend":
+            with open(self.file_object, 'a') as file:
+                file.write(f"[{datetime.now().strftime('%H:%M:%S')}] Abruptly Ending.\n----- End log {datetime.now().__str__()} -----")
         else:
             with open(self.file_object, 'a') as file:
                 file.write(f"[{datetime.now().strftime('%H:%M:%S')}] {string}\n")
