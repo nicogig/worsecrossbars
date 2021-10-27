@@ -55,7 +55,11 @@ def main():
     MNIST_dataset = dataset_creation()
     weights_list = []
     histories_list = []
-    generator_functions = {1: one_layer, 2:two_layers, 3:three_layers, 4:four_layers}
+
+    if args.noise:
+        generator_functions = {1: one_layer_noise, 2:two_layers_noise, 3:three_layers_noise, 4:four_layers_noise}
+    else:
+        generator_functions = {1: one_layer, 2:two_layers, 3:three_layers, 4:four_layers}
 
     # Model definition and training, repeated "args.number_ANNs" times to average out stochastic variancies
     for model_number in range(0, int(args.number_ANNs)):
@@ -93,7 +97,7 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N.pickle")), "wb"))
 
     if args.log:
         log.write(string=f"Saved training and validation data.")
@@ -117,7 +121,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N.pickle")), "wb"))
 
     if args.log:
         log.write(special="end")
@@ -137,6 +141,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-hl", dest="number_hidden_layers", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN", type=int, default=1, choices=range(1, 5))
     parser.add_argument("-ft", dest="fault_type", metavar="FAULT_TYPE", help="Identifier of the fault type. 1: Cannot electroform, 2: Stuck at HRS, 3: Stuck at LRS", type=int, default=1, choices=range(1, 4))
+    parser.add_argument("-n", dest="noise", metavar="NOISE", help="Addition of noise to stimuli during training", type=bool, default=False)
     parser.add_argument("-a", dest="number_ANNs", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
     parser.add_argument("-s", dest="number_simulations", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
     parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
