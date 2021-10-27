@@ -12,7 +12,7 @@ import signal, sys
 import platform
 
 # Source imports
-from worsecrossbars.backend.mlp_generator import one_layer, two_layers, three_layers, four_layers
+from worsecrossbars.backend.mlp_generator import one_layer, one_layer_noise, two_layers, two_layers_noise, three_layers, three_layers_noise, four_layers, four_layers_noise
 from worsecrossbars.backend.mlp_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.spruce_logging import Logging
