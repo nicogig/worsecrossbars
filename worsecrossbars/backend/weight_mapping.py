@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 
+
 def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion):
     """
     choose_extremes:
@@ -8,13 +9,13 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
     Inputs:
         -   network_weights: The weights as outputted by the training functions.
         -   HRS_LRS_ratio: the ratio desired.
-        -   excluded_weights_proportion:  proportion of excluded 
+        -   excluded_weights_proportion:  proportion of excluded
             synaptic weights with the largest absolute values.
     Output:
-        - A list of tuples, (w_max, w_min), with the maximum and minimum 
+        - A list of tuples, (w_max, w_min), with the maximum and minimum
         discrete weights in a layer.
     """
-    
+
     return_list = []
     for count, layer_weights in enumerate(network_weights):
         if count % 2 == 0:
@@ -31,7 +32,6 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
     return return_list
 
 
-
 def create_weight_interval(list_of_extremes, number_of_levels):
     """
     create_weight_interval:
@@ -46,11 +46,8 @@ def create_weight_interval(list_of_extremes, number_of_levels):
     return_list = []
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            #abs_elements = np.linspace(element[1], element[0], number_of_levels)
-            #return_list.append(np.concatenate((np.negative(abs_elements), [0], abs_elements[::-1]), axis=None))
             return_list.append(np.linspace(element[1], element[0], number_of_levels))
     return return_list
-
 
 
 def discretise_weights(network_weights, network_weight_intervals):
@@ -82,5 +79,5 @@ def discretise_weights(network_weights, network_weight_intervals):
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)
             discretised_weights[count] = layer_weights
-    
+
     return discretised_weights
