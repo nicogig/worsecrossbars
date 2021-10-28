@@ -28,7 +28,7 @@ def one_layer_noise():
     # 89,050 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
     MNIST_MLP.add(layers.Dense(112, input_shape=(784,), name="MNIST_MLP_L1"))
-    MNIST_MLP.add(layers.GaussianNoise(100))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(10, activation="softmax", name="MNIST_MLP_OL"))
     return MNIST_MLP
@@ -71,10 +71,10 @@ def two_layers_noise():
     # 89,610 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
     MNIST_MLP.add(layers.Dense(100, input_shape=(784,), name="MNIST_MLP_L1"))
-    MNIST_MLP.add(layers.GaussianNoise(100))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(100, name="MNIST_MLP_L2"))
-    MNIST_MLP.add(layers.GaussianNoise(100))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(10, activation="softmax", name="MNIST_MLP_OL"))
     return MNIST_MLP
@@ -110,13 +110,13 @@ def three_layers_noise():
     # 89,375 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
     MNIST_MLP.add(layers.Dense(90, input_shape=(784,), name="MNIST_MLP_L1"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(95, name="MNIST_MLP_L2"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(95, name="MNIST_MLP_L3"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(10, activation="softmax", name="MNIST_MLP_OL"))
     return MNIST_MLP
@@ -153,16 +153,16 @@ def four_layers_noise():
     # 89,515 parameters
     MNIST_MLP = models.Sequential(name="MNIST_MLP")
     MNIST_MLP.add(layers.Dense(85, input_shape=(784,), name="MNIST_MLP_L1"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(85, name="MNIST_MLP_L2"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(85, name="MNIST_MLP_L3"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(85, name="MNIST_MLP_L4"))
-    MNIST_MLP.add(layers.GaussianNoise(0.1))
+    MNIST_MLP.add(layers.GaussianNoise(1))
     MNIST_MLP.add(layers.Activation("sigmoid"))
     MNIST_MLP.add(layers.Dense(10, activation="softmax", name="MNIST_MLP_OL"))
     return MNIST_MLP
