@@ -1,5 +1,6 @@
 import shutil
 import os
+import sys
 import dropbox
 import json
 
@@ -19,8 +20,8 @@ def check_auth_presence ():
     
     global auth_key, auth_checked, dropbox_secrets, app_keys
     if not os.path.exists(configs.working_dir.joinpath("config", "user_secrets.json")):
-        auth_dropbox.authenticate()
-        check_auth_presence()
+        print("Please run this module with --setup before using Internet options!")
+        sys.exit(0)
     else:
         with open(str(configs.working_dir.joinpath("config", "user_secrets.json"))) as json_file:
             dropbox_secrets = json.load(json_file)
@@ -28,37 +29,26 @@ def check_auth_presence ():
         with open(str(configs.working_dir.joinpath("config", "app_keys.json"))) as json_file:
             app_keys = json.load(json_file)
 
-
-
-def zip_output (fault_type, number_hidden_layers):
-    """
-
-    """
-
-    shutil.make_archive(f"output_faultType{fault_type}_{number_hidden_layers}HL", "zip", str(configs.working_dir.joinpath("outputs")))
-
-
-
-def upload (fault_type, number_hidden_layers):
+def upload (output_folder):
     """
 
     """
 
     if auth_checked:
         dbx = dropbox.Dropbox(oauth2_refresh_token=dropbox_secrets["dropbox_refresh"], app_key=app_keys["APP_KEY"], app_secret=app_keys["APP_SECRET"])
-        zip_output(fault_type, number_hidden_layers)
-        with open(f"output_faultType{fault_type}_{number_hidden_layers}HL.zip", 'rb') as f:
+        shutil.make_archive(f"output_{output_folder}", "zip", str(configs.working_dir.joinpath("outputs", output_folder)))
+        with open(f"output_{output_folder}.zip", 'rb') as f:
             data = f.read()
         try:
             res = dbx.files_upload(
-                    data, f"/output_faultType{fault_type}_{number_hidden_layers}HL.zip",
+                    data, f"/output_{output_folder}.zip",
                     mute=True,
                     mode=dropbox.files.WriteMode('overwrite'))
         except dropbox.exceptions.ApiError as err:
             print('*** API error', err)
             return None
         print('uploaded as', res.name.encode('utf8'))
-        os.remove(f"./output_faultType{fault_type}_{number_hidden_layers}HL.zip")
+        os.remove(f"./output_{output_folder}.zip")
     else:
         check_auth_presence()
-        upload(fault_type, number_hidden_layers)
+        upload(output_folder)

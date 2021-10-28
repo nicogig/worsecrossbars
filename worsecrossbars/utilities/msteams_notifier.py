@@ -1,3 +1,4 @@
+import sys
 import pymsteams
 import json
 import os
@@ -30,8 +31,8 @@ def check_webhook_presence ():
 
     global webhook_present, webhook_url
     if not os.path.exists(configs.working_dir.joinpath("config", "msteams.json")):
-        require_webhook()
-        check_webhook_presence()
+        print("Please run this module with --setup before using Internet options!")
+        sys.exit(0)
     else:
         with open(str(configs.working_dir.joinpath("config", "msteams.json"))) as json_file:
             webhook_url = json.load(json_file)["msteams_webhook"]

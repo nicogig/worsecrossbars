@@ -20,7 +20,7 @@ from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, uplo
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
 from worsecrossbars.utilities import create_folder_structure
 from worsecrossbars import configs
-
+from worsecrossbars.utilities import initial_setup
 def handler_stop_signals(signum, frame):
 
     if args.log is not None:
@@ -35,8 +35,14 @@ def handler_stop_signals(signum, frame):
 
 def main():
 
+    if args.setup:
+        initial_setup.main_setup()
+        sys.exit(0)
+
+
     # Creating the folders required to save and load the data produced by the script
     create_folder_structure.user_folders()
+    output_folder = create_folder_structure.create_output_structure(args)
 
     if args.log:
         global log
@@ -93,7 +99,7 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", output_folder, "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(string=f"Saved training and validation data.")
@@ -117,7 +123,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", output_folder, "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL.pickle")), "wb"))
 
     if args.log:
         log.write(special="end")
@@ -126,7 +132,7 @@ def main():
     if args.teams:
         send_message(f"Finished script using parameters {args.number_hidden_layers} HL, {args.fault_type} fault type.", "Finished execution", color="028a0f")
     if args.dropbox:
-        upload(args.fault_type, args.number_hidden_layers)
+        upload(output_folder)
 
 
 
@@ -142,6 +148,8 @@ if __name__ == "__main__":
     parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
     parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", help="Enable Dropbox integration", type=bool, default=False)
     parser.add_argument("-t", dest="teams", metavar="MSTEAMS", help="Enable MS Teams integration", type=bool, default=False)
+    parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT", type=bool, default=False)
+    parser.add_argument("--setup", dest="setup",metavar="INITIAL_SETUP", type=bool, default=False)
 
     args=parser.parse_args()
 
