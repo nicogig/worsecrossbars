@@ -18,7 +18,7 @@ def user_folders():
 
 def remove_existing_files():
     """
-    
+    Nope.
     """
 
     home_dir = Path.home()
