@@ -12,14 +12,15 @@ import signal, sys
 import platform
 
 # Source imports
-from worsecrossbars.backend.mlp_generator import one_layer, one_layer_noise, two_layers, two_layers_noise, three_layers, three_layers_noise, four_layers, four_layers_noise
-from worsecrossbars.backend.mlp_trainer import dataset_creation, train_MLP
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
+from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.spruce_logging import Logging
 from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, upload
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
 from worsecrossbars.utilities import create_folder_structure
 from worsecrossbars import configs
+
 
 def handler_stop_signals(signum, frame):
 
@@ -32,6 +33,7 @@ def handler_stop_signals(signum, frame):
 
     gc.collect()
     sys.exit(0)
+
 
 def main():
 
@@ -55,16 +57,12 @@ def main():
     MNIST_dataset = dataset_creation()
     weights_list = []
     histories_list = []
-
-    if args.noise:
-        generator_functions = {1: one_layer_noise, 2:two_layers_noise, 3:three_layers_noise, 4:four_layers_noise}
-    else:
-        generator_functions = {1: one_layer, 2:two_layers, 3:three_layers, 4:four_layers}
+    generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
 
     # Model definition and training, repeated "args.number_ANNs" times to average out stochastic variancies
     for model_number in range(0, int(args.number_ANNs)):
 
-        MNIST_MLP = generator_functions[args.number_hidden_layers]()
+        MNIST_MLP = generator_functions[args.number_hidden_layers](noise=args.noise, noise_variance=args.noise_variance)
         MLP_weights, MLP_history, *_ = train_MLP(MNIST_dataset, MNIST_MLP, epochs=10, batch_size=100)
         weights_list.append(MLP_weights)
         histories_list.append(MLP_history)
@@ -97,14 +95,15 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N.pickle")), "wb"))
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), \
+           open(str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N_{args.noise_variance}NV.pickle")), "wb"))
 
     if args.log:
         log.write(string=f"Saved training and validation data.")
 
     # Running "args.number_simulations" simulations for each of the "args.number_ANNs" networks trained above over the specified
     # range of faulty devices percentages
-    MNIST_MLP = generator_functions[args.number_hidden_layers]()
+    MNIST_MLP = generator_functions[args.number_hidden_layers](noise=args.noise, noise_variance=args.noise_variance)
     MNIST_MLP.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
 
     percentages = np.arange(0, 1.01, 0.01)
@@ -121,7 +120,8 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    pickle.dump((percentages, accuracies, args.fault_type), open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N.pickle")), "wb"))
+    pickle.dump((percentages, accuracies, args.fault_type), \
+           open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{args.fault_type}_{args.number_hidden_layers}HL_{args.noise}N_{args.noise_variance}NV.pickle")), "wb"))
 
     if args.log:
         log.write(special="end")
@@ -133,7 +133,6 @@ def main():
         upload(args.fault_type, args.number_hidden_layers)
 
 
-
 if __name__ == "__main__":
 
     # Command line parser for input arguments
@@ -142,11 +141,12 @@ if __name__ == "__main__":
     parser.add_argument("-hl", dest="number_hidden_layers", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN", type=int, default=1, choices=range(1, 5))
     parser.add_argument("-ft", dest="fault_type", metavar="FAULT_TYPE", help="Identifier of the fault type. 1: Cannot electroform, 2: Stuck at HRS, 3: Stuck at LRS", type=int, default=1, choices=range(1, 4))
     parser.add_argument("-n", dest="noise", metavar="NOISE", help="Addition of noise to stimuli during training", type=bool, default=False)
+    parser.add_argument("-nv", dest="noise_variance", metavar="NOISE_VARIANCE", help="AWGN variance for the model", type=int, default=1)
     parser.add_argument("-a", dest="number_ANNs", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
     parser.add_argument("-s", dest="number_simulations", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
-    parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=False)
-    parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", help="Enable Dropbox integration", type=bool, default=False)
-    parser.add_argument("-t", dest="teams", metavar="MSTEAMS", help="Enable MS Teams integration", type=bool, default=False)
+    parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=True)
+    parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", help="Enable Dropbox integration", type=bool, default=True)
+    parser.add_argument("-t", dest="teams", metavar="MSTEAMS", help="Enable MS Teams integration", type=bool, default=True)
 
     args=parser.parse_args()
 
