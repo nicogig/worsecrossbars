@@ -37,6 +37,7 @@ def main():
 
     # Creating the folders required to save and load the data produced by the script
     create_folder_structure.user_folders()
+    create_folder_structure.remove_existing_files()
 
     if args.log:
         global log

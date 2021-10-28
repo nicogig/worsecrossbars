@@ -52,7 +52,8 @@ def upload (fault_type, number_hidden_layers):
         try:
             res = dbx.files_upload(
                     data, f"/output_faultType{fault_type}_{number_hidden_layers}HL.zip",
-                    mute=True)
+                    mute=True,
+                    mode=dropbox.files.WriteMode('overwrite'))
         except dropbox.exceptions.ApiError as err:
             print('*** API error', err)
             return None
