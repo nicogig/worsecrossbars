@@ -1,7 +1,7 @@
 import os, wget
 from worsecrossbars import configs
 from urllib.error import URLError
-from worsecrossbars.utilities import create_folder_structure, io_operations, auth_dropbox
+from worsecrossbars.utilities import io_operations, auth_dropbox
 
 
 def main_setup (overwrite_configs=False):
@@ -9,7 +9,7 @@ def main_setup (overwrite_configs=False):
     
     """
     
-    create_folder_structure.user_folders()
+    io_operations.user_folders()
     
     try:
         font = wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf", out=str(configs.working_dir.joinpath("utils")))

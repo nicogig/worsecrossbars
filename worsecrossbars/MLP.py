@@ -17,9 +17,8 @@ from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.Logging import Logging
 from worsecrossbars.utilities.DropboxUpload import DropboxUpload
 from worsecrossbars.utilities.MSTeamsNotifier import MSTeamsNotifier
-from worsecrossbars.utilities import create_folder_structure, io_operations
+from worsecrossbars.utilities import io_operations, initial_setup
 from worsecrossbars import configs
-from worsecrossbars.utilities import initial_setup
 
 def handler_stop_signals(signum, frame):
 
@@ -44,8 +43,8 @@ def main():
 
 
     # Creating the folders required to save and load the data produced by the script
-    create_folder_structure.user_folders()
-    output_folder = create_folder_structure.create_output_structure(args)
+    io_operations.user_folders()
+    output_folder = io_operations.create_output_structure(args)
 
     if args.log:
         global log

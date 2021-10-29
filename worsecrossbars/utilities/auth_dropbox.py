@@ -1,24 +1,7 @@
+import os, json
 from dropbox import DropboxOAuth2FlowNoRedirect, Dropbox
-import json
-import os
-
 from worsecrossbars import configs
-
-app_keys = {}
-
-def obtain_keys():
-    """
-
-    """
-
-    global app_keys
-
-    app_key = input("Enter the APP KEY from your Dropbox App: ").strip()
-    app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
-    app_keys = {"APP_KEY":app_key, "APP_SECRET":app_secret}
-
-    with open(str(configs.working_dir.joinpath("config", "app_keys.json")), 'w') as outfile:
-        json.dump(app_keys, outfile)
+from worsecrossbars.utilities import io_operations
 
 
 
@@ -26,11 +9,8 @@ def authenticate():
     """
 
     """
-
-    global app_keys
-
     if not os.path.exists(configs.working_dir.joinpath("config", "app_keys.json")):
-        obtain_keys()
+        io_operations.store_dropbox_keys()
         authenticate()
         return
     else:
