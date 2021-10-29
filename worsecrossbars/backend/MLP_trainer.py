@@ -1,8 +1,6 @@
-from tensorflow.keras import layers
-from tensorflow.keras import models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.utils import plot_model
+
 
 def dataset_creation():
     """
@@ -15,7 +13,6 @@ def dataset_creation():
 
     # Dataset download
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-    # print() # Prints a newline after the dataset download info
 
     # Data reshaping
     MLP_train_images = train_images.reshape((60000, 28 * 28)).astype("float32") / 255
@@ -30,7 +27,6 @@ def dataset_creation():
     MLP_partial_labels = MLP_train_labels[15000:]
 
     return (MLP_validation_data, MLP_validation_labels, MLP_partial_train, MLP_partial_labels), (MLP_test_images, MLP_test_labels)
-
 
 
 def train_MLP(dataset, model, epochs=10, batch_size=100):
@@ -50,7 +46,7 @@ def train_MLP(dataset, model, epochs=10, batch_size=100):
 
     # Training with validation test
     MLP_history = model.fit(dataset[0][2], dataset[0][3], epochs=epochs, batch_size=batch_size,
-                validation_data=(dataset[0][0], dataset[0][1]),verbose=0)
+                            validation_data=(dataset[0][0], dataset[0][1]), verbose=0)
     MLP_test_loss, MLP_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 
     # Extracting network weights for alterations carried out in the sections below.
