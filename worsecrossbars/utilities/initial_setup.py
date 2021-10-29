@@ -1,10 +1,8 @@
-import os
+import os, wget
 from worsecrossbars import configs
-import wget
 from urllib.error import URLError
+from worsecrossbars.utilities import create_folder_structure, io_operations, auth_dropbox
 
-from worsecrossbars.utilities import auth_dropbox, msteams_notifier
-from worsecrossbars.utilities import create_folder_structure
 
 def main_setup (overwrite_configs=False):
     """
@@ -20,9 +18,9 @@ def main_setup (overwrite_configs=False):
 
     if overwrite_configs:
         auth_dropbox.authenticate()
-        msteams_notifier.require_webhook()
+        io_operations.read_webhook()
     else:
         if not os.path.exists(configs.working_dir.joinpath("config", "user_secrets.json")):
             auth_dropbox.authenticate()
         if not os.path.exists(configs.working_dir.joinpath("config", "msteams.json")):
-            msteams_notifier.require_webhook()
+            io_operations.read_webhook()
