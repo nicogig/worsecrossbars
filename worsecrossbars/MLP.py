@@ -8,8 +8,7 @@ import numpy as np
 import gc
 import pickle
 import argparse
-import signal, sys
-import platform
+import signal, sys, platform
 
 # Source imports
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
@@ -17,18 +16,21 @@ from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.Logging import Logging
 from worsecrossbars.utilities.DropboxUpload import DropboxUpload
-from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
-from worsecrossbars.utilities import create_folder_structure
+from worsecrossbars.utilities.MSTeamsNotifier import MSTeamsNotifier
+from worsecrossbars.utilities import create_folder_structure, io_operations
 from worsecrossbars import configs
 from worsecrossbars.utilities import initial_setup
+
 def handler_stop_signals(signum, frame):
 
     if args.log is not None:
         log.write(f"Simulation terminated unexpectedly. Got signal {signal.Signals(signum).name}.\nEnding.\n")
         log.write(special="abruptend")
     if args.teams:
+        webhook_url = io_operations.read_webhook()
+        teams = MSTeamsNotifier(webhook_url)
         hidden_layer = "hidden layer" if args.number_hidden_layers == 1 else "hidden layers"
-        send_message(f"Simulation ({args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}) terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", title="Simulation ended", color="b90e0a")
+        teams.send_message(f"Simulation ({args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}) terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", title="Simulation ended", color="b90e0a")
 
     gc.collect()
     sys.exit(0)
@@ -54,9 +56,10 @@ def main():
     if args.dropbox:
         dbx = DropboxUpload(output_folder)
     if args.teams:
-        check_webhook_presence()
+        webhook_url = io_operations.read_webhook()
+        teams = MSTeamsNotifier(webhook_url)
         hidden_layer = "hidden layer" if args.number_hidden_layers == 1 else "hidden layers"
-        send_message(f"Using parameters: {args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}.", title="Started new simulation", color="028a0f")
+        teams.send_message(f"Using parameters: {args.number_hidden_layers} {hidden_layer}, fault type {args.fault_type}.", title="Started new simulation", color="028a0f")
 
     # Training variables setup
     MNIST_dataset = dataset_creation()
@@ -133,7 +136,7 @@ def main():
         log.close()
     
     if args.teams:
-        send_message(f"Finished script using parameters {args.number_hidden_layers} HL, {args.fault_type} fault type.", "Finished execution", color="028a0f")
+        teams.send_message(f"Finished script using parameters {args.number_hidden_layers} HL, {args.fault_type} fault type.", "Finished execution", color="028a0f")
     if args.dropbox:
         dbx.upload()
 
