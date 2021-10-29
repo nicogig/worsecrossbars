@@ -11,7 +11,7 @@ class Logging:
         """
 
         log_number = 1
-        for name in glob.glob(str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-?.log"))):
+        for _ in glob.glob(str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-?.log"))):
             log_number += 1
         self.file_object = str(configs.working_dir.joinpath("outputs", "logs", f"spruce_faultType{fault_type}_{number_hidden_layers}HL-{log_number}.log"))
         self.hidden_layers = number_hidden_layers
