@@ -16,7 +16,7 @@ from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, M
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities.spruce_logging import Logging
-from worsecrossbars.utilities.upload_to_dropbox import check_auth_presence, upload
+from worsecrossbars.utilities.DropboxUpload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
 from worsecrossbars.utilities import create_folder_structure
 from worsecrossbars import configs
@@ -52,7 +52,7 @@ def main():
     
     # Check configs for Dropbox / MS Teams Integration
     if args.dropbox:
-        check_auth_presence()
+        dbx = DropboxUpload(output_folder)
     if args.teams:
         check_webhook_presence()
         hidden_layer = "hidden layer" if args.number_hidden_layers == 1 else "hidden layers"
@@ -135,7 +135,7 @@ def main():
     if args.teams:
         send_message(f"Finished script using parameters {args.number_hidden_layers} HL, {args.fault_type} fault type.", "Finished execution", color="028a0f")
     if args.dropbox:
-        upload(output_folder)
+        dbx.upload()
 
 
 if __name__ == "__main__":
