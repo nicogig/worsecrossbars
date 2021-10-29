@@ -141,7 +141,7 @@ if __name__ == "__main__":
     parser.add_argument("-hl", dest="number_hidden_layers", metavar="HIDDEN_LAYERS", help="Number of hidden layers in the ANN", type=int, default=1, choices=range(1, 5))
     parser.add_argument("-ft", dest="fault_type", metavar="FAULT_TYPE", help="Identifier of the fault type. 1: Cannot electroform, 2: Stuck at HRS, 3: Stuck at LRS", type=int, default=1, choices=range(1, 4))
     parser.add_argument("-n", dest="noise", metavar="NOISE", help="Addition of noise to stimuli during training", type=bool, default=False)
-    parser.add_argument("-nv", dest="noise_variance", metavar="NOISE_VARIANCE", help="AWGN variance for the model", type=int, default=1)
+    parser.add_argument("-nv", dest="noise_variance", metavar="NOISE_VARIANCE", help="AWGN variance for the model", type=float, default=1.0)
     parser.add_argument("-a", dest="number_ANNs", metavar="ANNS", help="Number of ANNs being simulated", type=int, default=30)
     parser.add_argument("-s", dest="number_simulations", metavar="SIMULATIONS", help="Number of simulations being run",type=int, default=30)
     parser.add_argument("-l", dest="log", metavar="LOG", help="Enable logging the output in a separate file", type=bool, default=True)
