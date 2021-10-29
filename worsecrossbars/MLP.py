@@ -15,7 +15,7 @@ import platform
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
-from worsecrossbars.utilities.spruce_logging import Logging
+from worsecrossbars.utilities.Logging import Logging
 from worsecrossbars.utilities.DropboxUpload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import check_webhook_presence, send_message
 from worsecrossbars.utilities import create_folder_structure
