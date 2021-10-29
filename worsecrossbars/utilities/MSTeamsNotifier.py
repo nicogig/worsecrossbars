@@ -1,10 +1,4 @@
-import sys
 import pymsteams
-import json
-import os
-
-from worsecrossbars import configs
-
 
 class MSTeamsNotifier:
 

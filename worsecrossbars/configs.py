@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 # Device parameters
 HRS_LRS_ratio = 5
