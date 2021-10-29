@@ -53,3 +53,12 @@ except IndexError:
     print("Some necessary file is missing: complete accuracy plot cannot be produced.")
 
 
+variances = [0.5, 1, 1.5, 10]
+variance_data = []
+
+for variance in variances:
+
+    variance_data.append(pickle.load(open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType1_2HL_TrueN_{variance}NV.pickle")), "rb")))
+
+# Plotting data with different variances
+accuracy_curves_plotter(variance_data[0][0], [variance_data[i][1] for i in range(len(variances))], fault_type=variance_data[0][2], fpath=font, save=False, labels=variances)
