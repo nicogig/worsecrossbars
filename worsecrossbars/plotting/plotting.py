@@ -65,7 +65,7 @@ def training_validation_plotter(epochs, training, validation, value_type="", num
 
 
 
-def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, fpath=None, save=False, labels=[], label_step=10):
+def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, noise=False, fpath=None, save=False, labels=[], label_step=10):
     """
     accuracy_curves_plotter:
     Plot the accuracy curves of different Neural Networks.
@@ -95,7 +95,10 @@ def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, fpath=No
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    title = f"Accuracy curves: \"{faults_tuple[fault_type-1]}\" fault"
+    if noise:
+        title = f"Accuracy curves: \"{faults_tuple[fault_type-1]}\" fault, AWGN"
+    else:
+        title = f"Accuracy curves: \"{faults_tuple[fault_type-1]}\" fault"
 
     if fault_type == 1:
         x_label = "Percentage of devices which cannot electroform (%)"
@@ -117,7 +120,7 @@ def accuracy_curves_plotter(percentages, accuracies_list, fault_type=1, fpath=No
     plt.setp(L.texts, font=fpath)
 
     if save:
-        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "accuracies", f"accuracies_plot_faultType{fault_type}.png")), dpi=200)
+        plt.savefig(str(configs.working_dir.joinpath("outputs", "plots", "accuracies", f"accuracies_plot_faultType{fault_type}_{noise}N.png")), dpi=200)
     
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
