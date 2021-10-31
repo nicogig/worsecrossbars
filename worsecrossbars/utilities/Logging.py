@@ -14,10 +14,10 @@ class Logging:
         self.fault_type = extracted_json["fault_type"]
         self.number_anns = extracted_json["number_ANNs"]
         self.number_simulations = extracted_json["number_simulations"]
-        for _ in glob.glob(str(configs.working_dir.joinpath("outputs", "logs", 
+        for _ in glob.glob(str(configs.working_dir.joinpath("outputs", "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = str(configs.working_dir.joinpath("outputs", "logs", 
+        self.file_object = str(configs.working_dir.joinpath("outputs", "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-{log_number}.log"))
 
     def write (self, string="", special=None):
@@ -25,8 +25,10 @@ class Logging:
         """
         if special == "begin":
             write_string = f"----- Begin log {datetime.now().__str__()} -----\n" + \
-                    f"Attempting simulation with following parameters:\nnumber_hidden_layers: {self.number_hidden_layers}" + \
-                        f"\nfault_type: {self.fault_type}\nnumber_ANNs: {self.number_anns}\nnumber_simulations: {self.number_simulations}\n\n"
+                        f"Attempting simulation with following parameters:\n" + \
+                        f"number_hidden_layers: {self.number_hidden_layers}" + \
+                        f"\nfault_type: {self.fault_type}\nnumber_ANNs: {self.number_anns}" + \
+                        f"\nnumber_simulations: {self.number_simulations}\n\n"
         elif special == "end":
             write_string = f"[{datetime.now().strftime('%H:%M:%S')}] Saved accuracies to file." + \
                     f" Ending.\n----- End log {datetime.now().__str__()} -----"
