@@ -19,12 +19,12 @@ def stop_handler(signum, frame):
     A stop signal handler.
     """
     if command_line_args.log:
-        log.write(f"Simulation terminated unexpectedly. Got signal" + \
+        log.write("Simulation terminated unexpectedly. Got signal" + \
             f" {signal.Signals(signum).name}.\nEnding.\n")
         log.write(special="abruptend")
     if command_line_args.teams:
         teams.send_message(f"Simulation ({number_hidden_layers}" + \
-            f" {hidden_layer}, fault type {fault_type})" + \
+            f" {HIDDEN_LAYER}, fault type {fault_type})" + \
             f" terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", \
              title="Simulation ended", color="b90e0a")
     gc.collect()
@@ -65,16 +65,16 @@ if __name__ == "__main__":
         extracted_json = io_operations.read_external_json(str(json_path))
         json_handlers.validate_json(extracted_json)
         if command_line_args.log:
-            log = Logging(extracted_json["number_hidden_layers"], extracted_json["fault_type"], 
+            log = Logging(extracted_json["number_hidden_layers"], extracted_json["fault_type"],
             extracted_json["number_ANNs"], extracted_json["number_simulations"])
             log.write(special="begin")
         if command_line_args.teams:
             webhook_url = io_operations.read_webhook()
             teams = MSTeamsNotifier(webhook_url)
             number_hidden_layers = extracted_json["number_hidden_layers"]
-            hidden_layer = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
+            HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
             fault_type = extracted_json["fault_type"]
-            teams.send_message(f"Using parameters: {number_hidden_layers} {hidden_layer}," + \
+            teams.send_message(f"Using parameters: {number_hidden_layers} {HIDDEN_LAYER}," + \
                 f" fault type {fault_type}.", title="Started new simulation", color="028a0f")
         signal.signal(signal.SIGINT, stop_handler)
         signal.signal(signal.SIGTERM, stop_handler)
