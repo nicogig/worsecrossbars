@@ -19,13 +19,12 @@ def stop_handler(signum, frame):
     A stop signal handler.
     """
     if command_line_args.log:
-        log.write(f"Simulation terminated unexpectedly. Got signal {signal.Signals(signum).name}.\nEnding.\n")
+        log.write(f"Simulation terminated unexpectedly. Got signal" + \
+            f" {signal.Signals(signum).name}.\nEnding.\n")
         log.write(special="abruptend")
     if command_line_args.teams:
-        number_hidden_layers = extracted_json["number_hidden_layers"]
-        hidden_layer = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
-        fault_type = extracted_json["fault_type"]
-        teams.send_message(f"Simulation ({number_hidden_layers} {hidden_layer}, fault type {fault_type})" + \
+        teams.send_message(f"Simulation ({number_hidden_layers}" + \
+            f" {hidden_layer}, fault type {fault_type})" + \
             f" terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", \
              title="Simulation ended", color="b90e0a")
     gc.collect()
