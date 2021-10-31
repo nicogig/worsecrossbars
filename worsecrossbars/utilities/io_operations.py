@@ -1,8 +1,16 @@
-import sys, os, json, shutil
+"""
+io_operations.
+A module that holds multiple utility functions used to
+interact with the File System.
+"""
+import sys
+import os
+import json
+import shutil
 from pathlib import Path
 from datetime import datetime
 
-def read_external_JSON (file_path):
+def read_external_json (file_path):
     """
     read_external_JSON(file_name):
     Given a file_path, read the contents of the file and dump it in an object.
@@ -33,20 +41,26 @@ def create_output_structure(args):
     """
     home_dir = Path.home()
     time_now = datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
-    folder = f"{args.number_hidden_layers}HL_{args.fault_type}FT_{args.noise}N_{args.noise_variance}NV-{time_now.__str__()}"
+    folder = f"{args.number_hidden_layers}HL_{args.fault_type}" + \
+        f"FT_{args.noise}N_{args.noise_variance}NV-{time_now.__str__()}"
     if args.wipe_current:
         directory = str(home_dir.joinpath("worsecrossbars", "outputs"))
-        for f in os.listdir(directory):
-            path = os.path.join(directory, f)
+        for file in os.listdir(directory):
+            path = os.path.join(directory, file)
             try:
                 shutil.rmtree(path)
             except OSError:
                 os.remove(path)
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "accuracies").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "logs").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "accuracies").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "training_validation").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "training_validation").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", \
+        folder, "accuracies").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", \
+        folder, "logs").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", \
+        folder, "plots", "accuracies").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", \
+        folder, "plots", "training_validation").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", \
+        folder, "training_validation").mkdir(parents=True, exist_ok=True)
     return folder
 
 def store_webhook ():
