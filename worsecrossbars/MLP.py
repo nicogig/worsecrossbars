@@ -9,10 +9,14 @@ import signal
 import gc
 import platform
 from pathlib import Path
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
+from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
+from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
 from worsecrossbars.utilities import Logging
 from worsecrossbars.utilities import MSTeamsNotifier
+from worsecrossbars.utilities import DropboxUpload
 
 def stop_handler(signum, _):
     """
@@ -35,6 +39,32 @@ def main():
     main(command_line_args):
     The main function.
     """
+    if command_line_args.dropbox:
+        dbx = DropboxUpload(output_folder)
+
+    MNIST_dataset = dataset_creation()
+    weights_list = []
+    histories_list = []
+    generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
+
+    # Model definition and training, repeated "number_ANNs" times to average out stochastic variancies
+    for model_number in range(0, int(number_anns)):
+
+        MNIST_MLP = generator_functions[number_hidden_layers](noise=True, noise_variance=extracted_json["noise_variance"])
+        MLP_weights, MLP_history, *_ = train_MLP(MNIST_dataset, MNIST_MLP, epochs=10, batch_size=100)
+        weights_list.append(MLP_weights)
+        histories_list.append(MLP_history)
+        gc.collect()
+
+        if command_line_args.log:
+            log.write(string=f"Trained model {model_number+1} of {number_anns}")
+
+    # Computing training and validation loss and accuracy by averaging over all the models trained in the previous step
+    if command_line_args.log:
+        log.write(string=f"Done training. Computing loss and accuracy.")
+    
+
+
     pass
 
 if __name__ == "__main__":
@@ -61,24 +91,35 @@ if __name__ == "__main__":
         initial_setup.main_setup(command_line_args.wipe_current)
         sys.exit(0)
     else:
+        # Get the JSON supplied, parse it, validate it against
+        # a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
         extracted_json = io_operations.read_external_json(str(json_path))
         json_handlers.validate_json(extracted_json)
+
+        # Create User, Output folders.
         io_operations.user_folders()
         output_folder = io_operations.create_output_structure(extracted_json, 
         command_line_args.wipe_current)
+
+        # Extract Useful info from JSON Object
+        number_hidden_layers = extracted_json["number_hidden_layers"]
+        HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
+        fault_type = extracted_json["fault_type"]
+        number_anns = extracted_json["number_ANNs"]
+
         if command_line_args.log:
             log = Logging(extracted_json, output_folder)
             log.write(special="begin")
         if command_line_args.teams:
             teams = MSTeamsNotifier(io_operations.read_webhook())
-            number_hidden_layers = extracted_json["number_hidden_layers"]
-            HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
-            fault_type = extracted_json["fault_type"]
             teams.send_message(f"Using parameters: {number_hidden_layers} {HIDDEN_LAYER}," + \
                 f" fault type {fault_type}.", title="Started new simulation", color="028a0f")
+        
+        # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
         signal.signal(signal.SIGTERM, stop_handler)
         if platform.system() == "Darwin" or platform.system() == "Linux":
             signal.signal(signal.SIGHUP, stop_handler)
-        main()
+        
+        main() # Goto Main
