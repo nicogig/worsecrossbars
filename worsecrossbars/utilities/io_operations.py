@@ -68,10 +68,10 @@ def store_webhook ():
     store_webhook():
     Asks the user for a MSTeam Webhook URL and store it.
     """
-    working_dir = Path.home().joinpath("worsecrossbars")
+    working_file = Path.home().joinpath("worsecrossbars", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
     jsonified_webhook = {"msteams_webhook":webhook_url}
-    with open(str(working_dir.joinpath("config", "msteams.json")), 'w') as outfile:
+    with open(str(working_file), "w", encoding="utf8") as outfile:
         json.dump(jsonified_webhook, outfile)
 
 def read_webhook ():
@@ -84,7 +84,7 @@ def read_webhook ():
         print("Please run this module with --setup before using Internet options!")
         sys.exit(0)
     else:
-        with open(str(working_file)) as json_file:
+        with open(str(working_file), "r", encoding="utf8") as json_file:
             webhook_url = json.load(json_file)["msteams_webhook"]
         return webhook_url
 
@@ -98,5 +98,5 @@ def store_dropbox_keys ():
     app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
     app_keys = {"APP_KEY":app_key, "APP_SECRET":app_secret}
 
-    with open(str(working_file), 'w', encoding="utf8") as outfile:
+    with open(str(working_file), "w", encoding="utf8") as outfile:
         json.dump(app_keys, outfile)
