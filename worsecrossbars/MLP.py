@@ -11,7 +11,6 @@ import platform
 from pathlib import Path
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
-from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
 from worsecrossbars.utilities import Logging
@@ -42,7 +41,7 @@ def main():
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    MNIST_dataset = dataset_creation()
+    mnist_dataset = dataset_creation()
     weights_list = []
     histories_list = []
     generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
@@ -50,10 +49,10 @@ def main():
     # Model definition and training, repeated "number_ANNs" times to average out stochastic variancies
     for model_number in range(0, int(number_anns)):
 
-        MNIST_MLP = generator_functions[number_hidden_layers](noise=True, noise_variance=extracted_json["noise_variance"])
-        MLP_weights, MLP_history, *_ = train_MLP(MNIST_dataset, MNIST_MLP, epochs=10, batch_size=100)
-        weights_list.append(MLP_weights)
-        histories_list.append(MLP_history)
+        mnist_mlp = generator_functions[number_hidden_layers](noise=True, noise_variance=extracted_json["noise_variance"])
+        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset, mnist_mlp, epochs=10, batch_size=100)
+        weights_list.append(mlp_weights)
+        histories_list.append(mlp_history)
         gc.collect()
 
         if command_line_args.log:
@@ -61,7 +60,7 @@ def main():
 
     # Computing training and validation loss and accuracy by averaging over all the models trained in the previous step
     if command_line_args.log:
-        log.write(string=f"Done training. Computing loss and accuracy.")
+        log.write(string="Done training. Computing loss and accuracy.")
     
 
 
@@ -115,11 +114,9 @@ if __name__ == "__main__":
             teams = MSTeamsNotifier(io_operations.read_webhook())
             teams.send_message(f"Using parameters: {number_hidden_layers} {HIDDEN_LAYER}," + \
                 f" fault type {fault_type}.", title="Started new simulation", color="028a0f")
-        
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
         signal.signal(signal.SIGTERM, stop_handler)
         if platform.system() == "Darwin" or platform.system() == "Linux":
             signal.signal(signal.SIGHUP, stop_handler)
-        
         main() # Goto Main
