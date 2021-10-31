@@ -11,7 +11,7 @@ from jsonschema.exceptions import ValidationError
 from worsecrossbars.utilities import initial_setup
 from worsecrossbars.utilities import io_operations
 
-def main(command_line_args):
+def main():
     """
     main(command_line_args):
     The main function.
@@ -62,4 +62,4 @@ if __name__ == "__main__":
         initial_setup.main_setup(command_line_args.wipe_current)
         sys.exit(0)
     else:
-        main(command_line_args)
+        main()
