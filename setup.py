@@ -7,7 +7,7 @@ def load_requirements():
     """
     Load the requirements from the associated file.
     """
-    with open("requirements.txt", "rt") as file:
+    with open("requirements.txt", "r", encoding='utf8') as file:
         return file.read().splitlines()
 
 setup(
