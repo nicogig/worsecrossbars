@@ -14,7 +14,7 @@ from worsecrossbars.utilities import io_operations
 from worsecrossbars.utilities import Logging
 from worsecrossbars.utilities import MSTeamsNotifier
 
-def stop_handler(signum, frame):
+def stop_handler(signum, _):
     """
     A stop signal handler.
     """
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", dest="config", metavar="CONFIG_FILE", \
          help="Provide the config file needed for simulations", type=str)
     parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT", \
-         help="Wipe the current configuration", type=bool, default=False)
+         help="Wipe the current output (or config)", type=bool, default=False)
     parser.add_argument("-l", dest="log", metavar="LOG", \
          help="Enable logging the output in a separate file", type=bool, default=True)
     parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", \
@@ -64,13 +64,14 @@ if __name__ == "__main__":
         json_path = Path.cwd().joinpath(command_line_args.config)
         extracted_json = io_operations.read_external_json(str(json_path))
         json_handlers.validate_json(extracted_json)
+        io_operations.user_folders()
+        output_folder = io_operations.create_output_structure(extracted_json, 
+        command_line_args.wipe_current)
         if command_line_args.log:
-            log = Logging(extracted_json["number_hidden_layers"], extracted_json["fault_type"],
-            extracted_json["number_ANNs"], extracted_json["number_simulations"])
+            log = Logging(extracted_json, output_folder)
             log.write(special="begin")
         if command_line_args.teams:
-            webhook_url = io_operations.read_webhook()
-            teams = MSTeamsNotifier(webhook_url)
+            teams = MSTeamsNotifier(io_operations.read_webhook())
             number_hidden_layers = extracted_json["number_hidden_layers"]
             HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
             fault_type = extracted_json["fault_type"]
