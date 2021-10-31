@@ -1,20 +1,21 @@
 import os, json
+from pathlib import Path
 from dropbox import DropboxOAuth2FlowNoRedirect, Dropbox
-from worsecrossbars import configs
 from worsecrossbars.utilities import io_operations
-
-
 
 def authenticate():
     """
 
     """
-    if not os.path.exists(configs.working_dir.joinpath("config", "app_keys.json")):
+    if not os.path.exists(
+        Path.home().joinpath("worsecrossbars", "config", "app_keys.json")):
         io_operations.store_dropbox_keys()
         authenticate()
         return
     else:
-        with open(str(configs.working_dir.joinpath("config", "app_keys.json"))) as json_file:
+        with open(
+            str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")),
+            encoding="utf8") as json_file:
             app_keys = json.load(json_file)
 
     
@@ -41,5 +42,8 @@ def authenticate():
               "dropbox_expiration": oauth_result.expires_at.__str__(),
               "dropbox_refresh":oauth_result.refresh_token}
 
-    with open(str(configs.working_dir.joinpath("config", "user_secrets.json")), 'w') as outfile:
+    with open(
+        str(Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")),
+        'w',
+        encoding="utf8") as outfile:
         json.dump(secret, outfile)

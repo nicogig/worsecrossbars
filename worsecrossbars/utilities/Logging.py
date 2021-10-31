@@ -2,7 +2,7 @@
 """
 import glob
 from datetime import datetime
-from worsecrossbars import configs
+from pathlib import Path
 
 class Logging:
 
@@ -14,10 +14,10 @@ class Logging:
         self.fault_type = extracted_json["fault_type"]
         self.number_anns = extracted_json["number_ANNs"]
         self.number_simulations = extracted_json["number_simulations"]
-        for _ in glob.glob(str(configs.working_dir.joinpath("outputs", "logs",
+        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs", "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = str(configs.working_dir.joinpath("outputs", "logs",
+        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs", "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-{log_number}.log"))
 
     def write (self, string="", special=None):

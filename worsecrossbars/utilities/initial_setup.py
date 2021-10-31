@@ -5,8 +5,8 @@ Module used to configure the system to use worsecrossbars.
 
 import os 
 import wget
+from pathlib import Path
 from urllib.error import URLError
-from worsecrossbars import configs
 from worsecrossbars.utilities import io_operations, auth_dropbox
 
 def main_setup (overwrite_configs=False):
@@ -18,7 +18,8 @@ def main_setup (overwrite_configs=False):
     io_operations.user_folders()
     
     try:
-        wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf", out=str(configs.working_dir.joinpath("utils")))
+        wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf",
+         out=str(Path.home().joinpath("worsecrossbars", "utils")))
     except URLError as err:
         print(f"The Computer Modern font could not be downloaded because wget" + \
             f" terminated unexpectedly with error {err.reason}.\nPlotting will" + \
@@ -28,7 +29,9 @@ def main_setup (overwrite_configs=False):
         auth_dropbox.authenticate()
         io_operations.read_webhook()
     else:
-        if not os.path.exists(configs.working_dir.joinpath("config", "user_secrets.json")):
+        if not os.path.exists(
+            Path.home().joinpath("worsecrossbars","config", "user_secrets.json")):
             auth_dropbox.authenticate()
-        if not os.path.exists(configs.working_dir.joinpath("config", "msteams.json")):
+        if not os.path.exists(
+            Path.home().joinpath("worsecrossbars", "config", "msteams.json")):
             io_operations.read_webhook()
