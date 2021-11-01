@@ -4,3 +4,5 @@ pymsteams
 numpy
 dropbox
 wget
+pylint
+jsonschema
