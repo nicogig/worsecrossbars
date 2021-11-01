@@ -3,12 +3,12 @@ import matplotlib.font_manager as fm
 import numpy as np
 import os
 
-from worsecrossbars import configs
+from pathlib import Path
 from worsecrossbars.plotting.plotting import training_validation_plotter
 
 # Importing LaTeX font for plots
-if os.path.exists(configs.working_dir.joinpath("utils", "cmunrm.ttf")):
-    font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
+    font = fm.FontProperties(fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18)
 else:
     font = fm.FontProperties(family="sans-serif", size=18)
 
@@ -28,7 +28,7 @@ for number_hidden_layers in range(1, 5):
         temp_val_loss = []
 
         try:
-            directory = str(configs.working_dir.joinpath("outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle"))
+            directory = str(Path.home().joinpath("worsecrossbars", "outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle"))
             temp_acc.append(pickle.load(open(directory, "rb"))[0])
             temp_val_acc.append(pickle.load(open(directory, "rb"))[1])
             temp_loss.append(pickle.load(open(directory, "rb"))[2])

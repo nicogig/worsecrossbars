@@ -2,12 +2,12 @@ import pickle
 import matplotlib.font_manager as fm
 import os
 
-from worsecrossbars import configs
+from pathlib import Path
 from worsecrossbars.plotting.plotting import accuracy_curves_plotter
 
 # Importing LaTeX font for plots
-if os.path.exists(configs.working_dir.joinpath("utils", "cmunrm.ttf")):
-    font = fm.FontProperties(fname=configs.working_dir.joinpath("utils", "cmunrm.ttf"), size=18)
+if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
+    font = fm.FontProperties(fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18)
 else:
     font = fm.FontProperties(family="sans-serif", size=18)
 
@@ -24,7 +24,7 @@ for noise_idx, noise in enumerate([True, False]):
 
         for fault_type in range (1, 4):
             try:
-                data[noise_idx][fault_type-1].append(pickle.load(open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N_1NV.pickle")), "rb")))
+                data[noise_idx][fault_type-1].append(pickle.load(open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N_1NV.pickle")), "rb")))
             except FileNotFoundError:
                 print(f"File for fault {number_hidden_layers}HL_{fault_type}FT_{noise}N is not present.")
 
@@ -58,7 +58,7 @@ variance_data = []
 
 for variance in variances:
 
-    variance_data.append(pickle.load(open(str(configs.working_dir.joinpath("outputs", "accuracies", f"accuracies_faultType1_2HL_TrueN_{variance}NV.pickle")), "rb")))
+    variance_data.append(pickle.load(open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType1_2HL_TrueN_{variance}NV.pickle")), "rb")))
 
 # Plotting data with different variances
 accuracy_curves_plotter(variance_data[0][0], [variance_data[i][1] for i in range(len(variances))], fault_type=variance_data[0][2], fpath=font, save=False, labels=variances)
