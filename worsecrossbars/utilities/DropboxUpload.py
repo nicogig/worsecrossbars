@@ -18,6 +18,9 @@ class DropboxUpload:
                 self.auth_checked = True
             with open(str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json"))) as json_file:
                 self.app_keys = json.load(json_file)
+    
+    def __call__ (self):
+        pass
 
     def upload(self):
         if self.auth_checked:

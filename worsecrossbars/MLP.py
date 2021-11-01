@@ -9,8 +9,8 @@ import signal
 import gc
 import platform
 import pickle
-import numpy as np
 from pathlib import Path
+import numpy as np
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.utilities import initial_setup, json_handlers

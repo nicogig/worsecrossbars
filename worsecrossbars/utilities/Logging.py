@@ -20,6 +20,9 @@ class Logging:
         self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-{log_number}.log"))
 
+    def __call__ (self):
+        pass
+
     def write (self, string="", special=None):
         """
         """
