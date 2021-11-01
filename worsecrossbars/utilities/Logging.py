@@ -6,7 +6,7 @@ from pathlib import Path
 
 class Logging:
 
-    def __init__ (self, extracted_json):
+    def __init__ (self, extracted_json, output_folder):
         """
         """
         log_number = 1
@@ -14,10 +14,10 @@ class Logging:
         self.fault_type = extracted_json["fault_type"]
         self.number_anns = extracted_json["number_ANNs"]
         self.number_simulations = extracted_json["number_simulations"]
-        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs", "logs",
+        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs", "logs",
+        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-{log_number}.log"))
 
     def write (self, string="", special=None):

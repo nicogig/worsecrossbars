@@ -8,6 +8,8 @@ import sys
 import signal
 import gc
 import platform
+import pickle
+import numpy as np
 from pathlib import Path
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
@@ -61,9 +63,36 @@ def main():
     # Computing training and validation loss and accuracy by averaging over all the models trained in the previous step
     if command_line_args.log:
         log.write(string="Done training. Computing loss and accuracy.")
-    
 
+    epochs = range(1, len(histories_list[0].history["accuracy"]) + 1)
+    accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
+    validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
+    loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
+    validation_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
 
+    for history in histories_list:
+
+        history_dict = history.history
+        accuracy_values += np.array(history_dict["accuracy"])
+        validation_accuracy_values += np.array(history_dict["val_accuracy"])
+        loss_values += np.array(history_dict["loss"])
+        validation_loss_values += np.array(history_dict["val_loss"])
+
+    accuracy_values /= len(histories_list)
+    validation_accuracy_values /= len(histories_list)
+    loss_values /= len(histories_list)
+    validation_loss_values /= len(histories_list)
+
+    # Saving training/validation data to file
+    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), \
+           open(
+               str(Path.home().joinpath("outputs",
+               output_folder, "training_validation",
+               f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
+                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8"))
+
+    if command_line_args.log:
+        log.write(string=f"Saved training and validation data.")
     pass
 
 if __name__ == "__main__":
@@ -106,6 +135,7 @@ if __name__ == "__main__":
         HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
         fault_type = extracted_json["fault_type"]
         number_anns = extracted_json["number_ANNs"]
+        noise_variance = extracted_json["noise_variance"]
 
         if command_line_args.log:
             log = Logging(extracted_json, output_folder)
