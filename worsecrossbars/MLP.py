@@ -11,7 +11,10 @@ import platform
 import pickle
 from pathlib import Path
 import numpy as np
-from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_2HL
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_3HL
+from worsecrossbars.backend.MLP_generator import MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
@@ -36,7 +39,7 @@ def stop_handler(signum, _):
     gc.collect()
     sys.exit(0)
 
-def main():
+def main(): ## too_many_statements, too_many_variables
     """
     main(command_line_args):
     The main function.
@@ -49,11 +52,16 @@ def main():
     histories_list = []
     generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
 
-    # Model definition and training, repeated "number_ANNs" times to average out stochastic variancies
+    # Model definition and training,
+    # repeated "number_ANNs" times to average out stochastic variancies
     for model_number in range(0, int(number_anns)):
 
-        mnist_mlp = generator_functions[number_hidden_layers](noise=True, noise_variance=extracted_json["noise_variance"])
-        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset, mnist_mlp, epochs=10, batch_size=100)
+        mnist_mlp = generator_functions[number_hidden_layers](noise=True, 
+                                                              noise_variance=extracted_json["noise_variance"])
+        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset, 
+                                                mnist_mlp, 
+                                                epochs=10, 
+                                                batch_size=100)
         weights_list.append(mlp_weights)
         histories_list.append(mlp_history)
         gc.collect()
@@ -61,11 +69,12 @@ def main():
         if command_line_args.log:
             log.write(string=f"Trained model {model_number+1} of {number_anns}")
 
-    # Computing training and validation loss and accuracy by averaging over all the models trained in the previous step
+    # Computing training and validation loss and accuracy
+    # by averaging over all the models trained in the previous step
     if command_line_args.log:
         log.write(string="Done training. Computing loss and accuracy.")
 
-    epochs = range(1, len(histories_list[0].history["accuracy"]) + 1)
+    #epochs = range(1, len(histories_list[0].history["accuracy"]) + 1)
     accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
     validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
     loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
@@ -89,12 +98,15 @@ def main():
                output_folder, "training_validation",
                f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
                 f"_{noise_variance}NV.pickle")), "wb") as file:
-        pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), file)
+        pickle.dump(
+            (accuracy_values, validation_accuracy_values, loss_values, validation_loss_values),
+            file)
 
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
 
-    # Running "args.number_simulations" simulations for each of the "args.number_ANNs" networks trained above over the specified
+    # Running "args.number_simulations" simulations
+    # for each of the "args.number_ANNs" networks trained above over the specified
     # range of faulty devices percentages
     mnist_mlp = generator_functions[number_hidden_layers](noise=True, noise_variance=noise_variance)
     mnist_mlp.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
@@ -106,7 +118,7 @@ def main():
     for count, weights in enumerate(weights_list):
 
         accuracies_array[count] = run_simulation(percentages,
-                                                weights, 
+                                                weights,
                                                 int(number_simulations),
                                                 mnist_mlp,
                                                 mnist_dataset,
@@ -130,12 +142,12 @@ def main():
 
     if command_line_args.log:
         log.write(special="end")
-    
+
     if command_line_args.teams:
-        teams.send_message(f"Finished script using parameters {number_hidden_layers} HL, {fault_type} fault type.", "Finished execution", color="028a0f")
+        teams.send_message(f"Finished script using parameters {number_hidden_layers} HL, {fault_type} fault type.",
+                            "Finished execution", color="028a0f")
     if command_line_args.dropbox:
         dbx.upload()
-    pass
 
 if __name__ == "__main__":
 
@@ -169,7 +181,7 @@ if __name__ == "__main__":
 
         # Create User, Output folders.
         io_operations.user_folders()
-        output_folder = io_operations.create_output_structure(extracted_json, 
+        output_folder = io_operations.create_output_structure(extracted_json,
         command_line_args.wipe_current)
 
         # Extract Useful info from JSON Object
