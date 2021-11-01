@@ -85,7 +85,7 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    with open(str(Path.home().joinpath("outputs",
+    with open(str(Path.home().joinpath("worsecrossbars", "outputs",
                output_folder, "training_validation",
                f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
                 f"_{noise_variance}NV.pickle")), "wb") as file:
@@ -122,7 +122,7 @@ def main():
     accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
 
     # Saving accuracies array to file
-    with open(str(Path.home().joinpath("outputs",
+    with open(str(Path.home().joinpath("worsecrossbars", "outputs",
                output_folder, "training_validation",
                f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
                 f"_{noise_variance}NV.pickle")), "wb") as file:
