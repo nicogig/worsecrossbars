@@ -24,6 +24,7 @@ def main_setup (overwrite_configs=False):
         print(f"The Computer Modern font could not be downloaded because wget" + \
             f" terminated unexpectedly with error {err.reason}.\nPlotting will" + \
             " use the standard Matplotlib font. Please consult the Docs for further guidance.")
+    print("/n")
 
     if overwrite_configs:
         auth_dropbox.authenticate()

@@ -71,7 +71,7 @@ def store_webhook ():
     store_webhook():
     Asks the user for a MSTeam Webhook URL and store it.
     """
-    working_file = Path.home().joinpath("worsecrossbars", "msteams.json")
+    working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
     jsonified_webhook = {"msteams_webhook":webhook_url}
     with open(str(working_file), "w", encoding="utf8") as outfile:
