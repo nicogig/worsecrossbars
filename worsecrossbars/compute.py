@@ -1,5 +1,5 @@
 """
-MLP.py (Temporary Name)
+compute.py (formerly MLP.py)
 Worsecrossbars main module and entrypoint.
 """
 
