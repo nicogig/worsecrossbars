@@ -1,7 +1,15 @@
-import os, sys, json
+"""
+dropbox_upload.py:
+An internal module to upload a user's output folder
+to Dropbox.
+"""
+
+import os
+import sys
+import json
 import shutil
-import dropbox
 from pathlib import Path
+import dropbox
 
 class DropboxUpload:
     def __init__(self, folder) -> None:
@@ -16,7 +24,9 @@ class DropboxUpload:
                 encoding="utf8") as json_file:
                 self.dropbox_secrets = json.load(json_file)
                 self.auth_checked = True
-            with open(str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json"))) as json_file:
+            with open(
+                str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")),
+                encoding="utf8") as json_file:
                 self.app_keys = json.load(json_file)
     
     def __call__ (self):

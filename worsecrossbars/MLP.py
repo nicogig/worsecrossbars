@@ -19,9 +19,9 @@ from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
-from worsecrossbars.utilities.Logging import Logging
-from worsecrossbars.utilities.MSTeamsNotifier import MSTeamsNotifier
-from worsecrossbars.utilities.DropboxUpload import DropboxUpload
+from worsecrossbars.utilities.logging_module import Logging
+from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 
 def stop_handler(signum, _):
     """

@@ -1,22 +1,39 @@
-import os, json
+"""
+auth_dropbox.py
+An internal module used to establish a secure connection
+to Dropbox and authenticate against a Dropbox App.
+Uses OAuth 2.
+"""
+import os
+import json
+import sys
 from pathlib import Path
-from dropbox import DropboxOAuth2FlowNoRedirect, Dropbox
+from dropbox import Dropbox
+from dropbox import DropboxOAuth2FlowNoRedirect
+from dropbox.oauth import NotApprovedException
+from dropbox.oauth import BadRequestException
+from dropbox.oauth import BadStateException
+from dropbox.oauth import ProviderException
 from worsecrossbars.utilities import io_operations
 
 def authenticate():
     """
-
+    authenticate():
+    Given an APP_KEY and an APP_SECRET, create an
+    OAuth 2.0 Authentication Flow and
+    authenticate the user.
+    The resulting user_secrets are stored in the HOME folder.
     """
     if not os.path.exists(
         Path.home().joinpath("worsecrossbars", "config", "app_keys.json")):
         io_operations.store_dropbox_keys()
         authenticate()
         return
-    else:
-        with open(
+
+    with open(
             str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")),
             encoding="utf8") as json_file:
-            app_keys = json.load(json_file)
+        app_keys = json.load(json_file)
 
     
     auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"], consumer_secret=app_keys["APP_SECRET"], token_access_type='offline',
@@ -30,9 +47,9 @@ def authenticate():
 
     try:
         oauth_result = auth_flow.finish(auth_code)
-    except Exception as e:
-        print('Error: %s' % (e,))
-        exit(1)
+    except (NotApprovedException, BadStateException, BadRequestException, ProviderException) as error:
+        print(f"Error: {error}")
+        sys.exit(1)
 
     with Dropbox(oauth2_access_token=oauth_result.access_token) as dbx:
         dbx.users_get_current_account()
