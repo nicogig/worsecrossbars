@@ -56,11 +56,11 @@ def main(): ## too_many_statements, too_many_variables
     # repeated "number_ANNs" times to average out stochastic variancies
     for model_number in range(0, int(number_anns)):
 
-        mnist_mlp = generator_functions[number_hidden_layers](noise=True, 
-                                                              noise_variance=extracted_json["noise_variance"])
-        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset, 
-                                                mnist_mlp, 
-                                                epochs=10, 
+        mnist_mlp = generator_functions[number_hidden_layers](noise=True,
+        noise_variance=extracted_json["noise_variance"])
+        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset,
+                                                mnist_mlp,
+                                                epochs=10,
                                                 batch_size=100)
         weights_list.append(mlp_weights)
         histories_list.append(mlp_history)
@@ -144,7 +144,8 @@ def main(): ## too_many_statements, too_many_variables
         log.write(special="end")
 
     if command_line_args.teams:
-        teams.send_message(f"Finished script using parameters {number_hidden_layers} HL, {fault_type} fault type.",
+        teams.send_message(f"Finished script using parameters {number_hidden_layers}" + \
+                            f" HL, {fault_type} fault type.",
                             "Finished execution", color="028a0f")
     if command_line_args.dropbox:
         dbx.upload()
