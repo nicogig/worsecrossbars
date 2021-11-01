@@ -12,6 +12,11 @@ from pathlib import Path
 import dropbox
 
 class DropboxUpload:
+    """
+    DropboxUpload (class):
+    An instance of this class holds the user_secrets
+    and output_folder needed to upload the output to Dropbox.
+    """
     def __init__(self, folder) -> None:
         if not os.path.exists(
             Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")):
@@ -33,6 +38,10 @@ class DropboxUpload:
         pass
 
     def upload(self):
+        """
+        upload():
+        Uploads the output folder to Dropbox.
+        """
         if self.auth_checked:
             dbx = dropbox.Dropbox(
                 oauth2_refresh_token=self.dropbox_secrets["dropbox_refresh"],
@@ -41,8 +50,8 @@ class DropboxUpload:
                 f"output_{self.output_folder}",
                 "zip",
                 str(Path.home().joinpath("worsecrossbars", "outputs", self.output_folder)))
-            with open(f"output_{self.output_folder}.zip", 'rb') as f:
-                data = f.read()
+            with open(f"output_{self.output_folder}.zip", 'rb') as file:
+                data = file.read()
             try:
                 res = dbx.files_upload(
                         data, f"/output_{self.output_folder}.zip",
@@ -50,6 +59,5 @@ class DropboxUpload:
                         mode=dropbox.files.WriteMode('overwrite'))
             except dropbox.exceptions.ApiError as err:
                 print('*** API error', err)
-                return None
             print('uploaded as', res.name.encode('utf8'))
             os.remove(f"./output_{self.output_folder}.zip")

@@ -20,16 +20,23 @@ class Logging:
         self.fault_type = extracted_json["fault_type"]
         self.number_anns = extracted_json["number_ANNs"]
         self.number_simulations = extracted_json["number_simulations"]
-        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs",
+        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars",
+        "outputs", output_folder, "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-?.log"))):
             log_number += 1
-        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs",
+        self.file_object = str(Path.home().joinpath("worsecrossbars",
+        "outputs", output_folder, "logs",
         f"spruce_faultType{self.fault_type}_{self.number_hidden_layers}HL-{log_number}.log"))
 
     def __call__ (self):
         pass
 
     def write (self, string="", special=None):
+        """
+        write(string):
+        Write a given string to the log. If "special" is given, print either the start or
+        end of the log.
+        """
         if special == "begin":
             write_string = f"----- Begin log {datetime.now().__str__()} -----\n" + \
                         "Attempting simulation with following parameters:\n" + \
