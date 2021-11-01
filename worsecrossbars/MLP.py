@@ -15,9 +15,9 @@ from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, M
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
-from worsecrossbars.utilities import Logging
-from worsecrossbars.utilities import MSTeamsNotifier
-from worsecrossbars.utilities import DropboxUpload
+from worsecrossbars.utilities.Logging import Logging
+from worsecrossbars.utilities.MSTeamsNotifier import MSTeamsNotifier
+from worsecrossbars.utilities.DropboxUpload import DropboxUpload
 
 def stop_handler(signum, _):
     """
@@ -84,15 +84,14 @@ def main():
     validation_loss_values /= len(histories_list)
 
     # Saving training/validation data to file
-    pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), \
-           open(
-               str(Path.home().joinpath("outputs",
+    with open(str(Path.home().joinpath("outputs",
                output_folder, "training_validation",
                f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
-                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8"))
+                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8") as file:
+        pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), file)
 
     if command_line_args.log:
-        log.write(string=f"Saved training and validation data.")
+        log.write(string="Saved training and validation data.")
     pass
 
 if __name__ == "__main__":
