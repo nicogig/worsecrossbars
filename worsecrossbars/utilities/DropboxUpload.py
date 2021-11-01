@@ -31,7 +31,7 @@ class DropboxUpload:
                 f"output_{self.output_folder}",
                 "zip",
                 str(Path.home().joinpath("worsecrossbars", "outputs", self.output_folder)))
-            with open(f"output_{self.output_folder}.zip", 'rb', encoding="utf8") as f:
+            with open(f"output_{self.output_folder}.zip", 'rb') as f:
                 data = f.read()
             try:
                 res = dbx.files_upload(
