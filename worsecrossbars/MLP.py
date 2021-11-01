@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 from worsecrossbars.backend.MLP_generator import MNIST_MLP_1HL, MNIST_MLP_2HL, MNIST_MLP_3HL, MNIST_MLP_4HL
 from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
+from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
 from worsecrossbars.utilities.Logging import Logging
@@ -92,6 +93,48 @@ def main():
 
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
+
+    # Running "args.number_simulations" simulations for each of the "args.number_ANNs" networks trained above over the specified
+    # range of faulty devices percentages
+    mnist_mlp = generator_functions[number_hidden_layers](noise=True, noise_variance=noise_variance)
+    mnist_mlp.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
+
+    percentages = np.arange(0, 1.01, 0.01)
+    accuracies_array = np.zeros((len(weights_list), len(percentages)))
+    fault_num = {"STUCK_ZERO":1, "STUCK_HIGH":2, "STUCK_LOW":3}
+
+    for count, weights in enumerate(weights_list):
+
+        accuracies_array[count] = run_simulation(percentages,
+                                                weights, 
+                                                int(number_simulations),
+                                                mnist_mlp,
+                                                mnist_dataset,
+                                                fault_num[fault_type],
+                                                extracted_json["HRS_LRS_ratio"],
+                                                extracted_json["number_of_conductance_levels"],
+                                                extracted_json["excluded_weights_proportion"])
+        gc.collect()
+        if command_line_args.log:
+            log.write(string=f"Simulated model {count+1} of {number_anns}.")
+
+    # Averaging the results obtained for each of the 30 sets of weights
+    accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
+
+    # Saving accuracies array to file
+    with open(str(Path.home().joinpath("outputs",
+               output_folder, "training_validation",
+               f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
+                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8") as file:
+        pickle.dump((percentages, accuracies, fault_num[fault_type]), file)
+
+    if command_line_args.log:
+        log.write(special="end")
+    
+    if command_line_args.teams:
+        teams.send_message(f"Finished script using parameters {number_hidden_layers} HL, {fault_type} fault type.", "Finished execution", color="028a0f")
+    if command_line_args.dropbox:
+        dbx.upload()
     pass
 
 if __name__ == "__main__":
@@ -135,6 +178,7 @@ if __name__ == "__main__":
         fault_type = extracted_json["fault_type"]
         number_anns = extracted_json["number_ANNs"]
         noise_variance = extracted_json["noise_variance"]
+        number_simulations = extracted_json["number_simulations"]
 
         if command_line_args.log:
             log = Logging(extracted_json, output_folder)
