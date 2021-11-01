@@ -35,9 +35,10 @@ def authenticate():
             encoding="utf8") as json_file:
         app_keys = json.load(json_file)
 
-    
-    auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"], consumer_secret=app_keys["APP_SECRET"], token_access_type='offline',
-                                         scope=['account_info.read', 'files.content.read', 'files.content.write'],)
+    auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"], 
+    consumer_secret=app_keys["APP_SECRET"], 
+    token_access_type='offline',
+    scope=['account_info.read', 'files.content.read', 'files.content.write'])
 
     authorize_url = auth_flow.start()
     print(f"1. Go to: {authorize_url}")
@@ -47,7 +48,10 @@ def authenticate():
 
     try:
         oauth_result = auth_flow.finish(auth_code)
-    except (NotApprovedException, BadStateException, BadRequestException, ProviderException) as error:
+    except (NotApprovedException, 
+            BadStateException, 
+            BadRequestException, 
+            ProviderException) as error:
         print(f"Error: {error}")
         sys.exit(1)
 
