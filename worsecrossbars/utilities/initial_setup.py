@@ -34,4 +34,4 @@ def main_setup (overwrite_configs=False):
             auth_dropbox.authenticate()
         if not os.path.exists(
             Path.home().joinpath("worsecrossbars", "config", "msteams.json")):
-            io_operations.read_webhook()
+            io_operations.store_webhook()
