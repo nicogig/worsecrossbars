@@ -88,7 +88,7 @@ def main():
     with open(str(Path.home().joinpath("outputs",
                output_folder, "training_validation",
                f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
-                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8") as file:
+                f"_{noise_variance}NV.pickle")), "wb") as file:
         pickle.dump((accuracy_values, validation_accuracy_values, loss_values, validation_loss_values), file)
 
     if command_line_args.log:
@@ -125,7 +125,7 @@ def main():
     with open(str(Path.home().joinpath("outputs",
                output_folder, "training_validation",
                f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
-                f"_{noise_variance}NV.pickle")), "wb", encoding="utf8") as file:
+                f"_{noise_variance}NV.pickle")), "wb") as file:
         pickle.dump((percentages, accuracies, fault_num[fault_type]), file)
 
     if command_line_args.log:

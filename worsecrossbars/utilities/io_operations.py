@@ -40,7 +40,7 @@ def create_output_structure(extracted_json, wipe_current):
     Creates an output folder given the args of the simulation.
     """
     home_dir = Path.home()
-    time_now = datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
+    time_now = datetime.now().strftime("%d_%m_%Y_%H:%M:%S")
     number_hidden_layers = extracted_json["number_hidden_layers"]
     fault_type = extracted_json["fault_type"]
     noise_variance = extracted_json["noise_variance"]
