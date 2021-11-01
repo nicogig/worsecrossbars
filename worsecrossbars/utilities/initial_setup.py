@@ -3,28 +3,27 @@ initial_setup.py
 Module used to configure the system to use worsecrossbars.
 """
 
-import os 
-import wget
+import os
 from pathlib import Path
 from urllib.error import URLError
+import wget
 from worsecrossbars.utilities import io_operations, auth_dropbox
 
 def main_setup (overwrite_configs=False):
     """
-    main_setup:
+    main_setup():
     A function to download the correct fonts, and prep the system to use worsecrossbars.
     """
-    
     io_operations.user_folders()
-    
+
     try:
         wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf",
          out=str(Path.home().joinpath("worsecrossbars", "utils")))
     except URLError as err:
-        print(f"The Computer Modern font could not be downloaded because wget" + \
+        print("The Computer Modern font could not be downloaded because wget" + \
             f" terminated unexpectedly with error {err.reason}.\nPlotting will" + \
             " use the standard Matplotlib font. Please consult the Docs for further guidance.")
-    print("/n")
+    print("\n")
 
     if overwrite_configs:
         auth_dropbox.authenticate()

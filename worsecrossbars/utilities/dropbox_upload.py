@@ -33,7 +33,7 @@ class DropboxUpload:
                 str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")),
                 encoding="utf8") as json_file:
                 self.app_keys = json.load(json_file)
-    
+
     def __call__ (self):
         pass
 
