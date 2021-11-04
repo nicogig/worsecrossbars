@@ -53,7 +53,7 @@ except IndexError:
     print("Some necessary file is missing: complete accuracy plot cannot be produced.")
 
 
-variances = [0.5, 1, 1.5, 10]
+variances = [0.5, 1.0, 1.5, 10.0]
 variance_data = []
 
 for variance in variances:
