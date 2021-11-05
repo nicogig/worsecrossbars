@@ -61,7 +61,7 @@ def discretise_weights(network_weights, network_weight_intervals):
         Alter the weights in the network so that they conform to the list of allowed weights.
     Inputs:
         -   network_weights: The weights as outputted by the training functions.
-        -   network_weight_intervals: A list of lists of evenly spaced weights. 
+        -   network_weight_intervals: A list of lists of evenly spaced weights.
         One list per synaptic layer.
     Output:
         -   The altered network weights, now discretised.
@@ -81,7 +81,7 @@ def discretise_weights(network_weights, network_weight_intervals):
             index[mask] = len(req_int) - 1
             index_new = np.array(
                 [index[i] - 1 if abs(req_int[index[i] - 1] - layer_weights[i]) < \
-                    abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
+                abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
             )
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)
