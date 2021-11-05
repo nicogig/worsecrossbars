@@ -35,8 +35,8 @@ for noise_idx, noise in enumerate([True, False]):
                         "worsecrossbars",
                         "outputs",
                         "accuracies",
-                        f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N_1NV" + \
-                        ".pickle")),
+                        f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N" + \
+                        "_1NV.pickle")),
                     "rb") as file:
                     data[noise_idx][fault_type-1].append(pickle.load(file))
             except FileNotFoundError:
