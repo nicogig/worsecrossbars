@@ -1,9 +1,12 @@
+"""
+training_validation_curves.py:
+A plotting module.
+"""
+import os
 import pickle
+from pathlib import Path
 import matplotlib.font_manager as fm
 import numpy as np
-import os
-
-from pathlib import Path
 from worsecrossbars.plotting.plotting import training_validation_plotter
 
 # Importing LaTeX font for plots
@@ -28,11 +31,12 @@ for number_hidden_layers in range(1, 5):
         temp_val_loss = []
 
         try:
-            directory = str(Path.home().joinpath("worsecrossbars", "outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle"))
-            temp_acc.append(pickle.load(open(directory, "rb"))[0])
-            temp_val_acc.append(pickle.load(open(directory, "rb"))[1])
-            temp_loss.append(pickle.load(open(directory, "rb"))[2])
-            temp_val_loss.append(pickle.load(open(directory, "rb"))[3])
+            DIRECTORY = str(Path.home().joinpath("worsecrossbars", "outputs", "training_validation", f"training_validation_faultType{fault_type}_{number_hidden_layers}HL.pickle"))
+            with open(DIRECTORY, "rb") as file:
+                temp_acc.append(pickle.load(file)[0])
+                temp_val_acc.append(pickle.load(file)[1])
+                temp_loss.append(pickle.load(file)[2])
+                temp_val_loss.append(pickle.load(file)[3])
         except FileNotFoundError:
             print(f"Fault {number_hidden_layers}HL_{fault_type}FT not yet implemented.")
         
