@@ -1,8 +1,11 @@
-import pickle
-import matplotlib.font_manager as fm
+"""
+accuracy_curves.py:
+A plotting module.
+"""
 import os
-
+import pickle
 from pathlib import Path
+import matplotlib.font_manager as fm
 from worsecrossbars.plotting.plotting import accuracy_curves_plotter
 
 # Importing LaTeX font for plots
@@ -20,11 +23,11 @@ for noise_idx, noise in enumerate([True, False]):
     for number_hidden_layers in range(1, 5):
 
         if noise:
-            accuracy_labels.append(f"{number_hidden_layers} hidden layers" if (number_hidden_layers != 1) else f"1 hidden layer")
-
+            accuracy_labels.append(f"{number_hidden_layers} hidden layers" if (number_hidden_layers != 1) else "1 hidden layer")
         for fault_type in range (1, 4):
             try:
-                data[noise_idx][fault_type-1].append(pickle.load(open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N_1NV.pickle")), "rb")))
+                with open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType{fault_type}_{number_hidden_layers}HL_{noise}N_1NV.pickle")), "rb") as file:
+                    data[noise_idx][fault_type-1].append(pickle.load(file))
             except FileNotFoundError:
                 print(f"File for fault {number_hidden_layers}HL_{fault_type}FT_{noise}N is not present.")
 
@@ -57,8 +60,8 @@ variances = [0.5, 1.0, 1.5, 10.0]
 variance_data = []
 
 for variance in variances:
-
-    variance_data.append(pickle.load(open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType1_2HL_TrueN_{variance}NV.pickle")), "rb")))
+    with open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies", f"accuracies_faultType1_2HL_TrueN_{variance}NV.pickle")), "rb") as file:
+        variance_data.append(pickle.load(file))
 
 # Plotting data with different variances
 accuracy_curves_plotter(variance_data[0][0], [variance_data[i][1] for i in range(len(variances))], fault_type=variance_data[0][2], fpath=font, save=False, labels=variances)
