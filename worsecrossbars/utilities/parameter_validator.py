@@ -56,6 +56,7 @@ def validate_parameters(simulation_parameters):
 
     if isinstance(excluded_weights_proportion, int):
         excluded_weights_proportion = float(excluded_weights_proportion)
-    if not isinstance(excluded_weights_proportion, float) or excluded_weights_proportion < 0:
+    if not isinstance(excluded_weights_proportion, float) or excluded_weights_proportion < 0 or \
+        excluded_weights_proportion > 1:
         raise ValueError("\"excluded_weights_proportion\" argument should be a " +
-                         "positive real number.")
+                         "real number between 0 and 1.")
