@@ -1,4 +1,4 @@
 # worsecrossbars
-![worsecrossbars logo](docs/imgs/logo.001.png)
+![worsecrossbars logo](docs/imgs/logo.gif)
 
 A tool for simulating faulty devices in a memristive-based neural network
