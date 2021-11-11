@@ -16,7 +16,7 @@ def mnist_mlp_1hl(neurons=None, model_name="MNIST_MLP_1HL", noise_variance=1):
     # rather than to a different number of weights being implemented.
     # 89,050 parameters
 
-    if neurons == None:
+    if neurons is None:
         neurons = [112]
 
     if not isinstance(neurons, list):
@@ -58,7 +58,7 @@ def mnist_mlp_2hl(neurons=None, model_name="MNIST_MLP_2HL", noise_variance=1):
     # training and validation sets in a 3:1 ratio, as described in the aforementioned paper.
     # 89,610 parameters
 
-    if neurons == None:
+    if neurons is None:
         neurons = [100, 100]
 
     if not isinstance(neurons, list):
@@ -100,7 +100,7 @@ def mnist_mlp_3hl(neurons=None, model_name="MNIST_MLP_3HL", noise_variance=1):
     # rather than to a different number of weights being implemented.
     # 89,375 parameters
 
-    if neurons == None:
+    if neurons is None:
         neurons = [90, 95, 95]
 
     if not isinstance(neurons, list):
@@ -146,7 +146,7 @@ def mnist_mlp_4hl(neurons=None, model_name="MNIST_MLP_4HL", noise_variance=1):
     # rather than to a different number of weights being implemented.
     # 89,515 parameters
 
-    if neurons == None:
+    if neurons is None:
         neurons = [85, 85, 85, 85]
 
     if not isinstance(neurons, list):

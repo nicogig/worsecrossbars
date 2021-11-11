@@ -16,7 +16,7 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
     softmax activation function (which means a cross-entropy error function is then used
     throughout the learning task). All 60,000 MNIST training images were employed, divided into
     training and validation sets in a 3:1 ratio, as described in the aforementioned paper.
-    
+
     For the one-layer, three-layers and four-layers topologies, the number of neurons in each
     hidden layer was tweaked so as to produce a final network with about the same number of
     trainable parameters as the original, two-layers ANN. This was done to ensure that variability
@@ -30,7 +30,7 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
         raise ValueError("\"num_hidden_layers\" argument should be an integer between 1 and 4.")
 
     # Setting default argument values
-    if neurons == None:
+    if neurons is None:
         neurons = default_neurons[num_hidden_layers]
     if model_name == "":
         model_name = f"MNIST_MLP_{num_hidden_layers}HL"
