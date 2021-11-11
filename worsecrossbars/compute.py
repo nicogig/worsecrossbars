@@ -16,8 +16,12 @@ from worsecrossbars.backend.simulation import training_validation_metrics
 from worsecrossbars.backend.simulation import train_models
 from worsecrossbars.backend.simulation import run_simulation
 from worsecrossbars.utilities.parameter_validator import validate_parameters
-from worsecrossbars.utilities import initial_setup, json_handlers
-from worsecrossbars.utilities import io_operations
+from worsecrossbars.utilities.initial_setup import main_setup
+from worsecrossbars.utilities.json_handlers import validate_json
+from worsecrossbars.utilities.io_operations import read_external_json
+from worsecrossbars.utilities.io_operations import read_webhook
+from worsecrossbars.utilities.io_operations import create_output_structure
+from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
@@ -111,21 +115,21 @@ if __name__ == "__main__":
 
     if command_line_args.setup:
 
-        initial_setup.main_setup(command_line_args.wipe_current)
+        main_setup(command_line_args.wipe_current)
         sys.exit(0)
 
     else:
 
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
-        simulation_parameters = io_operations.read_external_json(str(json_path))
-        json_handlers.validate_json(simulation_parameters)
+        simulation_parameters = read_external_json(str(json_path))
+        validate_json(simulation_parameters)
         validate_parameters(simulation_parameters)
 
         # Create user and output folders.
-        io_operations.user_folders()
-        output_folder = io_operations.create_output_structure(simulation_parameters,
-        command_line_args.wipe_current)
+        user_folders()
+        output_folder = create_output_structure(simulation_parameters,
+                                                command_line_args.wipe_current)
 
         # Extract useful info from JSON Object
         number_hidden_layers = simulation_parameters["number_hidden_layers"]
@@ -139,7 +143,7 @@ if __name__ == "__main__":
             log = Logging()
 
         if command_line_args.teams:
-            teams = MSTeamsNotifier(io_operations.read_webhook())
+            teams = MSTeamsNotifier(read_webhook())
             teams.send_message(f"Using parameters:\n{simulation_parameters}",
                                title="Started simulation", color="028a0f")
 
