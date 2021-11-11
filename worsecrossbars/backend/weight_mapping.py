@@ -13,7 +13,7 @@ def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion)
         Choose the minimum and maximum discrete weights
     Inputs:
         -   network_weights: The weights as outputted by the training functions.
-        -   HRS_LRS_ratio: the ratio desired.
+        -   hrs_lrs_ratio: the ratio desired.
         -   excluded_weights_proportion:  proportion of excluded
             synaptic weights with the largest absolute values.
     Output:
