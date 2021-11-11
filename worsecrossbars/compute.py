@@ -12,7 +12,7 @@ import pickle
 from pathlib import Path
 import numpy as np
 from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.MLP_trainer import dataset_creation, train_MLP
+from worsecrossbars.backend.mlp_trainer import create_datasets, train_mlp
 from worsecrossbars.backend.fault_simulation import run_simulation
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
@@ -46,10 +46,7 @@ def run_model_training(mnist_dataset):
 
     for model_number in range(0, int(number_anns)):
         mnist_mlp_2 = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-        mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset,
-                                                mnist_mlp_2,
-                                                epochs=10,
-                                                batch_size=100)
+        mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, mnist_mlp_2)
         weights_list.append(mlp_weights)
         histories_list.append(mlp_history)
         gc.collect()
@@ -100,7 +97,7 @@ def main(): ## too_many_statements, too_many_variables
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    mnist_dataset = dataset_creation()
+    mnist_dataset = create_datasets()
     weights_list, histories_list = run_model_training(mnist_dataset)
 
     # Computing training and validation loss and accuracy
