@@ -46,7 +46,7 @@ def run_model_training(mnist_dataset):
 
     for model_number in range(0, int(number_anns)):
         mnist_mlp_2 = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-        mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, mnist_mlp_2)
+        mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, mnist_mlp_2, 10, 100)
         weights_list.append(mlp_weights)
         histories_list.append(mlp_history)
         gc.collect()
@@ -97,7 +97,7 @@ def main(): ## too_many_statements, too_many_variables
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    mnist_dataset = create_datasets()
+    mnist_dataset = create_datasets(3)
     weights_list, histories_list = run_model_training(mnist_dataset)
 
     # Computing training and validation loss and accuracy

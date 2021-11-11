@@ -1,5 +1,5 @@
 """
-logging_module.py:
+logging_module:
 An internal module used to create and write to a log file.
 """
 import glob
@@ -8,10 +8,11 @@ from pathlib import Path
 
 class Logging:
     """
-    Logging (class):
-    An instance of this class holds the name and location of the log
-    file to be written to. Instancing this class requires the JSON variables
-    and the output folder.
+    A class holding the name and location of the log file.
+
+    Args:
+      extracted_json: The JSON object containing the simulation parameters.
+      output_folder: The output folder of the module.
     """
 
     def __init__ (self, extracted_json, output_folder):
@@ -33,9 +34,11 @@ class Logging:
 
     def write (self, string="", special=None):
         """
-        write(string):
-        Write a given string to the log. If "special" is given, print either the start or
-        end of the log.
+        Writes a given string to the log.
+
+        Args:
+          string: The string to write.
+          special: Enables a bypass of `string` to write specific recurring strings.
         """
         if special == "begin":
             write_string = f"----- Begin log {datetime.now().__str__()} -----\n" + \

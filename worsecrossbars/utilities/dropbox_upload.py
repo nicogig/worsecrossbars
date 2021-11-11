@@ -1,5 +1,5 @@
 """
-dropbox_upload.py:
+dropbox_upload:
 An internal module to upload a user's output folder
 to Dropbox.
 """
@@ -13,9 +13,10 @@ import dropbox
 
 class DropboxUpload:
     """
-    DropboxUpload (class):
-    An instance of this class holds the user_secrets
-    and output_folder needed to upload the output to Dropbox.
+    A Dropbox handler that deals with authentication and upload.
+
+    Args:
+      folder: The output folder of the module.
     """
     def __init__(self, folder) -> None:
         if not os.path.exists(

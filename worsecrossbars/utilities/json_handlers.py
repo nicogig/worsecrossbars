@@ -1,4 +1,5 @@
 """
+json_handlers:
 An internal utility module to handle and validate JSON.
 """
 import sys
@@ -7,8 +8,10 @@ from jsonschema.exceptions import ValidationError
 
 def validate_json(extracted_json):
     """
-    validate_json():
-    Validates a given JSON object against a standard schema.
+    Validate a given JSON object against a standard schema.
+
+    Args:
+      extracted_json: The JSON object to be validated.
     """
     json_schema = {
         "type": "object",

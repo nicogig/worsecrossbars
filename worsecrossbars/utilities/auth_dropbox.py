@@ -1,5 +1,5 @@
 """
-auth_dropbox.py
+auth_dropbox:
 An internal module used to establish a secure connection
 to Dropbox and authenticate against a Dropbox App.
 Uses OAuth 2.
@@ -18,11 +18,9 @@ from worsecrossbars.utilities import io_operations
 
 def authenticate():
     """
-    authenticate():
-    Given an APP_KEY and an APP_SECRET, create an
-    OAuth 2.0 Authentication Flow and
-    authenticate the user.
-    The resulting user_secrets are stored in the HOME folder.
+    Authenticates a user against the Dropbox OAuth 2.0
+    Interface. Uses APP_KEY and APP_SECRET from the user's
+    config. The resulting user_secrets are stored in the HOME folder.
     """
     if not os.path.exists(
         Path.home().joinpath("worsecrossbars", "config", "app_keys.json")):

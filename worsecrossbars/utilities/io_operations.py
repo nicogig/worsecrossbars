@@ -1,5 +1,5 @@
 """
-io_operations.
+io_operations:
 A module that holds multiple utility functions used to
 interact with the File System.
 """
@@ -12,8 +12,10 @@ from datetime import datetime
 
 def read_external_json (file_path):
     """
-    read_external_JSON(file_name):
-    Given a file_path, read the contents of the file and dump it in an object.
+    Read the contents of a JSON file and dump it in an object.
+
+    Args:
+      file_path: The file location on the File System, as a string.
     """
     if not os.path.exists(file_path):
         print("The provided file does not exist! Exiting...")
@@ -26,7 +28,6 @@ def read_external_json (file_path):
 
 def user_folders():
     """
-    user_folders():
     Creates the basic folder structure in the user's HOME folder.
     """
     home_dir = Path.home()
@@ -36,8 +37,11 @@ def user_folders():
 
 def create_output_structure(extracted_json, wipe_current):
     """
-    create_output_structure(args):
-    Creates an output folder given the args of the simulation.
+    Create an output folder to store the results of the simulation.
+
+    Args:
+      extracted_json: The object containing the JSON parameters.
+      wipe_current: Delete all other folders in "outputs".
     """
     home_dir = Path.home()
     time_now = datetime.now().strftime("%d_%m_%Y_%H:%M:%S")
@@ -68,8 +72,7 @@ def create_output_structure(extracted_json, wipe_current):
 
 def store_webhook ():
     """
-    store_webhook():
-    Asks the user for a MSTeam Webhook URL and store it.
+    Asks the user for a MSTeam Webhook URL and stores it.
     """
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
@@ -79,7 +82,6 @@ def store_webhook ():
 
 def read_webhook ():
     """
-    read_webhook():
     Reads the Webhook URL from the user's HOME directory.
     """
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
@@ -93,7 +95,6 @@ def read_webhook ():
 
 def store_dropbox_keys ():
     """
-    store_dropbox_keys():
     Asks the user for Dropbox keys, and stores them.
     """
     working_file = Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
