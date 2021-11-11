@@ -133,7 +133,7 @@ if __name__ == "__main__":
         noise_variance = simulation_parameters["noise_variance"]
 
         if command_line_args.log:
-            log = Logging(simulation_parameters, output_folder)
+            log = Logging(simulation_parameters=simulation_parameters, output_folder=output_folder)
             log.write(special="begin")
         else:
             log = Logging()
