@@ -64,7 +64,6 @@ def run_monte_carlo(weights_list, percentages, mnist_dataset):
     # Running "args.number_simulations" simulations
     # for each of the "args.number_ANNs" networks trained above over the specified
     # range of faulty devices percentages
-    fault_num = {"STUCK_ZERO":1, "STUCK_HIGH":2, "STUCK_LOW":3}
     mnist_mlp_t = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
     mnist_mlp_t.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
     accuracies_array = np.zeros((len(weights_list), len(percentages)))
@@ -73,26 +72,21 @@ def run_monte_carlo(weights_list, percentages, mnist_dataset):
 
         accuracies_array[count] = run_simulation(percentages,
                                                 weights,
-                                                int(number_simulations),
                                                 mnist_mlp_t,
                                                 mnist_dataset,
-                                                fault_num[fault_type],
-                                                extracted_json["HRS_LRS_ratio"],
-                                                extracted_json["number_of_conductance_levels"],
-                                                extracted_json["excluded_weights_proportion"])
+                                                simulation_parameters)
         gc.collect()
         if command_line_args.log:
             log.write(string=f"Simulated model {count+1} of {number_anns}.")
     return np.mean(accuracies_array, axis=0, dtype=np.float64)
 
 
-def main(): ## too_many_statements, too_many_variables
+def main():
     """
     main():
     The main function.
     """
     percentages = np.arange(0, 1.01, 0.01)
-    fault_num = {"STUCK_ZERO":1, "STUCK_HIGH":2, "STUCK_LOW":3}
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -144,7 +138,7 @@ def main(): ## too_many_statements, too_many_variables
                output_folder, "accuracies",
                f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
                 f"_{noise_variance}NV.pickle")), "wb") as file:
-        pickle.dump((percentages, accuracies, fault_num[fault_type]), file)
+        pickle.dump((percentages, accuracies, fault_type), file)
 
     if command_line_args.log:
         log.write(special="end")
@@ -183,24 +177,24 @@ if __name__ == "__main__":
         # Get the JSON supplied, parse it, validate it against
         # a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
-        extracted_json = io_operations.read_external_json(str(json_path))
-        json_handlers.validate_json(extracted_json)
+        simulation_parameters = io_operations.read_external_json(str(json_path))
+        json_handlers.validate_json(simulation_parameters)
 
         # Create User, Output folders.
         io_operations.user_folders()
-        output_folder = io_operations.create_output_structure(extracted_json,
+        output_folder = io_operations.create_output_structure(simulation_parameters,
         command_line_args.wipe_current)
 
         # Extract Useful info from JSON Object
-        number_hidden_layers = extracted_json["number_hidden_layers"]
+        number_hidden_layers = simulation_parameters["number_hidden_layers"]
         HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
-        fault_type = extracted_json["fault_type"]
-        number_anns = extracted_json["number_ANNs"]
-        noise_variance = extracted_json["noise_variance"]
-        number_simulations = extracted_json["number_simulations"]
+        fault_type = simulation_parameters["fault_type"]
+        number_anns = simulation_parameters["number_ANNs"]
+        noise_variance = simulation_parameters["noise_variance"]
+        number_simulations = simulation_parameters["number_simulations"]
 
         if command_line_args.log:
-            log = Logging(extracted_json, output_folder)
+            log = Logging(simulation_parameters, output_folder)
             log.write(special="begin")
         if command_line_args.teams:
             teams = MSTeamsNotifier(io_operations.read_webhook())
