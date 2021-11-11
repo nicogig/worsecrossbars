@@ -111,7 +111,7 @@ def accuracy_curves_plotter(
     noise=False,
     fpath=None,
     save=False,
-    labels=[],
+    labels=None,
     label_step=10):
     """
     accuracy_curves_plotter:
@@ -134,6 +134,8 @@ def accuracy_curves_plotter(
         -   A graph, both inline (if using Jupyter)
             and as a png (if the "save" flag is set to true).
     """
+    if labels is None:
+        labels = []
 
     if fault_type not in (1, 2, 3):
         raise ValueError("\"fault_type\" parameter must be an integer comprised between 1 and 3.")
