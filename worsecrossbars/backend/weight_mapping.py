@@ -9,9 +9,17 @@ import numpy as np
 
 def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion):
     """
+    Choose the minimum and maximum discrete weights of the memristor ANN.
+
+    Args:
+      network_weights: The weights as outputted by the training functions.
+      hrs_lrs_ratio: The desired HRS/LRS ratio.
+      excluded_weights_proportion: The proportion of weights at the tails to be excluded.
+    
+    extremes_list: The list of extremes at each layer of the network.
     """
 
-    return_list = []
+    extremes_list = []
 
     for count, layer_weights in enumerate(network_weights):
 
@@ -23,28 +31,42 @@ def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion)
             index = int(excluded_weights_proportion * size)
             w_max = w_abs[index]
             w_min = w_max / hrs_lrs_ratio
-            return_list.append((w_max, w_min))
+            extremes_list.append((w_max, w_min))
         else:
-            return_list.append((None, ))
+            extremes_list.append((None, ))
 
-    return return_list
+    return extremes_list
 
 
 def create_weight_interval(list_of_extremes, number_of_levels):
     """
+    Create an evenly spaced weight interval.
+
+    Args:
+      list_of_extremes: The list of extremes in each layer.
+      number_of_levels: The number of weights needed.
+    
+    weight_interval_list: A list of linearly spaced weight intervals for the synaptic layers.
     """
 
-    return_list = []
+    weight_interval_list = []
 
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            return_list.append(np.linspace(element[1], element[0], number_of_levels))
+            weight_interval_list.append(np.linspace(element[1], element[0], number_of_levels))
 
-    return return_list
+    return weight_interval_list
 
 
 def discretise_weights(network_weights, network_weight_intervals):
     """
+    Alter the weights in the network so that they conform to the list of allowed weights.
+
+    Args:
+      network_weights: The weights as outputted by the training functions.
+      network_weight_intervals: A list of spaced weight intervals.
+    
+    discretised_weights: The altered network weights, now discretised.
     """
 
     discretised_weights = copy.deepcopy(network_weights)
