@@ -42,6 +42,9 @@ def create_output_structure(extracted_json, wipe_current):
     Args:
       extracted_json: The object containing the JSON parameters.
       wipe_current: Delete all other folders in "outputs".
+
+    folder:
+      The name of the output folder.
     """
     home_dir = Path.home()
     time_now = datetime.now().strftime("%d_%m_%Y_%H:%M:%S")

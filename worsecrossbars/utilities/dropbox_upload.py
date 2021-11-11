@@ -40,7 +40,6 @@ class DropboxUpload:
 
     def upload(self):
         """
-        upload():
         Uploads the output folder to Dropbox.
         """
         if self.auth_checked:
