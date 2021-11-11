@@ -1,6 +1,6 @@
 """
-compute.py (formerly MLP.py)
-Worsecrossbars main module and entrypoint.
+compute:
+Worsecrossbars' main module and entrypoint.
 """
 
 import argparse
@@ -11,9 +11,10 @@ import platform
 import pickle
 from pathlib import Path
 import numpy as np
-from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.mlp_trainer import create_datasets, train_mlp
-from worsecrossbars.backend.fault_simulation import run_simulation
+from worsecrossbars.backend.mlp_trainer import create_datasets
+from worsecrossbars.backend.simulation import training_validation_metrics
+from worsecrossbars.backend.simulation import train_models
+from worsecrossbars.backend.simulation import run_simulation
 from worsecrossbars.utilities.parameter_validator import validate_parameters
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
@@ -21,190 +22,131 @@ from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 
+
 def stop_handler(signum, _):
     """
-    A stop signal handler.
     """
+
     if command_line_args.log:
-        log.write("Simulation terminated unexpectedly. Got signal" + \
-            f" {signal.Signals(signum).name}.\nEnding.\n")
+        log.write("Simulation terminated unexpectedly. Got signal " +
+            f"{signal.Signals(signum).name}.\nEnding.\n")
         log.write(special="abruptend")
+
     if command_line_args.teams:
-        teams.send_message(f"Simulation ({number_hidden_layers}" + \
-            f" {HIDDEN_LAYER}, fault type {fault_type})" + \
-            f" terminated unexpectedly.\nGot signal {signal.Signals(signum).name}.\nEnding.", \
-             title="Simulation ended", color="b90e0a")
+        teams.send_message(f"Using parameters:\n{simulation_parameters}",
+                           title="Simulation terminated unexpectedly", color="b90e0a")
+
     gc.collect()
     sys.exit(0)
-
-def run_model_training(mnist_dataset):
-    """
-    run_model_training(mnist_dataset):
-    Perform training for number_anns ANNs.
-    """
-    weights_list = []
-    histories_list = []
-
-    for model_number in range(0, int(number_anns)):
-        mnist_mlp_2 = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-        mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, mnist_mlp_2, 10, 100)
-        weights_list.append(mlp_weights)
-        histories_list.append(mlp_history)
-        gc.collect()
-
-        if command_line_args.log:
-            log.write(string=f"Trained model {model_number+1} of {number_anns}")
-
-    return (weights_list, histories_list)
-
-def run_monte_carlo(weights_list, percentages, mnist_dataset):
-    """
-    run_monte_carlo(weights_list, percentages, mnist_dataset):
-    Runs a simulation X number of times and averages the results.
-    """
-    # Running "args.number_simulations" simulations
-    # for each of the "args.number_ANNs" networks trained above over the specified
-    # range of faulty devices percentages
-    mnist_mlp_t = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-    mnist_mlp_t.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
-    accuracies_array = np.zeros((len(weights_list), len(percentages)))
-
-    for count, weights in enumerate(weights_list):
-
-        accuracies_array[count] = run_simulation(percentages,
-                                                weights,
-                                                mnist_mlp_t,
-                                                mnist_dataset,
-                                                simulation_parameters)
-        gc.collect()
-        if command_line_args.log:
-            log.write(string=f"Simulated model {count+1} of {number_anns}.")
-    return np.mean(accuracies_array, axis=0, dtype=np.float64)
 
 
 def main():
     """
-    main():
-    The main function.
     """
+
+    # Defining percentages of faulty devices that will be simulated
     percentages = np.arange(0, 1.01, 0.01)
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    mnist_dataset = create_datasets(3)
-    weights_list, histories_list = run_model_training(mnist_dataset)
+    mnist_dataset = create_datasets(training_validation_ratio=3)
+    weights_list, histories_list = train_models(mnist_dataset, simulation_parameters,
+                                                epochs=10, batch_size=100, log=log)
 
-    # Computing training and validation loss and accuracy
-    # by averaging over all the models trained in the previous step
+    # Computing training and validation loss and accuracy by averaging over all the models trained
+    # in the previous step
+    training_validation_data = training_validation_metrics(histories_list)
+
     if command_line_args.log:
         log.write(string="Done training. Computing loss and accuracy.")
 
-    #epochs = range(1, len(histories_list[0].history["accuracy"]) + 1)
-    accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    validation_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
-
-    for history in histories_list:
-
-        history_dict = history.history
-        accuracy_values += np.array(history_dict["accuracy"])
-        validation_accuracy_values += np.array(history_dict["val_accuracy"])
-        loss_values += np.array(history_dict["loss"])
-        validation_loss_values += np.array(history_dict["val_loss"])
-
-    accuracy_values /= len(histories_list)
-    validation_accuracy_values /= len(histories_list)
-    loss_values /= len(histories_list)
-    validation_loss_values /= len(histories_list)
-
     # Saving training/validation data to file
-    with open(str(Path.home().joinpath("worsecrossbars", "outputs",
-               output_folder, "training_validation",
-               f"training_validation_faultType{fault_type}_{number_hidden_layers}HL" + \
-                f"_{noise_variance}NV.pickle")), "wb") as file:
-        pickle.dump(
-            (accuracy_values, validation_accuracy_values, loss_values, validation_loss_values),
-            file)
+    with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
+    "training_validation", f"training_validation_{fault_type}_{number_hidden_layers}HL" +
+    f"_{noise_variance}NV.pickle")),"wb") as file:
+        pickle.dump(training_validation_data, file)
 
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
 
-    # Performing MC and averaging
-    accuracies = run_monte_carlo(weights_list, percentages, mnist_dataset)
+    # Running a variety of simulations to average out stochastic variance
+    accuracies = run_simulation(weights_list, percentages, mnist_dataset,
+                                simulation_parameters, log)
 
     # Saving accuracies array to file
-    with open(str(Path.home().joinpath("worsecrossbars", "outputs",
-               output_folder, "accuracies",
-               f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
-                f"_{noise_variance}NV.pickle")), "wb") as file:
+    with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "accuracies",
+    f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle")),"wb") as file:
         pickle.dump((percentages, accuracies, fault_type), file)
 
     if command_line_args.log:
         log.write(special="end")
 
     if command_line_args.teams:
-        teams.send_message(f"Finished script using parameters {number_hidden_layers}" + \
-                            f" HL, {fault_type} fault type.",
-                            "Finished execution", color="028a0f")
+        teams.send_message(f"Using parameters:\n{simulation_parameters}",
+                           title="Finished simulation", color="1625f3")
+
     if command_line_args.dropbox:
         dbx.upload()
 
 if __name__ == "__main__":
 
     # Command line parser for input arguments
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
-    parser.add_argument("--setup", dest="setup", metavar="INITIAL_SETUP", \
+    parser.add_argument("--setup", dest="setup", metavar="INITIAL_SETUP",
          help="Run the inital setup", type=bool, default=False)
-    parser.add_argument("--config", dest="config", metavar="CONFIG_FILE", \
+    parser.add_argument("--config", dest="config", metavar="CONFIG_FILE",
          help="Provide the config file needed for simulations", type=str)
-    parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT", \
+    parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT",
          help="Wipe the current output (or config)", type=bool, default=False)
-    parser.add_argument("-l", dest="log", metavar="LOG", \
+    parser.add_argument("-l", dest="log", metavar="LOG",
          help="Enable logging the output in a separate file", type=bool, default=True)
-    parser.add_argument("-d", dest="dropbox", metavar="DROPBOX", \
+    parser.add_argument("-d", dest="dropbox", metavar="DROPBOX",
          help="Enable Dropbox integration", type=bool, default=True)
-    parser.add_argument("-t", dest="teams", metavar="MSTEAMS", \
+    parser.add_argument("-t", dest="teams", metavar="MSTEAMS",
          help="Enable MS Teams integration", type=bool, default=True)
 
     command_line_args = parser.parse_args()
 
     if command_line_args.setup:
+
         initial_setup.main_setup(command_line_args.wipe_current)
         sys.exit(0)
+
     else:
-        # Get the JSON supplied, parse it, validate it against
-        # a known schema.
+
+        # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
         simulation_parameters = io_operations.read_external_json(str(json_path))
         json_handlers.validate_json(simulation_parameters)
         validate_parameters(simulation_parameters)
 
-        # Create User, Output folders.
+        # Create user and output folders.
         io_operations.user_folders()
         output_folder = io_operations.create_output_structure(simulation_parameters,
         command_line_args.wipe_current)
 
-        # Extract Useful info from JSON Object
+        # Extract useful info from JSON Object
         number_hidden_layers = simulation_parameters["number_hidden_layers"]
-        HIDDEN_LAYER = "hidden layer" if number_hidden_layers == 1 else "hidden layers"
         fault_type = simulation_parameters["fault_type"]
-        number_anns = simulation_parameters["number_ANNs"]
         noise_variance = simulation_parameters["noise_variance"]
-        number_simulations = simulation_parameters["number_simulations"]
-
+        
+        log = None
         if command_line_args.log:
             log = Logging(simulation_parameters, output_folder)
             log.write(special="begin")
+
         if command_line_args.teams:
             teams = MSTeamsNotifier(io_operations.read_webhook())
-            teams.send_message(f"Using parameters: {number_hidden_layers} {HIDDEN_LAYER}," + \
-                f" fault type {fault_type}.", title="Started new simulation", color="028a0f")
+            teams.send_message(f"Using parameters:\n{simulation_parameters}",
+                               title="Started simulation", color="028a0f")
+
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
         signal.signal(signal.SIGTERM, stop_handler)
         if platform.system() == "Darwin" or platform.system() == "Linux":
             signal.signal(signal.SIGHUP, stop_handler)
-        main() # Goto Main
+
+        # Goto Main
+        main()
