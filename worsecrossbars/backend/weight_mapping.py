@@ -1,8 +1,13 @@
-import numpy as np
+"""
+weight_mapping.py:
+A backend module used to map ANN weights into real-world resistance levels.
+"""
+
 import copy
+import numpy as np
 
 
-def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion):
+def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion):
     """
     choose_extremes:
         Choose the minimum and maximum discrete weights
@@ -22,10 +27,10 @@ def choose_extremes(network_weights, HRS_LRS_ratio, excluded_weights_proportion)
             array_weights = layer_weights.flatten()
             w_abs = np.abs(array_weights)
             w_abs[::-1].sort()
-            s = w_abs.size
-            index = int(excluded_weights_proportion * s)
+            size = w_abs.size
+            index = int(excluded_weights_proportion * size)
             w_max = w_abs[index]
-            w_min = w_max / HRS_LRS_ratio
+            w_min = w_max / hrs_lrs_ratio
             return_list.append((w_max, w_min))
         else:
             return_list.append((None, ))
@@ -56,7 +61,8 @@ def discretise_weights(network_weights, network_weight_intervals):
         Alter the weights in the network so that they conform to the list of allowed weights.
     Inputs:
         -   network_weights: The weights as outputted by the training functions.
-        -   network_weight_intervals: A list of lists of evenly spaced weights. One list per synaptic layer.
+        -   network_weight_intervals: A list of lists of evenly spaced weights.
+        One list per synaptic layer.
     Output:
         -   The altered network weights, now discretised.
     """
@@ -74,7 +80,8 @@ def discretise_weights(network_weights, network_weight_intervals):
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
             index_new = np.array(
-                [index[i] - 1 if abs(req_int[index[i] - 1] - layer_weights[i]) < abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
+                [index[i] - 1 if abs(req_int[index[i] - 1] - layer_weights[i]) < \
+                abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
             )
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)

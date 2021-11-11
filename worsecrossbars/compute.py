@@ -135,7 +135,7 @@ def main(): ## too_many_statements, too_many_variables
 
     # Saving accuracies array to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs",
-               output_folder, "training_validation",
+               output_folder, "accuracies",
                f"accuracies_faultType{fault_type}_{number_hidden_layers}HL" + \
                 f"_{noise_variance}NV.pickle")), "wb") as file:
         pickle.dump((percentages, accuracies, fault_num[fault_type]), file)
