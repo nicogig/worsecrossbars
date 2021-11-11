@@ -136,7 +136,6 @@ if __name__ == "__main__":
             log = Logging(simulation_parameters, output_folder)
             log.write(special="begin")
         else:
-            log = Logging(simulation_parameters, output_folder)
             log = None
 
         if command_line_args.teams:

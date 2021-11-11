@@ -17,7 +17,7 @@ def validate_json(extracted_json):
         "type": "object",
         "properties" : {
             "HRS_LRS_ratio": {"type" : "integer"},
-            "number_of_conductance_levels": {"type": "integer"},
+            "number_conductance_levels": {"type": "integer"},
             "excluded_weights_proportion" : {"type": "number"},
             "number_hidden_layers": {"type": "integer"},
             "fault_type": {"type": "string"},

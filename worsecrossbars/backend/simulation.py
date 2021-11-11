@@ -77,7 +77,7 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
       dataset: MNIST test dataset, used to calculate inference accuracy.
       simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
         needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
-        number_of_conductance_levels, number_of_simulations.
+        number_conductance_levels, number_simulations.
 
     accuracies:
       Array containing the ANN's inference accuracy at each percentage of faulty devices.
@@ -86,12 +86,12 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
     extremes_list = choose_extremes(weights, simulation_parameters["HRS_LRS_ratio"],
                                     simulation_parameters["excluded_weights_proportion"])
     weight_intervals = create_weight_interval(extremes_list,
-                                              simulation_parameters["number_of_conductance_levels"])
+                                              simulation_parameters["number_conductance_levels"])
     weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))
 
-    for _ in range(simulation_parameters["number_of_simulations"]):
+    for _ in range(simulation_parameters["number_simulations"]):
 
         accuracies_list = []
 
@@ -108,7 +108,7 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
         accuracies += np.array(accuracies_list)
         gc.collect()
 
-    accuracies /= simulation_parameters["number_of_simulations"]
+    accuracies /= simulation_parameters["number_simulations"]
 
     return accuracies
 
