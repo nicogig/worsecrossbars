@@ -26,23 +26,23 @@ def validate_parameters(simulation_parameters):
     number_simulations = simulation_parameters["number_simulations"]
 
     if fault_type not in ["STUCK_ZERO", "STUCK_HRS", "STUCK_LRS"]:
-        raise ValueError("\"fault_type\" argument should be valid string. Acceptable values" + \
-                         " include STUCK_ZERO, STUCK_HRS and STUCK_LRS.")
+        raise ValueError("\"fault_type\" argument should be valid string. Acceptable values " +
+                         "include STUCK_ZERO, STUCK_HRS and STUCK_LRS.")
 
     if number_hidden_layers not in [1, 2, 3, 4]:
         raise ValueError("\"number_hidden_layers\" argument should be an integer between 1 and 4.")
 
     if not isinstance(number_anns, int) or number_anns < 1:
-        raise ValueError("\"number_ANNs\" argument should be an integer greater than" + \
-                         " or equal to 1.")
+        raise ValueError("\"number_ANNs\" argument should be an integer greater than " +
+                         "or equal to 1.")
 
     if not isinstance(number_simulations, int) or number_simulations < 1:
-        raise ValueError("\"number_simulations\" argument should be an integer greater than" + \
-                         " or equal to 1.")
+        raise ValueError("\"number_simulations\" argument should be an integer greater than " +
+                         "or equal to 1.")
 
     if not isinstance(number_of_conductance_levels, int) or number_of_conductance_levels < 1:
-        raise ValueError("\"number_of_conductance_levels\" argument should be an integer" + \
-                         " greater than or equal to 1.")
+        raise ValueError("\"number_of_conductance_levels\" argument should be an integer " +
+                         "greater than or equal to 1.")
 
     if isinstance(noise_variance, int):
         noise_variance = float(noise_variance)
@@ -57,5 +57,5 @@ def validate_parameters(simulation_parameters):
     if isinstance(excluded_weights_proportion, int):
         excluded_weights_proportion = float(excluded_weights_proportion)
     if not isinstance(excluded_weights_proportion, float) or excluded_weights_proportion < 0:
-        raise ValueError("\"excluded_weights_proportion\" argument should be a" + \
-                         " positive real number.")
+        raise ValueError("\"excluded_weights_proportion\" argument should be a " +
+                         "positive real number.")
