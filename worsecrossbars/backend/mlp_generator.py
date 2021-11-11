@@ -34,7 +34,7 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
       neurons: List of length num_hidden_layers, contains the number of neurons to be created in
         each densely-connected layer.
       model_name: String, name of the Keras model.
-      noise_variance: Positve integer/float, variance of the GaussianNoise layers instantiated
+      noise_variance: Positive integer/float, variance of the GaussianNoise layers instantiated
         during training to boost network performance.
 
     model:
