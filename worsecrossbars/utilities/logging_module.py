@@ -10,12 +10,12 @@ class Logging:
     A class holding the name and location of the log file.
 
     Args:
-      extracted_json: The JSON object containing the simulation parameters.
+      simulation_parameters: The JSON dictionary object containing the simulation parameters.
       output_folder: The output folder of the module.
     """
 
-    def __init__ (self, extracted_json, output_folder):
-        self.simulation_parameters = extracted_json
+    def __init__ (self, simulation_parameters, output_folder):
+        self.simulation_parameters = simulation_parameters
         self.file_object = str(Path.home().joinpath("worsecrossbars",
                                 "outputs", output_folder, "logs", "spruce.log"))
 
