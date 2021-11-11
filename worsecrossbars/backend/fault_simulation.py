@@ -64,6 +64,21 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
 
 def run_simulation(percentages_array, weights, network_model, dataset, simulation_parameters):
     """
+    This function runs a fault simulation with the given parameters, and thus constitutes the
+    computational core of the package.
+
+    Args:
+      percentages_array: Array containing the various percentages of faulty devices the user wants
+        to simulate.
+      weights: Array containing trained weights that are to be altered to simulate faults.
+      network_model: Keras model containing the network topology being simulated.
+      dataset: MNIST test dataset, used to calculate inference accuracy.
+      simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
+        needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
+        number_of_conductance_levels, number_of_simulations.
+
+    accuracies:
+      Array containing the ANN's inference accuracy at each percentage of faulty devices.
     """
 
     extremes_list = choose_extremes(weights, simulation_parameters["HRS_LRS_ratio"],
