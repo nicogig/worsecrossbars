@@ -22,7 +22,7 @@ def validate_parameters(simulation_parameters):
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
-    number_ANNs = simulation_parameters["number_ANNs"]
+    number_anns = simulation_parameters["number_ANNs"]
     number_simulations = simulation_parameters["number_simulations"]
 
     if fault_type not in ["STUCK_ZERO", "STUCK_HRS", "STUCK_LRS"]:
