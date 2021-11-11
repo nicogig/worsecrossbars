@@ -2,7 +2,6 @@
 logging_module:
 An internal module used to create and write to a log file.
 """
-import glob
 from datetime import datetime
 from pathlib import Path
 
@@ -18,7 +17,7 @@ class Logging:
     def __init__ (self, extracted_json, output_folder):
         self.simulation_parameters = extracted_json
         self.file_object = str(Path.home().joinpath("worsecrossbars",
-                                "outputs", output_folder, "logs", f"spruce.log"))
+                                "outputs", output_folder, "logs", "spruce.log"))
 
     def __call__ (self):
         pass
@@ -44,4 +43,4 @@ class Logging:
         else:
             write_string = f"[{datetime.now().strftime('%H:%M:%S')}] " + string
         with open(self.file_object, "a", encoding="utf8") as file:
-            file.write(f"[{datetime.now().strftime('%H:%M:%S')}] {write_string}\n")
+            file.write(f"{write_string}\n")
