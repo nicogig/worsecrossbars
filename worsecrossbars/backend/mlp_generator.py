@@ -36,7 +36,7 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
       model_name: String, name of the Keras model.
       noise_variance: Positve integer/float, variance of the GaussianNoise layers instantiated
         during training to boost network performance.
-    
+
     model:
       Keras model object, contaning the desired topology.
     """
