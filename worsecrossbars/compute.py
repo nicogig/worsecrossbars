@@ -43,13 +43,9 @@ def run_model_training(mnist_dataset):
     """
     weights_list = []
     histories_list = []
-    #generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
 
     for model_number in range(0, int(number_anns)):
         mnist_mlp_2 = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-
-        #mnist_mlp = generator_functions[number_hidden_layers](noise=True,
-        #noise_variance=extracted_json["noise_variance"])
         mlp_weights, mlp_history, *_ = train_MLP(mnist_dataset,
                                                 mnist_mlp_2,
                                                 epochs=10,
@@ -63,6 +59,34 @@ def run_model_training(mnist_dataset):
 
     return (weights_list, histories_list)
 
+def run_monte_carlo(weights_list, percentages, mnist_dataset):
+    """
+    run_monte_carlo(weights_list, percentages, mnist_dataset):
+    Runs a simulation X number of times and averages the results.
+    """
+    # Running "args.number_simulations" simulations
+    # for each of the "args.number_ANNs" networks trained above over the specified
+    # range of faulty devices percentages
+    fault_num = {"STUCK_ZERO":1, "STUCK_HIGH":2, "STUCK_LOW":3}
+    mnist_mlp_t = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
+    mnist_mlp_t.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
+    accuracies_array = np.zeros((len(weights_list), len(percentages)))
+
+    for count, weights in enumerate(weights_list):
+
+        accuracies_array[count] = run_simulation(percentages,
+                                                weights,
+                                                int(number_simulations),
+                                                mnist_mlp_t,
+                                                mnist_dataset,
+                                                fault_num[fault_type],
+                                                extracted_json["HRS_LRS_ratio"],
+                                                extracted_json["number_of_conductance_levels"],
+                                                extracted_json["excluded_weights_proportion"])
+        gc.collect()
+        if command_line_args.log:
+            log.write(string=f"Simulated model {count+1} of {number_anns}.")
+    return np.mean(accuracies_array, axis=0, dtype=np.float64)
 
 
 def main(): ## too_many_statements, too_many_variables
@@ -115,33 +139,8 @@ def main(): ## too_many_statements, too_many_variables
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
 
-    # Running "args.number_simulations" simulations
-    # for each of the "args.number_ANNs" networks trained above over the specified
-    # range of faulty devices percentages
-
-    #generator_functions = {1: MNIST_MLP_1HL, 2: MNIST_MLP_2HL, 3: MNIST_MLP_3HL, 4: MNIST_MLP_4HL}
-    #mnist_mlp = generator_functions[number_hidden_layers](noise=True, noise_variance=noise_variance)
-    mnist_mlp_t = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-    mnist_mlp_t.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
-    accuracies_array = np.zeros((len(weights_list), len(percentages)))
-
-    for count, weights in enumerate(weights_list):
-
-        accuracies_array[count] = run_simulation(percentages,
-                                                weights,
-                                                int(number_simulations),
-                                                mnist_mlp_t,
-                                                mnist_dataset,
-                                                fault_num[fault_type],
-                                                extracted_json["HRS_LRS_ratio"],
-                                                extracted_json["number_of_conductance_levels"],
-                                                extracted_json["excluded_weights_proportion"])
-        gc.collect()
-        if command_line_args.log:
-            log.write(string=f"Simulated model {count+1} of {number_anns}.")
-
-    # Averaging the results obtained for each of the 30 sets of weights
-    accuracies = np.mean(accuracies_array, axis=0, dtype=np.float64)
+    # Performing MC and averaging
+    accuracies = run_monte_carlo(weights_list, percentages, mnist_dataset)
 
     # Saving accuracies array to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs",
