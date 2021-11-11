@@ -1,6 +1,4 @@
-"""
-"""
-
+"""Contains the mnist_mlp_1hl, mnist_mlp_2hl, mnist_mlp_3hl and mnist_mlp_4hl functions"""
 
 from tensorflow.keras.layers import Dense, GaussianNoise, Activation
 from tensorflow.keras.models import Sequential
@@ -8,6 +6,7 @@ from tensorflow.keras.models import Sequential
 
 def mnist_mlp_1hl(neurons=None, model_name="MNIST_MLP_1HL", noise_variance=1):
     """
+    -
     """
 
     # This network architecture was implemented to have one hidden layer, with about the same
@@ -46,6 +45,7 @@ def mnist_mlp_1hl(neurons=None, model_name="MNIST_MLP_1HL", noise_variance=1):
 
 def mnist_mlp_2hl(neurons=None, model_name="MNIST_MLP_2HL", noise_variance=1):
     """
+    -
     """
 
     # This is the network architecture employed in the *Simulation of Inference Accuracy Using
@@ -92,6 +92,7 @@ def mnist_mlp_2hl(neurons=None, model_name="MNIST_MLP_2HL", noise_variance=1):
 
 def mnist_mlp_3hl(neurons=None, model_name="MNIST_MLP_3HL", noise_variance=1):
     """
+    -
     """
 
     # This network architecture was implemented to have three hidden layers, with about the same
@@ -138,6 +139,7 @@ def mnist_mlp_3hl(neurons=None, model_name="MNIST_MLP_3HL", noise_variance=1):
 
 def mnist_mlp_4hl(neurons=None, model_name="MNIST_MLP_4HL", noise_variance=1):
     """
+    -
     """
 
     # This network architecture was implemented to have four hidden layers, with about the same

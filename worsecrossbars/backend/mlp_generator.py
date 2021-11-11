@@ -1,16 +1,17 @@
-"""
-"""
-
+"""Contains the mnist_mlp function"""
 
 from tensorflow.keras.layers import Dense, GaussianNoise, Activation
 from tensorflow.keras.models import Sequential
 
+
 def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
     """
+    This function returns a Keras model set up to be trained to recognise digits from the MNIST
+    dataset (784 input neurons, 10 softmax output neurons).
 
-    This is the network architecture employed in the "Simulation of Inference Accuracy Using
-    Realistic RRAM Devices" paper. It consists of a feed-forward multilayer perceptron with 784
-    input neurons (encoding pixel intensities for 28 × 28 pixel MNIST images), two 100-neuron
+    The network architecture corresponds to that employed in the "Simulation of Inference Accuracy
+    Using Realistic RRAM Devices" paper. It consists of a feed-forward multilayer perceptron with
+    784 input neurons (encoding pixel intensities for 28 × 28 pixel MNIST images), two 100-neuron
     hidden layers, and 10 output neurons (each corresponding to one of the ten digits). The first
     three layers employ a sigmoid activation function, whilst the output layer makes use of a
     softmax activation function (which means a cross-entropy error function is then used
@@ -22,6 +23,22 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
     trainable parameters as the original, two-layers ANN. This was done to ensure that variability
     in fault simulation results was indeeed due to the number of layers being altered, rather than
     to a different number of weights being implemented.
+
+    The function also gives the user the option to add GaussianNoise layers with a specific variance
+    between hidden layers during training. This is done to increase the network's generalisation
+    power, as well as to increase resilience to faulty memristive devices.
+
+    Args:
+      num_hidden_layers: Integer comprised between 1 and 4, number of hidden layers instantiated as
+        part of the model.
+      neurons: List of length num_hidden_layers, contains the number of neurons to be created in
+        each densely-connected layer.
+      model_name: String, name of the Keras model.
+      noise_variance: Positve integer/float, variance of the GaussianNoise layers instantiated
+        during training to boost network performance.
+    
+    model:
+      Keras model object, contaning the desired topology.
     """
 
     default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
