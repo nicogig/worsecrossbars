@@ -22,7 +22,7 @@ def validate_parameters(simulation_parameters):
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
-    number_ANNs = simulation_parameters["number_ANNs"]
+    number_anns = simulation_parameters["number_ANNs"]
     number_simulations = simulation_parameters["number_simulations"]
 
     if fault_type not in ["STUCK_ZERO", "STUCK_HRS", "STUCK_LRS"]:
@@ -32,7 +32,7 @@ def validate_parameters(simulation_parameters):
     if number_hidden_layers not in [1, 2, 3, 4]:
         raise ValueError("\"number_hidden_layers\" argument should be an integer between 1 and 4.")
 
-    if not isinstance(number_ANNs, int) or number_ANNs < 1:
+    if not isinstance(number_anns, int) or number_anns < 1:
         raise ValueError("\"number_ANNs\" argument should be an integer greater than \
                          or equal to 1.")
 
@@ -59,5 +59,3 @@ def validate_parameters(simulation_parameters):
     if not isinstance(excluded_weights_proportion, float) or excluded_weights_proportion < 0:
         raise ValueError("\"excluded_weights_proportion\" argument should be a \
                          positive real number.")
-
-    pass
