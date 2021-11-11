@@ -32,7 +32,7 @@ def validate_parameters(simulation_parameters):
     if number_hidden_layers not in [1, 2, 3, 4]:
         raise ValueError("\"number_hidden_layers\" argument should be an integer between 1 and 4.")
 
-    if not isinstance(number_ANNs, int) or number_ANNs < 1:
+    if not isinstance(number_anns, int) or number_anns < 1:
         raise ValueError("\"number_ANNs\" argument should be an integer greater than" + \
                          " or equal to 1.")
 
