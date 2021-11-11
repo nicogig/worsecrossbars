@@ -131,11 +131,12 @@ if __name__ == "__main__":
         number_hidden_layers = simulation_parameters["number_hidden_layers"]
         fault_type = simulation_parameters["fault_type"]
         noise_variance = simulation_parameters["noise_variance"]
-        
-        log = None
+
         if command_line_args.log:
             log = Logging(simulation_parameters, output_folder)
             log.write(special="begin")
+        else:
+            log = None
 
         if command_line_args.teams:
             teams = MSTeamsNotifier(io_operations.read_webhook())
