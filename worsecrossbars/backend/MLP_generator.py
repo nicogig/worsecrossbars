@@ -1,8 +1,12 @@
+"""
+"""
+
+
 from tensorflow.keras.layers import Dense, GaussianNoise, Activation
 from tensorflow.keras.models import Sequential
 
 
-def mnist_mlp_1hl(neurons=[112], model_name="MNIST_MLP_1HL", noise_variance=1):
+def mnist_mlp_1hl(neurons=None, model_name="MNIST_MLP_1HL", noise_variance=1):
     """
     """
 
@@ -11,6 +15,12 @@ def mnist_mlp_1hl(neurons=[112], model_name="MNIST_MLP_1HL", noise_variance=1):
     # variability in fault simulation results was indeeed due to the number of layers being altered,
     # rather than to a different number of weights being implemented.
     # 89,050 parameters
+
+    if neurons == None:
+        neurons = [112]
+
+    if not isinstance(neurons, list):
+        raise TypeError("\"neurons\" should be a list object.")
 
     if len(neurons) != 1:
         raise ValueError("\"neurons\" list should have the same length as the number of layers \
@@ -34,11 +44,11 @@ def mnist_mlp_1hl(neurons=[112], model_name="MNIST_MLP_1HL", noise_variance=1):
     return model
 
 
-def mnist_mlp_2hl(neurons=[100, 100], model_name="MNIST_MLP_2HL", noise_variance=1):
+def mnist_mlp_2hl(neurons=None, model_name="MNIST_MLP_2HL", noise_variance=1):
     """
     """
 
-    # This is the network architecture employed in the *Simulation of Inference Accuracy Using 
+    # This is the network architecture employed in the *Simulation of Inference Accuracy Using
     # Realistic RRAM Devices* paper. It consists of a feed-forward multilayer perceptron with 784
     # input neurons (encoding pixel intensities for 28 × 28 pixel MNIST images), two 100-neuron
     # hidden layers, and 10 output neurons (each corresponding to one of the ten digits). The first
@@ -47,6 +57,12 @@ def mnist_mlp_2hl(neurons=[100, 100], model_name="MNIST_MLP_2HL", noise_variance
     # throughout the learning task). All 60,000 MNIST training images were employed, divided into
     # training and validation sets in a 3:1 ratio, as described in the aforementioned paper.
     # 89,610 parameters
+
+    if neurons == None:
+        neurons = [100, 100]
+
+    if not isinstance(neurons, list):
+        raise TypeError("\"neurons\" should be a list object.")
 
     if len(neurons) != 2:
         raise ValueError("\"neurons\" list should have the same length as the number of layers \
@@ -74,7 +90,7 @@ def mnist_mlp_2hl(neurons=[100, 100], model_name="MNIST_MLP_2HL", noise_variance
     return model
 
 
-def mnist_mlp_3hl(neurons=[90, 95, 95], model_name="MNIST_MLP_3HL", noise_variance=1):
+def mnist_mlp_3hl(neurons=None, model_name="MNIST_MLP_3HL", noise_variance=1):
     """
     """
 
@@ -83,6 +99,12 @@ def mnist_mlp_3hl(neurons=[90, 95, 95], model_name="MNIST_MLP_3HL", noise_varian
     # variability in fault simulation results was indeeed due to the number of layers being altered,
     # rather than to a different number of weights being implemented.
     # 89,375 parameters
+
+    if neurons == None:
+        neurons = [90, 95, 95]
+
+    if not isinstance(neurons, list):
+        raise TypeError("\"neurons\" should be a list object.")
 
     if len(neurons) != 3:
         raise ValueError("\"neurons\" list should have the same length as the number of layers \
@@ -114,7 +136,7 @@ def mnist_mlp_3hl(neurons=[90, 95, 95], model_name="MNIST_MLP_3HL", noise_varian
     return model
 
 
-def mnist_mlp_4hl(neurons=[85, 85, 85, 85], model_name="MNIST_MLP_4HL", noise_variance=1):
+def mnist_mlp_4hl(neurons=None, model_name="MNIST_MLP_4HL", noise_variance=1):
     """
     """
 
@@ -123,6 +145,12 @@ def mnist_mlp_4hl(neurons=[85, 85, 85, 85], model_name="MNIST_MLP_4HL", noise_va
     # variability in fault simulation results was indeeed due to the number of layers being altered,
     # rather than to a different number of weights being implemented.
     # 89,515 parameters
+
+    if neurons == None:
+        neurons = [85, 85, 85, 85]
+
+    if not isinstance(neurons, list):
+        raise TypeError("\"neurons\" should be a list object.")
 
     if len(neurons) != 4:
         raise ValueError("\"neurons\" list should have the same length as the number of layers \
