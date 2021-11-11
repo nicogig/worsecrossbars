@@ -14,11 +14,23 @@ def create_datasets(train_validation_ratio=3):
         datasets, indicating that the training dataset is "train_validation_ratio" times bigger
         than the validation dataset.
 
-    train_validation_dataset:
-      Tuple containing the training and validation images and labels.
+    train_validation_data:
+      Array containing validation images data.
 
-    test_dataset:
-      Tuple containing the testing images and labels.
+    mlp_validation_labels:
+      Array containing validation labels.
+
+    mlp_partial_train:
+      Array containing training images data.
+
+    mlp_partial_labels:
+      Array containing training labels.
+
+    mlp_test_images:
+      Array containing test images data.
+
+    mlp_test_labels:
+      Array containing test labels.
     """
 
     # Dataset download
@@ -37,12 +49,8 @@ def create_datasets(train_validation_ratio=3):
     mlp_validation_labels = mlp_train_labels[:validation_size]
     mlp_partial_labels = mlp_train_labels[validation_size:]
 
-    # Packaging datasets into tuples
-    train_validation_dataset = (mlp_validation_data, mlp_validation_labels,
-                                mlp_partial_train, mlp_partial_labels)
-    test_dataset = (mlp_test_images, mlp_test_labels)
-
-    return train_validation_dataset, test_dataset
+    return (mlp_validation_data, mlp_validation_labels, mlp_partial_train, mlp_partial_labels), \
+           (mlp_test_images, mlp_test_labels)
 
 
 def train_mlp(dataset, model, epochs=10, batch_size=100):
