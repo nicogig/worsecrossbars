@@ -48,9 +48,6 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
 
     default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
 
-    if num_hidden_layers not in [1, 2, 3, 4]:
-        raise ValueError("\"num_hidden_layers\" argument should be an integer between 1 and 4.")
-
     # Setting default argument values
     if neurons is None:
         neurons = default_neurons[num_hidden_layers]
