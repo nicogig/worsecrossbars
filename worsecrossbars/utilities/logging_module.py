@@ -14,10 +14,10 @@ class Logging:
       output_folder: The output folder of the module.
     """
 
-    def __init__ (self, simulation_parameters, output_folder):
-        self.simulation_parameters = simulation_parameters
-        self.file_object = str(Path.home().joinpath("worsecrossbars",
-                                "outputs", output_folder, "logs", "spruce.log"))
+    def __init__ (self, **kwargs):
+        self.simulation_parameters = kwargs["simulation_parameters"]
+        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs",
+                                                    kwargs["output_folder"], "logs", "spruce.log"))
 
     def __call__ (self):
         pass

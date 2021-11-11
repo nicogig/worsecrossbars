@@ -136,7 +136,7 @@ if __name__ == "__main__":
             log = Logging(simulation_parameters, output_folder)
             log.write(special="begin")
         else:
-            log = None
+            log = Logging()
 
         if command_line_args.teams:
             teams = MSTeamsNotifier(io_operations.read_webhook())
