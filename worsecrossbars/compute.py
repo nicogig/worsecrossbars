@@ -14,6 +14,7 @@ import numpy as np
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import create_datasets, train_mlp
 from worsecrossbars.backend.fault_simulation import run_simulation
+from worsecrossbars.utilities.parameter_validator import validate_parameters
 from worsecrossbars.utilities import initial_setup, json_handlers
 from worsecrossbars.utilities import io_operations
 from worsecrossbars.utilities.logging_module import Logging
@@ -179,6 +180,7 @@ if __name__ == "__main__":
         json_path = Path.cwd().joinpath(command_line_args.config)
         simulation_parameters = io_operations.read_external_json(str(json_path))
         json_handlers.validate_json(simulation_parameters)
+        validate_parameters(simulation_parameters)
 
         # Create User, Output folders.
         io_operations.user_folders()
