@@ -1,5 +1,5 @@
 """
-weight_mapping.py:
+weight_mapping:
 A backend module used to map ANN weights into real-world resistance levels.
 """
 

@@ -1,10 +1,13 @@
-"""Contains the create_datasets and train_mlp functions"""
+"""
+mlp_trainer:
+A backend module used to create the MNIST dataset and train a Keras model on it.
+"""
 
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
 
-def create_datasets(train_validation_ratio=3):
+def create_datasets(train_validation_ratio):
     """
     This function creates traning and validation datasets based on the MNIST digit database,
     according to the given training/validation split.
@@ -33,6 +36,12 @@ def create_datasets(train_validation_ratio=3):
       Array containing test labels.
     """
 
+    if isinstance(train_validation_ratio, int):
+        train_validation_ratio = float(train_validation_ratio)
+
+    if not isinstance(train_validation_ratio, float) or train_validation_ratio < 0:
+        raise ValueError("\"train_validation_ratio\" argument should be a positive real number.")
+
     # Dataset download
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
@@ -53,7 +62,7 @@ def create_datasets(train_validation_ratio=3):
            (mlp_test_images, mlp_test_labels)
 
 
-def train_mlp(dataset, model, epochs=10, batch_size=100):
+def train_mlp(dataset, model, epochs, batch_size):
     """
     This function trains a given Keras model on the dataset provided to it.
 
