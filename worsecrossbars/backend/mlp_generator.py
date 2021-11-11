@@ -9,7 +9,7 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.models import Sequential
 
 
-def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
+def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0.0):
     """
     This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
@@ -60,13 +60,6 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
 
     if not isinstance(model_name, str):
         raise ValueError("\"model_name\" argument should be a string object.")
-
-    # Converting integer noise variance to corresponding float
-    if isinstance(noise_variance, int):
-        noise_variance = float(noise_variance)
-
-    if not isinstance(noise_variance, float) or noise_variance < 0:
-        raise ValueError("\"noise_variance\" argument should be a positive real number.")
 
     model = Sequential(name=model_name)
 
