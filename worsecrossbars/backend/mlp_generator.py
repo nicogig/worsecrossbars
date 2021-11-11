@@ -1,0 +1,71 @@
+"""
+"""
+
+
+from tensorflow.keras.layers import Dense, GaussianNoise, Activation
+from tensorflow.keras.models import Sequential
+
+def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0):
+    """
+
+    This is the network architecture employed in the "Simulation of Inference Accuracy Using
+    Realistic RRAM Devices" paper. It consists of a feed-forward multilayer perceptron with 784
+    input neurons (encoding pixel intensities for 28 × 28 pixel MNIST images), two 100-neuron
+    hidden layers, and 10 output neurons (each corresponding to one of the ten digits). The first
+    three layers employ a sigmoid activation function, whilst the output layer makes use of a
+    softmax activation function (which means a cross-entropy error function is then used
+    throughout the learning task). All 60,000 MNIST training images were employed, divided into
+    training and validation sets in a 3:1 ratio, as described in the aforementioned paper.
+    
+    For the one-layer, three-layers and four-layers topologies, the number of neurons in each
+    hidden layer was tweaked so as to produce a final network with about the same number of
+    trainable parameters as the original, two-layers ANN. This was done to ensure that variability
+    in fault simulation results was indeeed due to the number of layers being altered, rather than
+    to a different number of weights being implemented.
+    """
+
+    default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
+
+    if num_hidden_layers not in [1, 2, 3, 4]:
+        raise ValueError("\"num_hidden_layers\" argument should be an integer between 1 and 4.")
+
+    # Setting default argument values
+    if neurons == None:
+        neurons = default_neurons[num_hidden_layers]
+    if model_name == "":
+        model_name = f"MNIST_MLP_{num_hidden_layers}HL"
+
+    if not isinstance(neurons, list) or len(neurons) != num_hidden_layers:
+        raise ValueError("\"neurons\" argument should be a list object with the same length as \
+                         the number of layers being instantiated.")
+
+    if not isinstance(model_name, str):
+        raise ValueError("\"model_name\" argument should be a string object.")
+
+    # Converting integer noise variance to corresponding float
+    if isinstance(noise_variance, int):
+        noise_variance = float(noise_variance)
+
+    if not isinstance(noise_variance, float) or noise_variance < 0:
+        raise ValueError("\"noise_variance\" argument should be a positive real number.")
+
+    model = Sequential(name=model_name)
+
+    # Creating first hidden layer
+    model.add(Dense(neurons[0], input_shape=(784,), name=f"{model_name}_L1"))
+    if noise_variance:
+        model.add(GaussianNoise(noise_variance))
+    model.add(Activation("sigmoid"))
+
+    # Creating other hidden layers
+    for layer_index, neuron in enumerate(neurons[1:]):
+
+        model.add(Dense(neuron, name=f"{model_name}_L{layer_index+2}"))
+        if noise_variance:
+            model.add(GaussianNoise(noise_variance))
+        model.add(Activation("sigmoid"))
+
+    # Creating output layer
+    model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
+
+    return model
