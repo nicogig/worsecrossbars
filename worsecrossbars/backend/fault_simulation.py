@@ -1,6 +1,6 @@
-import numpy as np
 import copy
 import gc
+import numpy as np
 from worsecrossbars.backend.weight_mapping import choose_extremes, create_weight_interval, discretise_weights
 
 
@@ -54,14 +54,14 @@ def run_simulation(percentages_array, weights, number_of_simulations, network_mo
 
     if fault_type not in (1, 2, 3):
         raise ValueError("fault_type is an illegal integer.")
-    else:
-        extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
-        weight_intervals = create_weight_interval(extremes_list, number_of_conductance_levels)
-        weights = discretise_weights(weights, weight_intervals)
+    
+    extremes_list = choose_extremes(weights, HRS_LRS_ratio, excluded_weights_proportion)
+    weight_intervals = create_weight_interval(extremes_list, number_of_conductance_levels)
+    weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))
 
-    for simulation in range(number_of_simulations):
+    for _ in range(number_of_simulations):
 
         accuracies_list = []
 
