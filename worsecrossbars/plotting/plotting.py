@@ -3,10 +3,10 @@ plotting:
 A plotting module used to create and save training/validation and accuracy plots.
 """
 
+import warnings
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-import warnings
 
 
 # def training_validation_plotter(
@@ -131,10 +131,10 @@ def accuracy_curves_plotter(accuracies_objects_list, fpath=None, x_label="", tit
     if fpath is None:
         warnings.warn("Remember to pass an \"fpath\" parameter to control the plot's font.")
 
-    if not isinstance(x_label, str) or x_label is "":
+    if not isinstance(x_label, str) or x_label == "":
         x_label = "Percentage of faulty devices (%)"
 
-    if not isinstance(title, str) or title is "":
+    if not isinstance(title, str) or title == "":
         title = "Influence of faulty devices on ANN inference accuracy"
 
     if not isinstance(filename, str):
@@ -157,7 +157,7 @@ def accuracy_curves_plotter(accuracies_objects_list, fpath=None, x_label="", tit
     legend = plt.legend(fontsize=15)
     plt.setp(legend.texts, font=fpath)
 
-    if filename is not "":
+    if filename != "":
         plt.savefig(
             str(Path.home().joinpath("worsecrossbars", "outputs", "plots", "accuracies", filename)),
             dpi=300)
