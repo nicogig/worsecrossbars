@@ -2,8 +2,10 @@
 logging_module:
 An internal module used to create and write to a log file.
 """
+
 from datetime import datetime
 from pathlib import Path
+
 
 class Logging:
     """
@@ -30,6 +32,7 @@ class Logging:
           string: The string to write.
           special: Enables a bypass of `string` to write specific recurring strings.
         """
+
         if special == "begin":
             write_string = f"----- Begin log {datetime.now().__str__()} -----\n" + \
                             "Attempting simulation with following parameters:\n" + \

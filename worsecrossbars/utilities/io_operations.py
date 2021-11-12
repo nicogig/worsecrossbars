@@ -3,12 +3,14 @@ io_operations:
 A module that holds multiple utility functions used to
 interact with the File System.
 """
+
 import sys
 import os
 import json
 import shutil
 from pathlib import Path
 from datetime import datetime
+
 
 def read_external_json (file_path):
     """
@@ -17,6 +19,7 @@ def read_external_json (file_path):
     Args:
       file_path: The file location on the File System, as a string.
     """
+
     if not os.path.exists(file_path):
         print("The provided file does not exist! Exiting...")
         sys.exit(0)
@@ -30,6 +33,7 @@ def user_folders():
     """
     Creates the basic folder structure in the user's HOME folder.
     """
+
     home_dir = Path.home()
     home_dir.joinpath("worsecrossbars", "config").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "utils").mkdir(parents=True, exist_ok=True)
@@ -46,6 +50,7 @@ def create_output_structure(extracted_json, wipe_current):
     folder:
       The name of the output folder.
     """
+
     home_dir = Path.home()
     time_now = datetime.now().strftime("%d_%m_%Y_%H:%M:%S")
     number_hidden_layers = extracted_json["number_hidden_layers"]
@@ -53,6 +58,7 @@ def create_output_structure(extracted_json, wipe_current):
     noise_variance = extracted_json["noise_variance"]
     folder = f"{number_hidden_layers}HL_{fault_type}" + \
         f"_{noise_variance}NV-{time_now.__str__()}"
+
     if wipe_current:
         directory = str(home_dir.joinpath("worsecrossbars", "outputs"))
         for file in os.listdir(directory):
@@ -61,6 +67,7 @@ def create_output_structure(extracted_json, wipe_current):
                 shutil.rmtree(path)
             except OSError:
                 os.remove(path)
+
     home_dir.joinpath("worsecrossbars", "outputs", \
         folder, "accuracies").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "outputs", \
@@ -71,23 +78,29 @@ def create_output_structure(extracted_json, wipe_current):
         folder, "plots", "training_validation").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "outputs", \
         folder, "training_validation").mkdir(parents=True, exist_ok=True)
+
     return folder
+
 
 def store_webhook ():
     """
     Asks the user for a MSTeam Webhook URL and stores it.
     """
+
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
     jsonified_webhook = {"msteams_webhook":webhook_url}
     with open(str(working_file), "w", encoding="utf8") as outfile:
         json.dump(jsonified_webhook, outfile)
 
+
 def read_webhook ():
     """
     Reads the Webhook URL from the user's HOME directory.
     """
+
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
+
     if not os.path.exists(working_file):
         print("Please run this module with --setup before using Internet options!")
         sys.exit(0)
@@ -96,10 +109,12 @@ def read_webhook ():
             webhook_url = json.load(json_file)["msteams_webhook"]
         return webhook_url
 
+
 def store_dropbox_keys ():
     """
     Asks the user for Dropbox keys, and stores them.
     """
+
     working_file = Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
     app_key = input("Enter the APP KEY from your Dropbox App: ").strip()
     app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
