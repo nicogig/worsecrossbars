@@ -64,7 +64,7 @@ def training_validation_curves(files, folder, **kwargs):
 
         try:
             with open(str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-            "training_validation", f"training_validation_{filetuple[0]}_{filetuple[1]}HL_",
+            "training_validation", f"training_validation_{filetuple[0]}_{filetuple[1]}HL_" + \
             f"{filetuple[2]}NV.pickle")), "rb") as file:
                 training_validation_objects_list.append(pickle.load(file))
         except FileNotFoundError as e:
