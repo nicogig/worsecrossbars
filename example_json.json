@@ -21,8 +21,26 @@
             "number_simulations": 30
         }
     ],
-    "plots_required": [
-        ["STUCKZERO_1_0.1", "STUCKHRS_2_0.1"],
-        ["STUCKHRS_2_0.1"]
+    "accuracy_plots_parameters": [
+        {
+            "plots_data": ["STUCKZERO_1_0.1", "STUCKHRS_2_0.1"],
+            "xlabel": "What a nice xlabel!",
+            "title": "What a nice title!",
+            "filename": "filename1"
+        },
+        {
+            "plots_data": ["STUCKZERO_1_0.1"],
+            "xlabel": "What a nice xlabel (2)!",
+            "title": "What a nice title (2)!",
+            "filename": "filename2"
+        }
+    ],
+    "training_validation_plots_parameters": [
+        {
+            "plots_data": ["STUCKZERO_1_0.1", "STUCKHRS_2_0.1"]
+        },
+        {
+            "plots_data": ["STUCKZERO_1_0.1"]
+        }
     ]
 }

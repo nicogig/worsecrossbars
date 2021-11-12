@@ -15,7 +15,9 @@ from worsecrossbars.backend.mlp_trainer import create_datasets
 from worsecrossbars.backend.simulation import training_validation_metrics
 from worsecrossbars.backend.simulation import train_models
 from worsecrossbars.backend.simulation import run_simulation
+from worsecrossbars.plotting.accuracy_curves_plotting import accuracy_curves
 from worsecrossbars.utilities.parameter_validator import validate_parameters
+from worsecrossbars.plotting.training_validation_curves_plotting import training_validation_curves
 from worsecrossbars.utilities.initial_setup import main_setup
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.io_operations import read_external_json
@@ -79,7 +81,8 @@ def main():
         log.write(string="Saved training and validation data.")
 
     # Creating required training/validation plots
-    
+    #TODO
+    training_validation_curves()
 
     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
@@ -95,7 +98,8 @@ def main():
         log.write(string="Saved accuracy data.")
 
     # Creating required accuracy plots
-
+    #TODO
+    accuracy_curves(files, output_folder, xlabel=, title=, filename=)
 
     if command_line_args.log:
         log.write(special="end")
