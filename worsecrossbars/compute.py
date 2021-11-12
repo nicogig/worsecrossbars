@@ -69,7 +69,8 @@ def main():
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
     "training_validation", f"training_validation_{fault_type}_{number_hidden_layers}HL" +
     f"_{noise_variance}NV.pickle")),"wb") as file:
-        pickle.dump(training_validation_data, file)
+        pickle.dump((training_validation_data, fault_type, number_hidden_layers, noise_variance),
+                     file)
 
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
@@ -81,7 +82,8 @@ def main():
     # Saving accuracies array to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "accuracies",
     f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle")),"wb") as file:
-        pickle.dump((percentages, accuracies, fault_type), file)
+        pickle.dump((percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
+                     file)
 
     if command_line_args.log:
         log.write(special="end")
@@ -94,23 +96,24 @@ def main():
         dbx.upload()
     sys.exit(0)
 
+
 if __name__ == "__main__":
 
     # Command line parser for input arguments
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--setup", dest="setup", metavar="INITIAL_SETUP",
-         help="Run the inital setup", type=bool, default=False)
+        help="Run the inital setup", type=bool, default=False)
     parser.add_argument("--config", dest="config", metavar="CONFIG_FILE",
-         help="Provide the config file needed for simulations", type=str)
+        help="Provide the config file needed for simulations", type=str)
     parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT",
-         help="Wipe the current output (or config)", type=bool, default=False)
+        help="Wipe the current output (or config)", type=bool, default=False)
     parser.add_argument("-l", dest="log", metavar="LOG",
-         help="Enable logging the output in a separate file", type=bool, default=True)
+        help="Enable logging the output in a separate file", type=bool, default=True)
     parser.add_argument("-d", dest="dropbox", metavar="DROPBOX",
-         help="Enable Dropbox integration", type=bool, default=True)
+        help="Enable Dropbox integration", type=bool, default=True)
     parser.add_argument("-t", dest="teams", metavar="MSTEAMS",
-         help="Enable MS Teams integration", type=bool, default=True)
+        help="Enable MS Teams integration", type=bool, default=True)
 
     command_line_args = parser.parse_args()
 
@@ -154,5 +157,5 @@ if __name__ == "__main__":
         if platform.system() == "Darwin" or platform.system() == "Linux":
             signal.signal(signal.SIGHUP, stop_handler)
 
-        # Goto Main
+        # GoTo main
         main()
