@@ -58,7 +58,7 @@ if __name__ == "__main__":
     command_line_args = parser.parse_args()
 
     # Turning list of strings in command_line_args.files into a list of tuples
-    command_line_args.files = [tuple(filestring.split("_")) for filestring in 
+    command_line_args.files = [tuple(filestring.split("_")) for filestring in
                                command_line_args.files]
 
     # Importing LaTeX font for plots

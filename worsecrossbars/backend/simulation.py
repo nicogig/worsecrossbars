@@ -67,7 +67,8 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
 def fault_simulation(percentages_array, weights, network_model, dataset, simulation_parameters):
     """
     This function runs a fault simulation with the given parameters, and thus constitutes the
-    computational core of the package.
+    computational core of the package. Each simulation is run "number_simulations" times, to average
+    out stochastic variability in the final results.
 
     Args:
       percentages_array: Array containing the various percentages of faulty devices the user wants
@@ -113,22 +114,24 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
     return accuracies
 
 
-def train_models(mnist_dataset, simulation_parameters, epochs, batch_size, log):
+def train_models(dataset, simulation_parameters, epochs, batch_size, log):
     """
     This function trains the generated Keras models on the MNIST dataset with the given parameters.
 
     Args:
-      mnist_dataset:
-      simulation_parameters:
-      epochs:
-      batch_size:
-      log:
+      dataset: MNIST dataset used to train the models.
+      simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
+        needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
+        number_conductance_levels, number_simulations.
+      epochs: Positive integer, number of epochs over which the models will be trained.
+      batch_size: Positive integer, size of batches that will be used to train the models.
+      log: Instance of Logging class, necessary to log training progress.
 
     weights_list:
-      ...
+      List of arrays containing the weights of each of the "number_ANNs" trained networks.
 
     histories_list:
-      ...
+      List of Keras history dictionaries for each of the "number_ANNs" trained networks.
     """
 
     number_anns = simulation_parameters["number_ANNs"]
@@ -141,7 +144,7 @@ def train_models(mnist_dataset, simulation_parameters, epochs, batch_size, log):
     for model_number in range(0, int(number_anns)):
 
         model = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-        mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, model, epochs, batch_size)
+        mlp_weights, mlp_history, *_ = train_mlp(dataset, model, epochs, batch_size)
         weights_list.append(mlp_weights)
         histories_list.append(mlp_history)
 
@@ -197,19 +200,27 @@ def training_validation_metrics(histories_list):
     return accuracy_values, validation_accuracy_values, loss_values, validation_loss_values
 
 
-def run_simulation(weights_list, percentages, mnist_dataset, simulation_parameters, log):
+def run_simulation(weights_list, percentages_array, dataset, simulation_parameters, log):
     """
-    This function ...
+    This function runs the main simulation. This entails running one full fault_simulation for each
+    of the "number_ANNs" networks trained above, so that the accuracies resulting from each can be
+    averaged together to reduce the influence of stochastic variability.
 
     Args:
       weights_list:
-      percentages:
-      mnist_dataset:
-      simulation_parameters:
-      log:
+      percentages_array: Array containing the various percentages of faulty devices the user wants
+        to simulate.
+      dataset: MNIST test dataset, used to calculate inference accuracy.
+      simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
+        needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
+        number_conductance_levels, number_simulations.
+      log: Instance of Logging class, necessary to log simulation progress.
 
     accuracies_array:
-      ...
+      Array containing the average of all accuracies obtained for each of the "number_ANNs"
+      networks (each itself run "number_simulations" times), for a total of "number_ANNs" *
+      "number_simulations" datapoints averaged together to obtain each value stored in the final
+      array.
     """
 
     number_anns = simulation_parameters["number_ANNs"]
@@ -218,11 +229,11 @@ def run_simulation(weights_list, percentages, mnist_dataset, simulation_paramete
 
     model = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
     model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
-    accuracies_array = np.zeros((len(weights_list), len(percentages)))
+    accuracies_array = np.zeros((len(weights_list), len(percentages_array)))
 
     for count, weights in enumerate(weights_list):
 
-        accuracies_array[count] = fault_simulation(percentages, weights, model, mnist_dataset,
+        accuracies_array[count] = fault_simulation(percentages_array, weights, model, dataset,
                                                    simulation_parameters)
 
         gc.collect()
