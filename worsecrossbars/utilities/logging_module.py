@@ -20,11 +20,11 @@ class Logging:
         self.simulation_parameters = kwargs["simulation_parameters"]
         file_num = 0
         for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs",
-                                                    kwargs["output_folder"], "logs", 
+                                                    kwargs["output_folder"], "logs",
                                                     "spruce-?.log"))):
             file_num += 1
         self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs",
-                                                    kwargs["output_folder"], "logs", 
+                                                    kwargs["output_folder"], "logs",
                                                     f"spruce-{file_num}.log"))
 
     def __call__ (self):

@@ -43,13 +43,16 @@ def stop_handler(signum, _):
 
     if command_line_args.teams:
         sims = json_object["simulations"]
-        teams.send_message(f"Using parameters:\n{sims}",
+        teams.send_message(f"Using parameters:\n{sims}\nSignal:{signal.Signals(signum).name}",
                            title="Simulation terminated unexpectedly", color="b90e0a")
 
     gc.collect()
     sys.exit(1)
 
 async def worker(mnist_dataset, simulation_parameters):
+    """
+    A worker, an async class that handles the heavy-lifting computation-wise.
+    """
 
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
@@ -122,7 +125,7 @@ async def main():
         tasks.append(loop.create_task(worker(mnist_dataset, simulation_parameters)))
 
     await asyncio.gather(*tasks)
-    
+
     for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
         accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
                         xlabel=accuracy_plot_parameters["xlabel"],
