@@ -1,7 +1,11 @@
 import asyncio
+from asyncio.tasks import sleep
+from os import wait
 
 async def say():
     print('hello!')
+    await sleep(2)
+    print('world')
 
 async def main():
     tasks = []

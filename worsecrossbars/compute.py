@@ -63,6 +63,7 @@ async def worker(mnist_dataset, simulation_parameters):
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
                                title="Started simulation", color="028a0f")
+    await asyncio.sleep(2)
 
     percentages = np.arange(0, 1.01, 0.01)
 
@@ -123,8 +124,6 @@ async def main():
     await asyncio.gather(*tasks)
     
     for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
-        print(accuracy_plot_parameters["plots_data"])
-        print(output_folder)
         accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
                         xlabel=accuracy_plot_parameters["xlabel"],
                         title=accuracy_plot_parameters["title"],
