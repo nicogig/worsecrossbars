@@ -7,23 +7,20 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
 
-def create_datasets(train_validation_ratio):
+def create_datasets(training_validation_ratio):
     """
     This function creates traning and validation datasets based on the MNIST digit database,
     according to the given training/validation split.
 
     Args:
-      train_validation_ratio: Positive integer/float, ratio between size of training and validation
-        datasets, indicating that the training dataset is "train_validation_ratio" times bigger
-        than the validation dataset.
-
-    train_validation_data:
-      Array containing validation images data.
+      training_validation_ratio: Positive integer/float, ratio between size of training and
+        validation datasets, indicating that the training dataset is "training_validation_ratio"
+        times bigger than the validation dataset.
 
     mlp_validation_labels:
       Array containing validation labels.
 
-    mlp_partial_train:
+    mlp_partial_training:
       Array containing training images data.
 
     mlp_partial_labels:
@@ -36,29 +33,29 @@ def create_datasets(train_validation_ratio):
       Array containing test labels.
     """
 
-    if isinstance(train_validation_ratio, int):
-        train_validation_ratio = float(train_validation_ratio)
+    if isinstance(training_validation_ratio, int):
+        training_validation_ratio = float(training_validation_ratio)
 
-    if not isinstance(train_validation_ratio, float) or train_validation_ratio < 0:
-        raise ValueError("\"train_validation_ratio\" argument should be a positive real number.")
+    if not isinstance(training_validation_ratio, float) or training_validation_ratio < 0:
+        raise ValueError("\"training_validation_ratio\" argument should be a positive real number.")
 
     # Dataset download
-    (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+    (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
 
     # Data reshaping
-    mlp_train_images = train_images.reshape((60000, 28 * 28)).astype("float32")/255
+    mlp_training_images = training_images.reshape((60000, 28 * 28)).astype("float32")/255
     mlp_test_images = test_images.reshape((10000, 28 * 28)).astype("float32")/255
-    mlp_train_labels = to_categorical(train_labels)
+    mlp_training_labels = to_categorical(training_labels)
     mlp_test_labels = to_categorical(test_labels)
 
     # Creating a validation set
-    validation_size = round(mlp_train_images.shape[0]/(train_validation_ratio+1))
-    mlp_validation_data = mlp_train_images[:validation_size]
-    mlp_partial_train = mlp_train_images[validation_size:]
-    mlp_validation_labels = mlp_train_labels[:validation_size]
-    mlp_partial_labels = mlp_train_labels[validation_size:]
+    validation_size = round(mlp_training_images.shape[0]/(training_validation_ratio+1))
+    mlp_validation_data = mlp_training_images[:validation_size]
+    mlp_partial_training = mlp_training_images[validation_size:]
+    mlp_validation_labels = mlp_training_labels[:validation_size]
+    mlp_partial_labels = mlp_training_labels[validation_size:]
 
-    return (mlp_validation_data, mlp_validation_labels, mlp_partial_train, mlp_partial_labels), \
+    return (mlp_validation_data, mlp_validation_labels, mlp_partial_training, mlp_partial_labels), \
            (mlp_test_images, mlp_test_labels)
 
 

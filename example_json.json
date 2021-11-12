@@ -1,10 +1,52 @@
 {
-	"HRS_LRS_ratio": 5,
-    "number_of_conductance_levels": 10,
-    "excluded_weights_proportion" : 0.015,
-    "number_hidden_layers": 1,
-    "fault_type": "STUCK_ZERO",
-    "noise_variance": 0.1,
-    "number_ANNs": 30,
-    "number_simulations": 30
+    "simulations": [
+        {
+            "HRS_LRS_ratio": 5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion" : 0.015,
+            "number_hidden_layers": 1,
+            "fault_type": "STUCKZERO",
+            "noise_variance": 0.1,
+            "number_ANNs": 2,
+            "number_simulations": 2
+        },
+        {
+            "HRS_LRS_ratio": 5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion" : 0.015,
+            "number_hidden_layers": 2,
+            "fault_type": "STUCKHRS",
+            "noise_variance": 0.1,
+            "number_ANNs": 2,
+            "number_simulations": 2
+        }
+    ],
+    "accuracy_plots_parameters": [
+        {
+            "plots_data": ["STUCKZERO_1_0.1", "STUCKHRS_2_0.1"],
+            "xlabel": "What a nice xlabel!",
+            "title": "What a nice title!",
+            "filename": "filename1"
+        },
+        {
+            "plots_data": ["STUCKZERO_1_0.1"],
+            "xlabel": "What a nice xlabel (2)!",
+            "title": "What a nice title (2)!",
+            "filename": "filename2"
+        }
+    ],
+    "training_validation_plots_parameters": [
+        {
+            "plots_data": ["STUCKZERO_1_0.1", "STUCKHRS_2_0.1"],
+            "title": "A title",
+            "filename": "a_filename",
+            "value_type": "accuracy"
+        },
+        {
+            "plots_data": ["STUCKZERO_1_0.1"],
+            "title": "A title (2)",
+            "filename": "a_filename (2)",
+            "value_type": "loss"
+        }
+    ]
 }

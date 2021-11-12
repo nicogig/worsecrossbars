@@ -2,9 +2,11 @@
 json_handlers:
 An internal utility module to handle and validate JSON.
 """
+
 import sys
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+
 
 def validate_json(extracted_json):
     """
@@ -13,11 +15,12 @@ def validate_json(extracted_json):
     Args:
       extracted_json: The JSON object to be validated.
     """
+
     json_schema = {
         "type": "object",
         "properties" : {
             "HRS_LRS_ratio": {"type" : "integer"},
-            "number_of_conductance_levels": {"type": "integer"},
+            "number_conductance_levels": {"type": "integer"},
             "excluded_weights_proportion" : {"type": "number"},
             "number_hidden_layers": {"type": "integer"},
             "fault_type": {"type": "string"},
@@ -26,6 +29,7 @@ def validate_json(extracted_json):
             "number_simulations": {"type": "integer"}
         }
     }
+
     try:
         validate(extracted_json, json_schema)
     except ValidationError as err:

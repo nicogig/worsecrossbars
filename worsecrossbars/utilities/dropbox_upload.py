@@ -11,6 +11,7 @@ import shutil
 from pathlib import Path
 import dropbox
 
+
 class DropboxUpload:
     """
     A Dropbox handler that deals with authentication and upload.
@@ -18,6 +19,7 @@ class DropboxUpload:
     Args:
       folder: The output folder of the module.
     """
+
     def __init__(self, folder) -> None:
         if not os.path.exists(
             Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")):
@@ -42,6 +44,7 @@ class DropboxUpload:
         """
         Uploads the output folder to Dropbox.
         """
+
         if self.auth_checked:
             dbx = dropbox.Dropbox(
                 oauth2_refresh_token=self.dropbox_secrets["dropbox_refresh"],

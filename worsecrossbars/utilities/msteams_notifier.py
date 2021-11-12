@@ -3,7 +3,9 @@ msteams_notifier:
 An internal module used to send notifications
 to the user via Microsoft Teams.
 """
+
 import pymsteams
+
 
 class MSTeamsNotifier:
     """
@@ -28,6 +30,7 @@ class MSTeamsNotifier:
           title: An optional title.
           color: The color of the card.
         """
+
         msteams_message = pymsteams.connectorcard(self.webhook_url)
         msteams_message.text(message)
         if title:

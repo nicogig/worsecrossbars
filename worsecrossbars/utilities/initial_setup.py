@@ -9,6 +9,7 @@ from urllib.error import URLError
 import wget
 from worsecrossbars.utilities import io_operations, auth_dropbox
 
+
 def main_setup (overwrite_configs=False):
     """
     A function to download the correct fonts, and prep the system to use worsecrossbars.

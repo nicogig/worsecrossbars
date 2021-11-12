@@ -2,22 +2,30 @@
 logging_module:
 An internal module used to create and write to a log file.
 """
+import glob
 from datetime import datetime
 from pathlib import Path
+
 
 class Logging:
     """
     A class holding the name and location of the log file.
 
     Args:
-      extracted_json: The JSON object containing the simulation parameters.
+      simulation_parameters: The JSON dictionary object containing the simulation parameters.
       output_folder: The output folder of the module.
     """
 
-    def __init__ (self, extracted_json, output_folder):
-        self.simulation_parameters = extracted_json
-        self.file_object = str(Path.home().joinpath("worsecrossbars",
-                                "outputs", output_folder, "logs", "spruce.log"))
+    def __init__ (self, **kwargs):
+        self.simulation_parameters = kwargs["simulation_parameters"]
+        file_num = 0
+        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs",
+                                                    kwargs["output_folder"], "logs",
+                                                    "spruce-?.log"))):
+            file_num += 1
+        self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs",
+                                                    kwargs["output_folder"], "logs",
+                                                    f"spruce-{file_num}.log"))
 
     def __call__ (self):
         pass
@@ -30,6 +38,7 @@ class Logging:
           string: The string to write.
           special: Enables a bypass of `string` to write specific recurring strings.
         """
+
         if special == "begin":
             write_string = f"----- Begin log {datetime.now().__str__()} -----\n" + \
                             "Attempting simulation with following parameters:\n" + \

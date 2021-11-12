@@ -17,7 +17,7 @@ def validate_parameters(simulation_parameters):
         raise ValueError("\"simulation_parameters\" argument should be a dictionary object.")
 
     hrs_lrs_ratio = simulation_parameters["HRS_LRS_ratio"]
-    number_of_conductance_levels = simulation_parameters["number_of_conductance_levels"]
+    number_conductance_levels = simulation_parameters["number_conductance_levels"]
     excluded_weights_proportion = simulation_parameters["excluded_weights_proportion"]
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
@@ -25,9 +25,9 @@ def validate_parameters(simulation_parameters):
     number_anns = simulation_parameters["number_ANNs"]
     number_simulations = simulation_parameters["number_simulations"]
 
-    if fault_type not in ["STUCK_ZERO", "STUCK_HRS", "STUCK_LRS"]:
+    if fault_type not in ["STUCKZERO", "STUCKHRS", "STUCKLRS"]:
         raise ValueError("\"fault_type\" argument should be valid string. Acceptable values " +
-                         "include STUCK_ZERO, STUCK_HRS and STUCK_LRS.")
+                         "include STUCKZERO, STUCKHRS and STUCKLRS.")
 
     if number_hidden_layers not in [1, 2, 3, 4]:
         raise ValueError("\"number_hidden_layers\" argument should be an integer between 1 and 4.")
@@ -40,8 +40,8 @@ def validate_parameters(simulation_parameters):
         raise ValueError("\"number_simulations\" argument should be an integer greater than " +
                          "or equal to 1.")
 
-    if not isinstance(number_of_conductance_levels, int) or number_of_conductance_levels < 1:
-        raise ValueError("\"number_of_conductance_levels\" argument should be an integer " +
+    if not isinstance(number_conductance_levels, int) or number_conductance_levels < 1:
+        raise ValueError("\"number_conductance_levels\" argument should be an integer " +
                          "greater than or equal to 1.")
 
     if isinstance(noise_variance, int):
