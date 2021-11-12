@@ -9,7 +9,62 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# def training_validation_plotter(
+def training_validation_plotter(objects_list, fpath=None, value_type="", title="", filename=""):
+    """
+    """
+
+    if fpath is None:
+        warnings.warn("Remember to pass an \"fpath\" parameter to control the plot's font.")
+    
+    if not isinstance(value_type, str):
+        raise ValueError("\"value_type\" parameter must be a string object.")
+
+    if (value_type.lower() != "accuracy" and value_type.lower() != "loss"):
+        raise ValueError("\"value_type\" parameter must be either \"Accuracy\" or \"Loss\".")
+
+    if not isinstance(title, str) or title == "":
+        title = "Training/validation curves"
+
+    if not isinstance(filename, str):
+        raise ValueError("\"filename\" parameter must be a valid string.")
+
+    fig = plt.figure()
+    fig.set_size_inches(10, 6)
+
+    for training_validation_object in objects_list:
+
+        label = f"{training_validation_object[1]}, {training_validation_object[2]}HL," + \
+                f" {training_validation_object[3]}NV"
+
+        if value_type.lower() == "accuracy":
+
+            pass
+
+        else:
+
+            pass
+
+        # plt.plot(accuracies_object[0]*100, accuracies_object[1]*100, label=label, linewidth=2)
+
+    plt.xlabel("Epochs", font=fpath, fontsize=20)
+
+    plt.grid()
+    plt.tight_layout()
+    plt.xticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
+    plt.yticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
+
+    legend = plt.legend(fontsize=15)
+    plt.setp(legend.texts, font=fpath)
+
+    if filename != "":
+        plt.savefig(
+            str(Path.home().joinpath("worsecrossbars", "outputs", "plots", "accuracies", filename)),
+            dpi=300)
+
+    plt.title(title, font=fpath, fontsize=20)
+    plt.show()
+
+
 #     epochs,
 #     training,
 #     validation,
@@ -106,12 +161,12 @@ import matplotlib.pyplot as plt
 #     plt.show()
 
 
-def accuracy_curves_plotter(accuracies_objects_list, fpath=None, x_label="", title="", filename=""):
+def accuracy_plotter(objects_list, fpath=None, x_label="", title="", filename=""):
     """
     This function plots accuracy curves with the given data.
 
     As a reminder, the following statements are true about the accuracies_objects contained in the
-    accuracies_objects_list argument:
+    objects_list argument:
         percentages = accuracies_object[0]
         accuracies = accuracies_object[1]
         fault_type = accuracies_object[2]
@@ -119,7 +174,7 @@ def accuracy_curves_plotter(accuracies_objects_list, fpath=None, x_label="", tit
         noise_variance = accuracies_object[4]
 
     Args:
-      accuracies_objects_list: List containing the accuracies_objects that are to be plotted.
+      objects_list: List containing the accuracies_objects that are to be plotted.
         Details about said objects' structure is  provided above.
       fpath: Object containing information regarding the plot's font.
       x_label: String, label used on the x axis.
@@ -143,7 +198,7 @@ def accuracy_curves_plotter(accuracies_objects_list, fpath=None, x_label="", tit
     fig = plt.figure()
     fig.set_size_inches(10, 6)
 
-    for accuracies_object in accuracies_objects_list:
+    for accuracies_object in objects_list:
         label = f"{accuracies_object[2]}, {accuracies_object[3]}HL, {accuracies_object[4]}NV"
         plt.plot(accuracies_object[0]*100, accuracies_object[1]*100, label=label, linewidth=2)
 

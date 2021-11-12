@@ -1,6 +1,6 @@
 """
-plot_accuracy_curves:
-A plotting module used to generate accuracy curves.
+training_validation_curves:
+A plotting module used to generate training/validation curves.
 """
 
 import os
@@ -9,30 +9,32 @@ import argparse
 import pickle
 from pathlib import Path
 import matplotlib.font_manager as fm
-from worsecrossbars.plotting.plotting import accuracy_curves_plotter
+from worsecrossbars.plotting.plotting import training_validation_plotter
 
 
 def main():
     """
-    This function generates accuracy curves with the given data.
+    This function generates training/validation curves with the given data.
     """
 
-    accuracies_objects_list = []
+    training_validation_objects_list = []
 
     for filetuple in command_line_args.files:
 
         try:
-            with open(str(Path.home().joinpath("worsecrossbars", "outputs", "accuracies",
-            f"accuracies_{filetuple[0]}_{filetuple[1]}HL_{filetuple[2]}NV.pickle")), "rb") as file:
-                accuracies_objects_list.append(pickle.load(file))
+            with open(str(Path.home().joinpath("worsecrossbars", "outputs", "training_validation",
+            f"training_validation_{filetuple[0]}_{filetuple[1]}HL_{filetuple[2]}NV.pickle")),
+            "rb") as file:
+                training_validation_objects_list.append(pickle.load(file))
         except FileNotFoundError:
             print("The data you are attempting to plot does not exist. Please, check the command " +
                   "line arguments are being entered in the format faultType_numberHiddenLayers_" +
                   "noiseVariance, e.g. STUCKZERO_1_0.")
             sys.exit(1)
 
-    accuracy_curves_plotter(accuracies_objects_list, fpath=font, x_label=command_line_args.xlabel,
-                            title=command_line_args.title, filename=command_line_args.filename)
+    training_validation_plotter(training_validation_objects_list, fpath=font,
+                                value_type=command_line_args.value_type,
+                                title=command_line_args.title, filename=command_line_args.filename)
 
 
 if __name__ == "__main__":

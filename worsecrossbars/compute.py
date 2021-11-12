@@ -71,12 +71,15 @@ def main():
     # Saving training/validation data to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
     "training_validation", f"training_validation_{fault_type}_{number_hidden_layers}HL" +
-    f"_{noise_variance}NV.pickle")),"wb") as file:
+    f"_{noise_variance}NV.pickle")), "wb") as file:
         pickle.dump((training_validation_data, fault_type, number_hidden_layers, noise_variance),
                      file)
 
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
+
+    # Creating required training/validation plots
+    
 
     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
@@ -84,9 +87,15 @@ def main():
 
     # Saving accuracies array to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "accuracies",
-    f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle")),"wb") as file:
+    f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle")), "wb") as file:
         pickle.dump((percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
                      file)
+
+    if command_line_args.log:
+        log.write(string="Saved accuracy data.")
+
+    # Creating required accuracy plots
+
 
     if command_line_args.log:
         log.write(special="end")
