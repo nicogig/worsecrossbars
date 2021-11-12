@@ -44,9 +44,9 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
     for count, layer in enumerate(altered_weights):
 
         if count % 2 == 0:
-            if fault_type == "STUCK_ZERO":
+            if fault_type == "STUCKZERO":
                 fault_value = 0
-            elif fault_type == "STUCK_HRS":
+            elif fault_type == "STUCKHRS":
                 fault_value = extremes_list[count][0]
             else:
                 fault_value = extremes_list[count][1]

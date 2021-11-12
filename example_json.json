@@ -3,7 +3,7 @@
     "number_of_conductance_levels": 10,
     "excluded_weights_proportion" : 0.015,
     "number_hidden_layers": 1,
-    "fault_type": "STUCK_ZERO",
+    "fault_type": "STUCKZERO",
     "noise_variance": 0.1,
     "number_ANNs": 30,
     "number_simulations": 30
