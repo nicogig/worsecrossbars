@@ -4,6 +4,7 @@ Worsecrossbars' main module and entrypoint.
 """
 
 import argparse
+import asyncio
 import sys
 import signal
 import gc
@@ -35,31 +36,36 @@ def stop_handler(signum, _):
     abruptly/unexpectedly.
     """
 
-    if command_line_args.log:
-        log.write("Simulation terminated unexpectedly. Got signal " +
-            f"{signal.Signals(signum).name}.\nEnding.\n")
-        log.write(special="abruptend")
+    #if command_line_args.log:
+    #    log.write("Simulation terminated unexpectedly. Got signal " +
+    #        f"{signal.Signals(signum).name}.\nEnding.\n")
+    #    log.write(special="abruptend")
 
     if command_line_args.teams:
-        teams.send_message(f"Using parameters:\n{simulation_parameters}",
+        sims = json_object["simulations"]
+        teams.send_message(f"Using parameters:\n{sims}",
                            title="Simulation terminated unexpectedly", color="b90e0a")
 
     gc.collect()
-    sys.exit(0)
+    sys.exit(1)
 
+async def worker(mnist_dataset, simulation_parameters):
 
-def main():
-    """
-    Main point of entry for the computing-side of the package.
-    """
+    number_hidden_layers = simulation_parameters["number_hidden_layers"]
+    fault_type = simulation_parameters["fault_type"]
+    noise_variance = simulation_parameters["noise_variance"]
 
-    # Defining percentages of faulty devices that will be simulated
+    if command_line_args.log:
+        log = Logging(simulation_parameters=simulation_parameters, output_folder=output_folder)
+        log.write(special="begin")
+    else:
+        log = Logging()
+    if command_line_args.teams:
+        teams.send_message(f"Using parameters:\n{simulation_parameters}",
+                               title="Started simulation", color="028a0f")
+
     percentages = np.arange(0, 1.01, 0.01)
 
-    if command_line_args.dropbox:
-        dbx = DropboxUpload(output_folder)
-
-    mnist_dataset = create_datasets(training_validation_ratio=3)
     weights_list, histories_list = train_models(mnist_dataset, simulation_parameters,
                                                 epochs=10, batch_size=100, log=log)
 
@@ -80,11 +86,7 @@ def main():
     if command_line_args.log:
         log.write(string="Saved training and validation data.")
 
-    # Creating required training/validation plots
-    #TODO
-    training_validation_curves()
-
-    # Running a variety of simulations to average out stochastic variance
+     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
                                 simulation_parameters, log)
 
@@ -96,17 +98,43 @@ def main():
 
     if command_line_args.log:
         log.write(string="Saved accuracy data.")
-
-    # Creating required accuracy plots
-    #TODO
-    accuracy_curves(files, output_folder, xlabel=, title=, filename=)
-
-    if command_line_args.log:
         log.write(special="end")
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
                            title="Finished simulation", color="1625f3")
+
+async def main():
+    """
+    Main point of entry for the computing-side of the package.
+    """
+    tasks = []
+
+    if command_line_args.dropbox:
+        dbx = DropboxUpload(output_folder)
+
+    mnist_dataset = create_datasets(training_validation_ratio=3)
+
+    for simulation_parameters in json_object["simulations"]:
+        validate_json(simulation_parameters)
+        validate_parameters(simulation_parameters)
+        tasks.append(loop.create_task(worker(mnist_dataset, simulation_parameters)))
+
+    await asyncio.gather(*tasks)
+    
+    for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
+        print(accuracy_plot_parameters["plots_data"])
+        print(output_folder)
+        accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
+                        xlabel=accuracy_plot_parameters["xlabel"],
+                        title=accuracy_plot_parameters["title"],
+                        filename=accuracy_plot_parameters["filename"])
+
+    for tv_plot_parameters in json_object["training_validation_plots_parameters"]:
+        training_validation_curves(tv_plot_parameters["plots_data"], output_folder,
+                                    title=tv_plot_parameters["title"],
+                                    filename=tv_plot_parameters["filename"],
+                                    value_type=tv_plot_parameters["value_type"])
 
     if command_line_args.dropbox:
         dbx.upload()
@@ -142,30 +170,16 @@ if __name__ == "__main__":
 
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
-        simulation_parameters = read_external_json(str(json_path))
-        validate_json(simulation_parameters)
-        validate_parameters(simulation_parameters)
+        json_object = read_external_json(str(json_path))
+        #validate_json(simulation_parameters)
+        #validate_parameters(simulation_parameters)
 
         # Create user and output folders.
         user_folders()
-        output_folder = create_output_structure(simulation_parameters,
-                                                command_line_args.wipe_current)
-
-        # Extract useful info from JSON Object
-        number_hidden_layers = simulation_parameters["number_hidden_layers"]
-        fault_type = simulation_parameters["fault_type"]
-        noise_variance = simulation_parameters["noise_variance"]
-
-        if command_line_args.log:
-            log = Logging(simulation_parameters=simulation_parameters, output_folder=output_folder)
-            log.write(special="begin")
-        else:
-            log = Logging()
+        output_folder = create_output_structure(command_line_args.wipe_current)
 
         if command_line_args.teams:
             teams = MSTeamsNotifier(read_webhook())
-            teams.send_message(f"Using parameters:\n{simulation_parameters}",
-                               title="Started simulation", color="028a0f")
 
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
@@ -174,4 +188,8 @@ if __name__ == "__main__":
             signal.signal(signal.SIGHUP, stop_handler)
 
         # GoTo main
-        main()
+        loop = asyncio.get_event_loop()
+        try:
+            loop.run_until_complete(main())
+        finally:
+            loop.close()

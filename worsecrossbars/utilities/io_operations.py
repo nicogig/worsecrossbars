@@ -39,7 +39,7 @@ def user_folders():
     home_dir.joinpath("worsecrossbars", "utils").mkdir(parents=True, exist_ok=True)
 
 
-def create_output_structure(extracted_json, wipe_current):
+def create_output_structure(wipe_current=True):
     """
     Create an output folder to store the results of the simulation.
 
@@ -52,12 +52,8 @@ def create_output_structure(extracted_json, wipe_current):
     """
 
     home_dir = Path.home()
-    time_now = datetime.now().strftime("%d_%m_%Y_%H:%M:%S")
-    number_hidden_layers = extracted_json["number_hidden_layers"]
-    fault_type = extracted_json["fault_type"]
-    noise_variance = extracted_json["noise_variance"]
-    folder = f"{number_hidden_layers}HL_{fault_type}" + \
-        f"_{noise_variance}NV-{time_now.__str__()}"
+    time_now = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+    folder = f"{time_now.__str__()}"
 
     if wipe_current:
         directory = str(home_dir.joinpath("worsecrossbars", "outputs"))
