@@ -29,6 +29,8 @@ from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 
 def stop_handler(signum, _):
     """
+    This function handles stop signals transmitted by the Kernel when the script terminates
+    abruptly/unexpectedly.
     """
 
     if command_line_args.log:
@@ -46,6 +48,7 @@ def stop_handler(signum, _):
 
 def main():
     """
+    Main point of entry for the computing-side of the package.
     """
 
     # Defining percentages of faulty devices that will be simulated

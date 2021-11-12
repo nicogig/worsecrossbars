@@ -1,6 +1,6 @@
 """
 plot_accuracy_curves:
-A plotting module used to generate accuracy curves
+A plotting module used to generate accuracy curves.
 """
 
 import os
@@ -13,6 +13,7 @@ from worsecrossbars.plotting.plotting import accuracy_curves_plotter
 
 def main():
     """
+    This function generates accuracy curves with the given data.
     """
 
     accuracies_objects_list = []

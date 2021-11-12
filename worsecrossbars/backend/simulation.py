@@ -115,6 +115,20 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
 
 def train_models(mnist_dataset, simulation_parameters, epochs, batch_size, log):
     """
+    This function trains the generated Keras models on the MNIST dataset with the given parameters.
+
+    Args:
+      mnist_dataset:
+      simulation_parameters:
+      epochs:
+      batch_size:
+      log:
+
+    weights_list:
+      ...
+
+    histories_list:
+      ...
     """
 
     number_anns = simulation_parameters["number_ANNs"]
@@ -136,11 +150,30 @@ def train_models(mnist_dataset, simulation_parameters, epochs, batch_size, log):
         if log is not None:
             log.write(string=f"Trained model {model_number+1} of {number_anns}")
 
-    return (weights_list, histories_list)
+    return weights_list, histories_list
 
 
 def training_validation_metrics(histories_list):
     """
+    This function calculates training and validation metrics by averaging the data generated during
+    model training and stored in the Keras histories dictionaries returned by the train_models
+    function.
+
+    Args:
+      histories_list: List containing Keras models' training histories, as output by the fit
+        method run by the worsecrossbars.backend.mlp_trainer.train_mlp function.
+
+    accuracy_values:
+      Array containing the training accuracy values.
+
+    validation_accuracy_values:
+      Array containing the validation accuracy values.
+
+    loss_values:
+      Array containing the training loss values.
+
+    validation_loss_values:
+      Array containing the validation loss values.
     """
 
     accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
@@ -166,6 +199,17 @@ def training_validation_metrics(histories_list):
 
 def run_simulation(weights_list, percentages, mnist_dataset, simulation_parameters, log):
     """
+    This function ...
+
+    Args:
+      weights_list:
+      percentages:
+      mnist_dataset:
+      simulation_parameters:
+      log:
+
+    accuracies_array:
+      ...
     """
 
     number_anns = simulation_parameters["number_ANNs"]
