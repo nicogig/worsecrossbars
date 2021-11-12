@@ -42,7 +42,7 @@ def training_validation_curves(files, folder, **kwargs):
     # kwargs unpacking
     title = kwargs.get("title", "")
     filename = kwargs.get("filename", "")
-    value_type = kwargs.get("filename", "")
+    value_type = kwargs.get("value_type", "")
 
     # Validating arguments
     if not isinstance(value_type, str):
