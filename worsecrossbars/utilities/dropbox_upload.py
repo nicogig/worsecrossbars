@@ -62,5 +62,5 @@ class DropboxUpload:
                         mode=dropbox.files.WriteMode('overwrite'))
             except dropbox.exceptions.ApiError as err:
                 print('*** API error', err)
-            print('uploaded as', res.name.encode('utf8'))
+            print('Uploaded as', res.name.encode('utf8'))
             os.remove(f"./output_{self.output_folder}.zip")
