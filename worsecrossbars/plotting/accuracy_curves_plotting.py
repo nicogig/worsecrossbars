@@ -26,8 +26,8 @@ def accuracy_curves(files, folder, **kwargs):
         noise_variance = accuracies_object[4]
 
     Args:
-      files: List containing tuples of the parameters of the files that are to be plotted. The
-        structure should be [("STUCKZERO", "1", "0.5"), ..., ("STUCKHRS", "2", "3.1")]
+      files: List containing strings of the parameters of the files that are to be plotted. The
+        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"]
       folder: Path string, employed to both load files and save plots
       **kwargs: Valid keyword arguments are listed below
         xlabel: String, label used on the x axis.
@@ -35,6 +35,9 @@ def accuracy_curves(files, folder, **kwargs):
         filename: String, name used to save the plot to file. If it is not provided (or is not a
           string), the plot is not saved to file.
     """
+
+    # Turning list of strings into a list of tuples
+    files = [tuple(filestring.split("_")) for filestring in files]
 
     # Importing LaTeX font for plots
     if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
@@ -51,7 +54,7 @@ def accuracy_curves(files, folder, **kwargs):
 
     # Validating arguments
     if not isinstance(xlabel, str) or xlabel == "":
-        x_label = "Percentage of faulty devices (%)"
+        xlabel = "Percentage of faulty devices (%)"
 
     if not isinstance(title, str) or title == "":
         title = "Influence of faulty devices on ANN inference accuracy"
@@ -69,12 +72,12 @@ def accuracy_curves(files, folder, **kwargs):
             "accuracies", f"accuracies_{filetuple[0]}_{filetuple[1]}HL_{filetuple[2]}NV.pickle")),
             "rb") as file:
                 accuracies_objects_list.append(pickle.load(file))
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             print("The data you are attempting to plot does not exist. Please, check that the " +
-                  "command line arguments or the required_plots attribute in the .json file " +
+                  "command line arguments or the plots_data attribute in the .json file " +
                   "are being entered in the format faultType_numberHiddenLayers_" +
                   "noiseVariance, e.g. STUCKZERO_2_1.5.")
-            sys.exit(1)
+            raise e
 
     # Plotting
     fig = plt.figure()
@@ -84,7 +87,7 @@ def accuracy_curves(files, folder, **kwargs):
         label = f"{accuracies_object[2]}, {accuracies_object[3]}HL, {accuracies_object[4]}NV"
         plt.plot(accuracies_object[0]*100, accuracies_object[1]*100, label=label, linewidth=2)
 
-    plt.xlabel(x_label, font=fpath, fontsize=20)
+    plt.xlabel(xlabel, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
     plt.grid()
     plt.tight_layout()
@@ -127,8 +130,6 @@ if __name__ == "__main__":
 
     command_line_args = parser.parse_args()
 
-    # Turning list of strings in command_line_args.files into a list of tuples
-    files = [tuple(filestring.split("_")) for filestring in command_line_args.files]
-
-    accuracy_curves(files, command_line_args.folder, xlabel=command_line_args.xlabel,
-                    title=command_line_args.title, filename=command_line_args.filename)
+    accuracy_curves(command_line_args.files, command_line_args.folder,
+                    xlabel=command_line_args.xlabel, title=command_line_args.title,
+                    filename=command_line_args.filename)
