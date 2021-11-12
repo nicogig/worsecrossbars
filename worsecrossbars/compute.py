@@ -92,6 +92,7 @@ def main():
 
     if command_line_args.dropbox:
         dbx.upload()
+    sys.exit(0)
 
 if __name__ == "__main__":
 
