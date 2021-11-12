@@ -96,11 +96,11 @@ def training_validation_curves(files, folder, **kwargs):
             ylabel = "Accuracy (%)"
 
             # Plotting training accuracy
-            plt.plot(epochs, training_validation_object[0][0]*100, "-bo", markersize=7,
+            plt.plot(epochs, training_validation_object[0][0]*100, "-o", markersize=7,
                      label=training_label, linewidth=2)
 
             # Plotting validation accuracy
-            plt.plot(epochs, training_validation_object[0][1]*100, "-rD", markersize=7,
+            plt.plot(epochs, training_validation_object[0][1]*100, "-D", markersize=7,
                      label=validation_label, linewidth=2)
 
         else:
@@ -110,11 +110,11 @@ def training_validation_curves(files, folder, **kwargs):
             ylabel = "Loss"
 
             # Plotting training loss
-            plt.plot(epochs, training_validation_object[0][2], "-bo", markersize=7,
+            plt.plot(epochs, training_validation_object[0][2], "-o", markersize=7,
                      label=training_label, linewidth=2)
 
             # Plotting validation loss
-            plt.plot(epochs, training_validation_object[0][3], "-rD", markersize=7,
+            plt.plot(epochs, training_validation_object[0][3], "-D", markersize=7,
                      label=validation_label, linewidth=2)            
 
     plt.xlabel("Epochs", font=fpath, fontsize=20)

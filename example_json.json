@@ -44,8 +44,8 @@
         },
         {
             "plots_data": ["STUCKZERO_1_0.1"],
-            "title": "A title",
-            "filename": "a_filename",
+            "title": "A title (2)",
+            "filename": "a_filename (2)",
             "value_type": "loss"
         }
     ]
