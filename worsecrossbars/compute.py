@@ -122,7 +122,6 @@ async def main():
     mnist_dataset = create_datasets(training_validation_ratio=3)
 
     for simulation_parameters in json_object["simulations"]:
-        validate_json(simulation_parameters)
         validate_parameters(simulation_parameters)
         tasks.append(loop.create_task(worker(mnist_dataset, simulation_parameters)))
 
@@ -178,8 +177,7 @@ if __name__ == "__main__":
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
         json_object = read_external_json(str(json_path))
-        #validate_json(simulation_parameters)
-        #validate_parameters(simulation_parameters)
+        validate_json(json_object)
 
         # Create user and output folders.
         user_folders()
