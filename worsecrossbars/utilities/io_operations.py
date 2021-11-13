@@ -29,7 +29,7 @@ def read_external_json (file_path):
                 json_object = json.load(json_file)
         except IsADirectoryError:
             print("The given config file argument is invalid. Please, ensure the compute module",
-                  "is being run on a valid .json file.")
+                  "is being run on a valid .json file. Call the module with the flag -h for help.")
             sys.exit(1)
         return json_object
 
