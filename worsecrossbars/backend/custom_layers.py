@@ -1,15 +1,26 @@
+"""
+custom_layers:
+A backend module which implements a custom-made Keras AWGN layer.
+"""
+
 import tensorflow as tf
 import numpy as np
 
 
-class AWGN(tf.keras.layers.Dense):
+class AWGN(tf.keras.layers.Dense): # pylint: disable=too-few-public-methods
+    """
+    -
+    """
 
     def __init__(self, units, activation, noise_variance, noise_mean=0, **kwargs):
-        super(AWGN, self).__init__(units, activation, **kwargs)
+        super().__init__(units, activation, **kwargs)
         self.noise_mean = noise_mean
         self.noise_variance = noise_variance
 
     def call(self, inputs):
+        """
+        -
+        """
 
         if inputs.dtype.base_dtype != self._compute_dtype_object.base_dtype:
             inputs = tf.cast(inputs, dtype=self._compute_dtype_object)
