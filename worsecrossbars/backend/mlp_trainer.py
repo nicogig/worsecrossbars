@@ -17,19 +17,22 @@ def create_datasets(training_validation_ratio):
         validation datasets, indicating that the training dataset is "training_validation_ratio"
         times bigger than the validation dataset.
 
-    mlp_validation_labels:
+    validation_data:
+      Array containing validation data.
+
+    validation_labels:
       Array containing validation labels.
 
-    mlp_partial_training:
-      Array containing training images data.
+    training_data:
+      Array containing training data.
 
-    mlp_partial_labels:
+    training_labels:
       Array containing training labels.
 
-    mlp_test_images:
-      Array containing test images data.
+    test_data:
+      Array containing test data.
 
-    mlp_test_labels:
+    test_labels:
       Array containing test labels.
     """
 
