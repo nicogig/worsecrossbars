@@ -40,23 +40,23 @@ def create_datasets(training_validation_ratio):
         raise ValueError("\"training_validation_ratio\" argument should be a positive real number.")
 
     # Dataset download
-    (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
+    (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
     # Data reshaping
-    mlp_training_images = training_images.reshape((60000, 28 * 28)).astype("float32")/255
-    mlp_test_images = test_images.reshape((10000, 28 * 28)).astype("float32")/255
-    mlp_training_labels = to_categorical(training_labels)
-    mlp_test_labels = to_categorical(test_labels)
+    train_data = train_images.reshape((60000, 28 * 28)).astype("float32")/255
+    test_data = test_images.reshape((10000, 28 * 28)).astype("float32")/255
+    train_labels = to_categorical(train_labels)
+    test_labels = to_categorical(test_labels)
 
     # Creating a validation set
-    validation_size = round(mlp_training_images.shape[0]/(training_validation_ratio+1))
-    mlp_validation_data = mlp_training_images[:validation_size]
-    mlp_partial_training = mlp_training_images[validation_size:]
-    mlp_validation_labels = mlp_training_labels[:validation_size]
-    mlp_partial_labels = mlp_training_labels[validation_size:]
+    validation_size = round(train_data.shape[0]/(training_validation_ratio+1))
+    validation_data = train_data[:validation_size]
+    training_data = train_data[validation_size:]
+    validation_labels = train_labels[:validation_size]
+    training_labels = train_labels[validation_size:]
 
-    return (mlp_validation_data, mlp_validation_labels, mlp_partial_training, mlp_partial_labels), \
-           (mlp_test_images, mlp_test_labels)
+    return (validation_data, validation_labels, training_data, training_labels), \
+           (test_data, test_labels)
 
 
 def train_mlp(dataset, model, epochs, batch_size):
