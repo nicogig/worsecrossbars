@@ -133,7 +133,6 @@ def accuracy_curves(files, folder, **kwargs):
     plt.xlabel(xlabel, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
     plt.grid()
-    plt.tight_layout()
     plt.xticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
     plt.yticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
 
@@ -141,9 +140,11 @@ def accuracy_curves(files, folder, **kwargs):
     plt.setp(accuracy_legend.texts, font=fpath)
 
     if filename != "":
+        plt.tight_layout()
         plt.savefig(
             str(Path.home().joinpath("worsecrossbars", "outputs", folder,
                                      "plots", "accuracies", filename)), dpi=300)
+        pass
 
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
@@ -247,7 +248,6 @@ def training_validation_curves(files, folder, **kwargs):
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(ylabel, font=fpath, fontsize=20)
     plt.grid()
-    plt.tight_layout()
     plt.xticks(np.arange(1, len(epochs) + 1, step=1), font=fpath, fontsize=15)
     plt.yticks(font=fpath, fontsize=15)
 
@@ -255,9 +255,11 @@ def training_validation_curves(files, folder, **kwargs):
     plt.setp(training_validation_legend.texts, font=fpath)
 
     if filename != "":
+        plt.tight_layout()
         plt.savefig(
             str(Path.home().joinpath("worsecrossbars", "outputs", folder,
                                      "plots", "training_validation", filename)), dpi=300)
+        pass
 
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
