@@ -108,6 +108,7 @@ async def main():
     Main point of entry for the computing-side of the package.
     """
     tasks = []
+    loop = asyncio.get_event_loop()
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -178,8 +179,6 @@ if __name__ == "__main__":
 
         if command_line_args.teams:
             teams = MSTeamsNotifier(read_webhook())
-
-        loop = asyncio.get_event_loop()
 
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
