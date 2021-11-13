@@ -21,4 +21,4 @@ jobs:
         pip install matplotlib pymsteams numpy dropbox wget pylint jsonschema
     - name: Analysing the code with pylint
       run: |
-        pylint --ignored-modules=tensorflow.keras $(find . -name "*.py" | xargs)
+        pylint --ignored-modules=tensorflow $(find . -name "*.py" | xargs)
