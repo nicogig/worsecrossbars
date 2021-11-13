@@ -33,12 +33,13 @@ def load_curves_data(files, folder, curves_type):
 
         if curves_type == "accuracy":
             filepath = str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-            "accuracies", f"accuracies_{filetuple[0]}_{filetuple[1]}HL_{filetuple[2]}NV.pickle"))
+            "accuracies", f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + \
+            f"{float(filetuple[2])}NV.pickle"))
 
         elif curves_type == "training_validation":
             filepath = str(Path.home().joinpath("worsecrossbars", "outputs", folder,
             "training_validation", f"training_validation_{filetuple[0]}_{filetuple[1]}HL_" + \
-            f"{filetuple[2]}NV.pickle"))
+            f"{float(filetuple[2])}NV.pickle"))
 
         else:
             raise ValueError("\"curves_type\" parameter must be either \"accuracy\" or " +
@@ -127,17 +128,17 @@ def accuracy_curves(files, folder, **kwargs):
     fig.set_size_inches(10, 6)
 
     for accuracies_object in accuracies_objects_list:
-        label = f"{accuracies_object[2]}, {accuracies_object[3]}HL, {accuracies_object[4]}NV"
+        label = f"{accuracies_object[2]}, {accuracies_object[3]}HL, {float(accuracies_object[4])}NV"
         plt.plot(accuracies_object[0]*100, accuracies_object[1]*100, label=label, linewidth=2)
 
     plt.xlabel(xlabel, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
     plt.grid()
-    plt.xticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
-    plt.yticks(np.arange(0, 101, step=10), font=fpath, fontsize=15)
+    plt.xticks(np.arange(0, 101, step=10), font=fpath, fontsize=14)
+    plt.yticks(np.arange(0, 101, step=10), font=fpath, fontsize=14)
 
-    accuracy_legend = plt.legend(fontsize=15)
-    plt.setp(accuracy_legend.texts, font=fpath)
+    accuracy_legend = plt.legend()
+    plt.setp(accuracy_legend.texts, font=fpath, fontsize=14)
 
     if filename != "":
         plt.tight_layout()
@@ -212,10 +213,10 @@ def training_validation_curves(files, folder, **kwargs):
 
         training_label = f"Training ({training_validation_object[1]}, " + \
                              f"{training_validation_object[2]}HL, " + \
-                             f"{training_validation_object[3]}NV)"
+                             f"{float(training_validation_object[3])}NV)"
         validation_label = f"Validation ({training_validation_object[1]}, " + \
                              f"{training_validation_object[2]}HL, " + \
-                             f"{training_validation_object[3]}NV)"
+                             f"{float(training_validation_object[3])}NV)"
 
         if value_type.lower() == "accuracy":
 
@@ -248,11 +249,11 @@ def training_validation_curves(files, folder, **kwargs):
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(ylabel, font=fpath, fontsize=20)
     plt.grid()
-    plt.xticks(np.arange(1, len(epochs) + 1, step=1), font=fpath, fontsize=15)
-    plt.yticks(font=fpath, fontsize=15)
+    plt.xticks(np.arange(1, len(epochs) + 1, step=1), font=fpath, fontsize=14)
+    plt.yticks(font=fpath, fontsize=14)
 
-    training_validation_legend = plt.legend(fontsize=15)
-    plt.setp(training_validation_legend.texts, font=fpath)
+    training_validation_legend = plt.legend()
+    plt.setp(training_validation_legend.texts, font=fpath, fontsize=14)
 
     if filename != "":
         plt.tight_layout()

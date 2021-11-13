@@ -16,47 +16,45 @@ def validate_parameters(simulation_parameters):
     if not isinstance(simulation_parameters, dict):
         raise ValueError("\"simulation_parameters\" argument should be a dictionary object.")
 
-    hrs_lrs_ratio = simulation_parameters["HRS_LRS_ratio"]
-    number_conductance_levels = simulation_parameters["number_conductance_levels"]
-    excluded_weights_proportion = simulation_parameters["excluded_weights_proportion"]
-    number_hidden_layers = simulation_parameters["number_hidden_layers"]
-    fault_type = simulation_parameters["fault_type"]
-    noise_variance = simulation_parameters["noise_variance"]
-    number_anns = simulation_parameters["number_ANNs"]
-    number_simulations = simulation_parameters["number_simulations"]
-
-    if fault_type not in ["STUCKZERO", "STUCKHRS", "STUCKLRS"]:
+    if simulation_parameters["fault_type"] not in ["STUCKZERO", "STUCKHRS", "STUCKLRS"]:
         raise ValueError("\"fault_type\" argument should be valid string. Acceptable values " +
                          "include STUCKZERO, STUCKHRS and STUCKLRS.")
 
-    if number_hidden_layers not in [1, 2, 3, 4]:
+    if simulation_parameters["number_hidden_layers"] not in [1, 2, 3, 4]:
         raise ValueError("\"number_hidden_layers\" argument should be an integer between 1 and 4.")
 
-    if not isinstance(number_anns, int) or number_anns < 1:
+    if not isinstance(simulation_parameters["number_ANNs"], int) or \
+                      simulation_parameters["number_ANNs"] < 1:
         raise ValueError("\"number_ANNs\" argument should be an integer greater than " +
                          "or equal to 1.")
 
-    if not isinstance(number_simulations, int) or number_simulations < 1:
+    if not isinstance(simulation_parameters["number_simulations"], int) or \
+                      simulation_parameters["number_simulations"] < 1:
         raise ValueError("\"number_simulations\" argument should be an integer greater than " +
                          "or equal to 1.")
 
-    if not isinstance(number_conductance_levels, int) or number_conductance_levels < 1:
+    if not isinstance(simulation_parameters["number_conductance_levels"], int) or \
+                      simulation_parameters["number_conductance_levels"] < 1:
         raise ValueError("\"number_conductance_levels\" argument should be an integer " +
                          "greater than or equal to 1.")
 
-    if isinstance(noise_variance, int):
-        noise_variance = float(noise_variance)
-    if not isinstance(noise_variance, float) or noise_variance < 0:
+    if isinstance(simulation_parameters["noise_variance"], int):
+        simulation_parameters["noise_variance"] = float(simulation_parameters["noise_variance"])
+    if not isinstance(simulation_parameters["noise_variance"], float) or \
+                      simulation_parameters["noise_variance"] < 0:
         raise ValueError("\"noise_variance\" argument should be a positive real number.")
 
-    if isinstance(hrs_lrs_ratio, int):
-        hrs_lrs_ratio = float(hrs_lrs_ratio)
-    if not isinstance(hrs_lrs_ratio, float) or hrs_lrs_ratio < 0:
+    if isinstance(simulation_parameters["HRS_LRS_ratio"], int):
+        simulation_parameters["HRS_LRS_ratio"] = float(simulation_parameters["HRS_LRS_ratio"])
+    if not isinstance(simulation_parameters["HRS_LRS_ratio"], float) or \
+                      simulation_parameters["HRS_LRS_ratio"] < 0:
         raise ValueError("\"hrs_lrs_ratio\" argument should be a positive real number.")
 
-    if isinstance(excluded_weights_proportion, int):
-        excluded_weights_proportion = float(excluded_weights_proportion)
-    if not isinstance(excluded_weights_proportion, float) or excluded_weights_proportion < 0 or \
-        excluded_weights_proportion > 1:
+    if isinstance(simulation_parameters["excluded_weights_proportion"], int):
+        simulation_parameters["excluded_weights_proportion"] = \
+        float(simulation_parameters["excluded_weights_proportion"])
+    if not isinstance(simulation_parameters["excluded_weights_proportion"], float) or \
+        simulation_parameters["excluded_weights_proportion"] < 0 or \
+        simulation_parameters["excluded_weights_proportion"] > 1:
         raise ValueError("\"excluded_weights_proportion\" argument should be a " +
                          "real number between 0 and 1.")
