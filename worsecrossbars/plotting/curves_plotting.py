@@ -144,7 +144,7 @@ def accuracy_curves(files, folder, **kwargs):
         plt.savefig(
             str(Path.home().joinpath("worsecrossbars", "outputs", folder,
                                      "plots", "accuracies", filename)), dpi=300)
-        pass
+        return
 
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
@@ -259,7 +259,7 @@ def training_validation_curves(files, folder, **kwargs):
         plt.savefig(
             str(Path.home().joinpath("worsecrossbars", "outputs", folder,
                                      "plots", "training_validation", filename)), dpi=300)
-        pass
+        return
 
     plt.title(title, font=fpath, fontsize=20)
     plt.show()
