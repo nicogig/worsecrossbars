@@ -29,7 +29,7 @@ In your favourite terminal emulator. For more information on what this command p
 After setup has completed, run a demo simulation using
 
 ```
-python3 -m worsecrossbars.compute --config example.json
+python3 -m worsecrossbars.compute example.json
 ```
 
 The output of the simulation can be found under ```~\worsecrossbars\outputs```.
