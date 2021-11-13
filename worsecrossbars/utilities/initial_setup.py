@@ -1,36 +1,41 @@
+"""
+initial_setup:
+Module used to configure the system to use worsecrossbars.
+"""
+
 import os
-import argparse
-from worsecrossbars import configs
-import wget
+from pathlib import Path
 from urllib.error import URLError
+import wget
+from worsecrossbars.utilities import io_operations, auth_dropbox
 
-from worsecrossbars.utilities import auth_dropbox, msteams_notifier
-from worsecrossbars.utilities import create_folder_structure
 
-def main (overwrite_configs=False):
+def main_setup (overwrite_configs=False):
     """
-    
+    A function to download the correct fonts, and prep the system to use worsecrossbars.
+
+    Args:
+      overwrite_configs: Delete the folder and ask the user for new configs,
+        regardless of their presence.
     """
-    
-    create_folder_structure.user_folders()
-    
+    io_operations.user_folders()
+
     try:
-        font = wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf", out=str(configs.working_dir.joinpath("utils")))
+        wget.download("https://github.com/nicogig/ComputerModern/raw/main/cmunrm.ttf",
+         out=str(Path.home().joinpath("worsecrossbars", "utils")))
     except URLError as err:
-        print(f"The Computer Modern font could not be downloaded because wget terminated unexpectedly with error {err.reason}.\nPlotting will use the standard Matplotlib font. Please consult the Docs for further guidance.")
+        print("The Computer Modern font could not be downloaded because wget" + \
+            f" terminated unexpectedly with error {err.reason}.\nPlotting will" + \
+            " use the standard Matplotlib font. Please consult the Docs for further guidance.")
+    print("\n")
 
     if overwrite_configs:
         auth_dropbox.authenticate()
-        msteams_notifier.require_webhook()
+        io_operations.read_webhook()
     else:
-        if not os.path.exists(configs.working_dir.joinpath("config", "user_secrets.json")):
+        if not os.path.exists(
+            Path.home().joinpath("worsecrossbars","config", "user_secrets.json")):
             auth_dropbox.authenticate()
-        if not os.path.exists(configs.working_dir.joinpath("config", "msteams.json")):
-            msteams_notifier.require_webhook()
-
-if __name__ == "__main__":
-
-    parser=argparse.ArgumentParser()
-    parser.add_argument("-ow", dest="overwrite", metavar="OVERWRITE", help="Overwrite the config files", type=bool, default=False)
-    args=parser.parse_args()
-    main(args.overwrite)
+        if not os.path.exists(
+            Path.home().joinpath("worsecrossbars", "config", "msteams.json")):
+            io_operations.store_webhook()
