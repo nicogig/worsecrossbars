@@ -166,38 +166,39 @@ def training_validation_metrics(histories_list):
       histories_list: List containing Keras models' training histories, as output by the fit
         method run by the worsecrossbars.backend.mlp_trainer.train_mlp function.
 
-    accuracy_values:
+    training_accuracy_values:
       Array containing the training accuracy values.
 
     validation_accuracy_values:
       Array containing the validation accuracy values.
 
-    loss_values:
+    training_loss_values:
       Array containing the training loss values.
 
     validation_loss_values:
       Array containing the validation loss values.
     """
 
-    accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
+    training_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
     validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
+    training_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
     validation_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
 
     for history in histories_list:
 
         history_dict = history.history
-        accuracy_values += np.array(history_dict["accuracy"])
+        training_accuracy_values += np.array(history_dict["accuracy"])
         validation_accuracy_values += np.array(history_dict["val_accuracy"])
-        loss_values += np.array(history_dict["loss"])
+        training_loss_values += np.array(history_dict["loss"])
         validation_loss_values += np.array(history_dict["val_loss"])
 
-    accuracy_values /= len(histories_list)
+    training_accuracy_values /= len(histories_list)
     validation_accuracy_values /= len(histories_list)
-    loss_values /= len(histories_list)
+    training_loss_values /= len(histories_list)
     validation_loss_values /= len(histories_list)
 
-    return accuracy_values, validation_accuracy_values, loss_values, validation_loss_values
+    return training_accuracy_values, validation_accuracy_values, \
+           training_loss_values, validation_loss_values
 
 
 def run_simulation(weights_list, percentages_array, dataset, simulation_parameters, log):

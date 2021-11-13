@@ -49,6 +49,7 @@ def stop_handler(signum, _):
     gc.collect()
     sys.exit(1)
 
+
 async def worker(mnist_dataset, simulation_parameters):
     """
     A worker, an async class that handles the heavy-lifting computation-wise.
@@ -107,6 +108,7 @@ async def worker(mnist_dataset, simulation_parameters):
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
                            title="Finished simulation", color="1625f3")
+
 
 async def main():
     """

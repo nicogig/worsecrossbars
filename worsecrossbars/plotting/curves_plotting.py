@@ -14,6 +14,17 @@ import matplotlib.pyplot as plt
 
 def load_curves_data(files, folder, curves_type):
     """
+    This function loads the data that the user has elected to plot.
+
+    Args:
+      files: List containing tuples of the parameters of the files that are to be plotted. The
+        structure should be [("STUCKZERO, "1", "0.5"), ..., ("STUCKHRS", "2", "3.1")].
+      folder: Path string, employed to indicate the location from which to load files.
+      curves_type: String indicating whether training/validation or accuracy data is desired.
+
+    data_list:
+      List containing the required data objects (either accuracies_objects or
+      training_validation_objects).
     """
 
     data_list = []
@@ -48,6 +59,10 @@ def load_curves_data(files, folder, curves_type):
 
 def load_font():
     """
+    This function loads the computern modern font used in the plots.
+
+    fpath:
+      Font path object pointing to the computern modern font.
     """
 
     if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
@@ -74,13 +89,13 @@ def accuracy_curves(files, folder, **kwargs):
 
     Args:
       files: List containing strings of the parameters of the files that are to be plotted. The
-        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"]
-      folder: Path string, employed to both load files and save plots
+        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"].
+      folder: Path string, employed to indicate the location in which to save the plots.
       **kwargs: Valid keyword arguments are listed below
-        xlabel: String, label used on the x axis.
-        title: String, title used for the plot.
-        filename: String, name used to save the plot to file. If it is not provided (or is not a
-          string), the plot is not saved to file.
+        - xlabel: String, label used on the x axis.
+        - title: String, title used for the plot.
+        - filename: String, name used to save the plot to file. If it is not provided (or is not a
+            string), the plot is not saved to file.
     """
 
     # Turning list of strings into a list of tuples
@@ -138,15 +153,25 @@ def training_validation_curves(files, folder, **kwargs):
     """
     This function plots training/validation curves with the given data.
 
+    As a reminder, the following statements are true about the training_validation_objects contained
+    in the training_validation_objects_list variable loaded below:
+        training_accuracy_values = training_validation_object[0][0]
+        validation_accuracy_values = training_validation_object[0][1]
+        training_loss_values = training_validation_object[0][2]
+        validation_loss_values = training_validation_object[0][3]
+        fault_type = training_validation_object[1]
+        number_hidden_layers = training_validation_object[2]
+        noise_variance = training_validation_object[3]
+
     Args:
       files: List containing strings of the parameters of the files that are to be plotted. The
-        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"]
-      folder: Path string, employed to both load files and save plots
+        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"].
+      folder: Path string, employed to indicate the location in which to save the plots.
       **kwargs: Valid keyword arguments are listed below
-        title: String, title used for the plot.
-        filename: String, name used to save the plot to file. If it is not provided (or is not a
-          string), the plot is not saved to file.
-        value_type: String indicating weather an accuracy plot or a loss plot is desired
+        - title: String, title used for the plot.
+        - filename: String, name used to save the plot to file. If it is not provided (or is not a
+            string), the plot is not saved to file.
+        - value_type: String indicating whether an accuracy plot or a loss plot is desired.
     """
 
     # Turning list of strings into a list of tuples
