@@ -1,45 +1,45 @@
-from dropbox import DropboxOAuth2FlowNoRedirect, Dropbox
-import json
+"""
+auth_dropbox:
+An internal module used to establish a secure connection
+to Dropbox and authenticate against a Dropbox App.
+Uses OAuth 2.
+"""
+
 import os
-
-from worsecrossbars import configs
-
-app_keys = {}
-
-def obtain_keys():
-    """
-
-    """
-
-    global app_keys
-
-    app_key = input("Enter the APP KEY from your Dropbox App: ").strip()
-    app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
-    app_keys = {"APP_KEY":app_key, "APP_SECRET":app_secret}
-
-    with open(str(configs.working_dir.joinpath("config", "app_keys.json")), 'w') as outfile:
-        json.dump(app_keys, outfile)
-
+import json
+import sys
+from pathlib import Path
+from dropbox import Dropbox
+from dropbox import DropboxOAuth2FlowNoRedirect
+from dropbox.oauth import NotApprovedException
+from dropbox.oauth import BadRequestException
+from dropbox.oauth import BadStateException
+from dropbox.oauth import ProviderException
+from worsecrossbars.utilities import io_operations
 
 
 def authenticate():
     """
-
+    Authenticates a user against the Dropbox OAuth 2.0
+    Interface. Uses APP_KEY and APP_SECRET from the user's
+    config. The resulting user_secrets are stored in the HOME folder.
     """
 
-    global app_keys
-
-    if not os.path.exists(configs.working_dir.joinpath("config", "app_keys.json")):
-        obtain_keys()
+    if not os.path.exists(
+        Path.home().joinpath("worsecrossbars", "config", "app_keys.json")):
+        io_operations.store_dropbox_keys()
         authenticate()
         return
-    else:
-        with open(str(configs.working_dir.joinpath("config", "app_keys.json"))) as json_file:
-            app_keys = json.load(json_file)
 
-    
-    auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"], consumer_secret=app_keys["APP_SECRET"], token_access_type='offline',
-                                         scope=['account_info.read', 'files.content.read', 'files.content.write'],)
+    with open(
+            str(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")),
+            encoding="utf8") as json_file:
+        app_keys = json.load(json_file)
+
+    auth_flow = DropboxOAuth2FlowNoRedirect(app_keys["APP_KEY"],
+    consumer_secret=app_keys["APP_SECRET"],
+    token_access_type='offline',
+    scope=['account_info.read', 'files.content.read', 'files.content.write'])
 
     authorize_url = auth_flow.start()
     print(f"1. Go to: {authorize_url}")
@@ -49,9 +49,12 @@ def authenticate():
 
     try:
         oauth_result = auth_flow.finish(auth_code)
-    except Exception as e:
-        print('Error: %s' % (e,))
-        exit(1)
+    except (NotApprovedException,
+            BadStateException,
+            BadRequestException,
+            ProviderException) as error:
+        print(f"Error: {error}")
+        sys.exit(1)
 
     with Dropbox(oauth2_access_token=oauth_result.access_token) as dbx:
         dbx.users_get_current_account()
@@ -61,5 +64,8 @@ def authenticate():
               "dropbox_expiration": oauth_result.expires_at.__str__(),
               "dropbox_refresh":oauth_result.refresh_token}
 
-    with open(str(configs.working_dir.joinpath("config", "user_secrets.json")), 'w') as outfile:
+    with open(
+        str(Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")),
+        'w',
+        encoding="utf8") as outfile:
         json.dump(secret, outfile)
