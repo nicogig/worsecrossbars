@@ -56,7 +56,7 @@ class DropboxUpload:
             with open(f"output_{self.output_folder}.zip", 'rb') as file:
                 data = file.read()
             try:
-                res = dbx.files_upload(
+                _ = dbx.files_upload(
                         data, f"/output_{self.output_folder}.zip",
                         mute=True,
                         mode=dropbox.files.WriteMode('overwrite'))
