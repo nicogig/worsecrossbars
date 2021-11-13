@@ -35,17 +35,10 @@ def stop_handler(signum, _):
     This function handles stop signals transmitted by the Kernel when the script terminates
     abruptly/unexpectedly.
     """
-
-    #if command_line_args.log:
-    #    log.write("Simulation terminated unexpectedly. Got signal " +
-    #        f"{signal.Signals(signum).name}.\nEnding.\n")
-    #    log.write(special="abruptend")
-
     if command_line_args.teams:
         sims = json_object["simulations"]
         teams.send_message(f"Using parameters:\n{sims}\nSignal:{signal.Signals(signum).name}",
                            title="Simulation terminated unexpectedly", color="b90e0a")
-
     gc.collect()
     sys.exit(1)
 
@@ -186,6 +179,8 @@ if __name__ == "__main__":
         if command_line_args.teams:
             teams = MSTeamsNotifier(read_webhook())
 
+        loop = asyncio.get_event_loop()
+
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
         signal.signal(signal.SIGTERM, stop_handler)
@@ -193,8 +188,4 @@ if __name__ == "__main__":
             signal.signal(signal.SIGHUP, stop_handler)
 
         # GoTo main
-        loop = asyncio.get_event_loop()
-        try:
-            loop.run_until_complete(main())
-        finally:
-            loop.close()
+        asyncio.run(main())
