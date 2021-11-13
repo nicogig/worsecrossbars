@@ -4,12 +4,12 @@ Worsecrossbars' main module and entrypoint.
 """
 
 import argparse
-import asyncio
 import sys
 import signal
 import gc
 import platform
 import pickle
+import threading
 from pathlib import Path
 import numpy as np
 from worsecrossbars.backend.mlp_trainer import create_datasets
@@ -43,7 +43,7 @@ def stop_handler(signum, _):
     sys.exit(1)
 
 
-async def worker(mnist_dataset, simulation_parameters):
+def worker(mnist_dataset, simulation_parameters):
     """
     A worker, an async class that handles the heavy-lifting computation-wise.
     """
@@ -60,7 +60,6 @@ async def worker(mnist_dataset, simulation_parameters):
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
                                title="Started simulation", color="ffca33")
-    await asyncio.sleep(2)
 
     percentages = np.arange(0, 1.01, 0.01)
 
@@ -103,12 +102,11 @@ async def worker(mnist_dataset, simulation_parameters):
                            title="Finished simulation", color="1fd513")
 
 
-async def main():
+def main():
     """
     Main point of entry for the computing-side of the package.
     """
     tasks = []
-    loop = asyncio.get_event_loop()
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -117,9 +115,15 @@ async def main():
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
-        tasks.append(loop.create_task(worker(mnist_dataset, simulation_parameters)))
+        thread = threading.Thread(
+            target=worker,
+            args=[mnist_dataset, simulation_parameters]
+        )
+        thread.start()
+        tasks.append(thread)
 
-    await asyncio.gather(*tasks)
+    for thread in tasks:
+        thread.join()
 
     for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
         accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
@@ -187,4 +191,4 @@ if __name__ == "__main__":
             signal.signal(signal.SIGHUP, stop_handler)
 
         # GoTo main
-        asyncio.run(main())
+        main()
