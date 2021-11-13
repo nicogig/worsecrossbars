@@ -22,10 +22,15 @@ def read_external_json (file_path):
 
     if not os.path.exists(file_path):
         print("The provided file does not exist! Exiting...")
-        sys.exit(0)
+        sys.exit(1)
     else:
-        with open(file_path, "r", encoding="utf8") as json_file:
-            json_object = json.load(json_file)
+        try:
+            with open(file_path, "r", encoding="utf8") as json_file:
+                json_object = json.load(json_file)
+        except IsADirectoryError:
+            print("The given config file argument is invalid. Please, ensure the compute module",
+                  "is being run on a valid .json file.")
+            sys.exit(1)
         return json_object
 
 

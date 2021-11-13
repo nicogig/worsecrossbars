@@ -146,8 +146,8 @@ if __name__ == "__main__":
     # Command line parser for input arguments
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("config", metavar="CONFIG_FILE",
-        help="Provide the config file needed for simulations", type=str)
+    parser.add_argument("config", metavar="CONFIG_FILE", nargs="?",
+        help="Provide the config file needed for simulations", type=str, default="")
     parser.add_argument("--setup", dest="setup", metavar="INITIAL_SETUP",
         help="Run the inital setup", type=bool, default=False)
     parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT",
