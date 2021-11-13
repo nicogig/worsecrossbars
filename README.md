@@ -8,13 +8,13 @@
 
 ## Installation
 
-To get started, pull this repository in your environment. Then, install using
+To get started, download the package from the Releases tab. Then, install using
 
 ```
-python3 -m pip install .
+python3 -m pip install worsecrossbars-x.x.x-py3-none-any.whl
 ```
 
-In the repository's root folder.
+In the folder where you downloaded the file.
 
 ## Quick Start
 
