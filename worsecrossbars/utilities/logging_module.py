@@ -2,7 +2,6 @@
 logging_module:
 An internal module used to create and write to a log file.
 """
-import glob
 from datetime import datetime
 from pathlib import Path
 
@@ -18,14 +17,14 @@ class Logging:
 
     def __init__ (self, **kwargs):
         self.simulation_parameters = kwargs["simulation_parameters"]
-        file_num = 0
-        for _ in glob.glob(str(Path.home().joinpath("worsecrossbars", "outputs",
-                                                    kwargs["output_folder"], "logs",
-                                                    "spruce-?.log"))):
-            file_num += 1
+        fault_type = self.simulation_parameters["fault_type"]
+        number_hidden_layers = self.simulation_parameters["number_hidden_layers"]
+        noise_variance = self.simulation_parameters["noise_variance"]
         self.file_object = str(Path.home().joinpath("worsecrossbars", "outputs",
                                                     kwargs["output_folder"], "logs",
-                                                    f"spruce-{file_num}.log"))
+                                                    f"spruce_{fault_type}" + \
+                                                    f"_{number_hidden_layers}HL" + \
+                                                    f"_{noise_variance}NV.log"))
 
     def __call__ (self):
         pass

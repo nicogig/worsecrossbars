@@ -66,7 +66,7 @@ async def worker(mnist_dataset, simulation_parameters):
         log = Logging()
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
-                               title="Started simulation", color="028a0f")
+                               title="Started simulation", color="ffca33")
     await asyncio.sleep(2)
 
     percentages = np.arange(0, 1.01, 0.01)
@@ -107,7 +107,7 @@ async def worker(mnist_dataset, simulation_parameters):
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
-                           title="Finished simulation", color="1625f3")
+                           title="Finished simulation", color="1fd513")
 
 
 async def main():
@@ -142,6 +142,9 @@ async def main():
 
     if command_line_args.dropbox:
         dbx.upload()
+        if command_line_args.teams:
+            teams.send_message(f"Simulations {output_folder} uploaded successfully.",
+                           title="Uploaded to Dropbox", color="0060ff")
     sys.exit(0)
 
 
@@ -150,10 +153,10 @@ if __name__ == "__main__":
     # Command line parser for input arguments
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("config", metavar="CONFIG_FILE",
+        help="Provide the config file needed for simulations", type=str)
     parser.add_argument("--setup", dest="setup", metavar="INITIAL_SETUP",
         help="Run the inital setup", type=bool, default=False)
-    parser.add_argument("--config", dest="config", metavar="CONFIG_FILE",
-        help="Provide the config file needed for simulations", type=str)
     parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT",
         help="Wipe the current output (or config)", type=bool, default=False)
     parser.add_argument("-l", dest="log", metavar="LOG",
