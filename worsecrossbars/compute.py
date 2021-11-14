@@ -12,7 +12,6 @@ import pickle
 import threading
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
 from worsecrossbars.backend.mlp_trainer import create_datasets
 from worsecrossbars.backend.simulation import training_validation_metrics
 from worsecrossbars.backend.simulation import train_models
@@ -147,8 +146,6 @@ def main():
 
 
 if __name__ == "__main__":
-
-    tf.debugging.set_log_device_placement(True)
 
     # Command line parser for input arguments
     parser = argparse.ArgumentParser()
