@@ -9,7 +9,7 @@ import signal
 import gc
 import platform
 import pickle
-import threading
+from multiprocessing import Process
 from pathlib import Path
 import numpy as np
 from worsecrossbars.backend.mlp_trainer import create_datasets
@@ -106,7 +106,7 @@ def main():
     """
     Main point of entry for the computing-side of the package.
     """
-    tasks = []
+    pool = []
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -115,15 +115,15 @@ def main():
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
-        thread = threading.Thread(
+        process = Process(
             target=worker,
             args=[mnist_dataset, simulation_parameters]
         )
-        thread.start()
-        tasks.append(thread)
+        process.start()
+        pool.append(process)
 
-    for thread in tasks:
-        thread.join()
+    for process in pool:
+        process.join()
 
     for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
         accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
