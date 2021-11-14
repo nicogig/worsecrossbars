@@ -6,6 +6,7 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 import copy
 import gc
 import numpy as np
+import tensorflow as tf
 from worsecrossbars.backend.weight_mapping import choose_extremes
 from worsecrossbars.backend.weight_mapping import create_weight_interval
 from worsecrossbars.backend.weight_mapping import discretise_weights
@@ -102,9 +103,10 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
 
             # The "set_weights" function sets the ANN's weights to the values specified in the
             # list of arrays "altered_weights"
-            network_model.set_weights(altered_weights)
-            accuracies_list.append(network_model.evaluate(dataset[1][0],
-                                   dataset[1][1], verbose=0)[1])
+            with tf.device("/device:GPU:3"):
+                network_model.set_weights(altered_weights)
+                accuracies_list.append(network_model.evaluate(dataset[1][0],
+                                    dataset[1][1], verbose=0)[1])
 
         accuracies += np.array(accuracies_list)
         gc.collect()

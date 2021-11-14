@@ -3,6 +3,7 @@ mlp_trainer:
 A backend module used to create the MNIST dataset and train a Keras model on it.
 """
 
+import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
@@ -98,9 +99,10 @@ def train_mlp(dataset, model, epochs, batch_size):
     model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
 
     # Training with validation test
-    mlp_history = model.fit(dataset[0][2], dataset[0][3], epochs=epochs, batch_size=batch_size,
-                            validation_data=(dataset[0][0], dataset[0][1]), verbose=0)
-    mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
+    with tf.device("/device:GPU:3"):
+        mlp_history = model.fit(dataset[0][2], dataset[0][3], epochs=epochs, batch_size=batch_size,
+                                validation_data=(dataset[0][0], dataset[0][1]), verbose=0)
+        mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 
     # Extracting network weights
     mlp_weights = model.get_weights()
