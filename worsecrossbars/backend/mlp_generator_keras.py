@@ -1,5 +1,5 @@
 """
-mlp_generator:
+mlp_generator_keras:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
 

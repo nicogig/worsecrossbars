@@ -1,12 +1,10 @@
 """
-mlp_generator:
+mlp_generator_pytorch:
 A backend module used to create a PyTorch model for a densely connected MLP with a given topology.
 """
 
 import numpy as np
 from torch import nn
-from torch.nn.functional import sigmoid
-from torch.nn.functional import softmax
 
 
 class MNIST_MLP(nn.Module):
@@ -60,6 +58,10 @@ class MNIST_MLP(nn.Module):
             raise ValueError("\"hidden_layer_sizes\" argument should be a NumPy ndarray object " +
                              "with the same size as the number of layers being instantiated.")
 
+        # Activation layers
+        self.sigmoid = nn.Sigmoid()
+        self.softmax = nn.Softmax(dim=1)
+
         # Hidden layers
         self.hidden = nn.ModuleList()
         self.hidden.append(nn.Linear(784, hidden_layer_sizes[0]))
@@ -79,8 +81,8 @@ class MNIST_MLP(nn.Module):
         x = x.view(-1, 784)
 
         for layer in self.hidden:
-            x = sigmoid(layer(x))
-        
-        output = softmax(self.output(x), dim=1)
+            x = self.sigmoid(layer(x))
+
+        output = self.softmax(self.output(x))
 
         return output
