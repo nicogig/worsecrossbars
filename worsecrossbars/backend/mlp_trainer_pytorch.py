@@ -238,6 +238,12 @@ if __name__ == "__main__":
 
     start = time.time()
 
+    # The flag below controls whether to allow TF32 on matmul. This flag defaults to True.
+    torch.backends.cuda.matmul.allow_tf32 = True
+
+    # The flag below controls whether to allow TF32 on cuDNN. This flag defaults to True.
+    torch.backends.cudnn.allow_tf32 = True
+
     model = MNIST_MLP(2)
 
     test_accuracy = train_pytorch(model, 10)
