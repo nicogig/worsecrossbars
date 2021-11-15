@@ -20,6 +20,7 @@ from torchvision.transforms import Compose
 from torchvision.transforms import Normalize
 
 from worsecrossbars.backend.mlp_generator_pytorch import MNIST_MLP
+import time
 
 
 def get_data_loaders(**kwargs):
@@ -208,12 +209,17 @@ def train_pytorch(model, epochs, **kwargs):
 
 if __name__ == "__main__":
 
+    start = time.time()
+
     model = MNIST_MLP(2)
 
     model_weights, training_losses, validation_losses, test_loss, test_accuracy = train_pytorch(model, 10)
 
-    print(model_weights)
-    print(training_losses)
-    print(validation_losses)
-    print(test_loss)
-    print(test_accuracy)
+    end = time.time()
+    print(f"Time elapsed: {end - start}")
+
+    # print(model_weights)
+    # print(training_losses)
+    # print(validation_losses)
+    # print(test_loss)
+    # print(test_accuracy)
