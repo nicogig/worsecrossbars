@@ -25,6 +25,7 @@ import time
 
 def get_data_loaders(**kwargs):
     """
+    # If using CUDA, num_workers should be set to 1 and pin_memory to True.
     """
 
     # Unpacking keyword arguments
@@ -185,6 +186,9 @@ def train_pytorch(model, epochs, **kwargs):
     with torch.no_grad():
 
         for data, label in test_loader:
+
+            if cuda.is_available():
+                data, label = data.cuda(), label.cuda()
 
             output = model(data)
 
