@@ -10,6 +10,7 @@ import torch
 from torch import cuda
 from torch import Generator
 from torch import manual_seed
+from torch import nn
 from torch.optim import RMSprop, Adam, SGD
 from torch.nn.functional import cross_entropy
 from torch.utils.data import DataLoader
@@ -125,6 +126,8 @@ def train_pytorch(model, epochs, **kwargs):
     # Sending network model to GPU if available
     # if cuda.is_available():
     #     model = model.cuda()
+    
+    model = nn.DataParallel(model)
     model.to(device)
 
     # Set up optimiser
@@ -146,7 +149,7 @@ def train_pytorch(model, epochs, **kwargs):
 
             # if cuda.is_available():
             #     data, label = data.cuda(), label.cuda()
-            data, label = data.to(device), data.to(device)
+            data, label = data.to(device), label.to(device)
 
             optimiser.zero_grad()
 
@@ -170,7 +173,7 @@ def train_pytorch(model, epochs, **kwargs):
 
                 # if cuda.is_available():
                 #     data, label = data.cuda(), label.cuda()
-                data, label = data.to(device), data.to(device)
+                data, label = data.to(device), label.to(device)
                 
                 output = model(data)
 
@@ -192,7 +195,7 @@ def train_pytorch(model, epochs, **kwargs):
 
             # if cuda.is_available():
             #     data, label = data.cuda(), label.cuda()
-            data, label = data.to(device), data.to(device)
+            data, label = data.to(device), label.to(device)
 
             output = model(data)
 
