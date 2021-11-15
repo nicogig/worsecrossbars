@@ -109,10 +109,10 @@ def train_pytorch(model, epochs, **kwargs):
                                                                        seed=seed)
 
     # Results lists
-    training_losses = []
-    validation_losses = []
-    test_loss = None
-    test_accuracy = None
+    # training_losses = []
+    # validation_losses = []
+    # test_loss = None
+    # test_accuracy = None
 
     # Device configuration
     device = torch.device("cuda" if cuda.is_available() else "cpu")
@@ -142,7 +142,7 @@ def train_pytorch(model, epochs, **kwargs):
     for epoch in range(1, epochs + 1):
 
         # Training step
-        training_loss = 0.0
+        # training_loss = 0.0
         model.train()
 
         for data, label in training_loader:
@@ -161,10 +161,10 @@ def train_pytorch(model, epochs, **kwargs):
 
             #.item() method should be removed from the following line if tensors are preferred
             # over floats
-            training_loss += loss.item()
+            # training_loss += loss.item()
 
         # Validation step
-        validation_loss = 0.0
+        # validation_loss = 0.0
         model.eval()
 
         with torch.no_grad():
@@ -179,13 +179,13 @@ def train_pytorch(model, epochs, **kwargs):
 
                 #.item() method should be removed from the following line if tensors are preferred
                 # over floats
-                validation_loss += cross_entropy(output, label, reduction="sum").item()
+                # validation_loss += cross_entropy(output, label, reduction="sum").item()
         
-        training_losses.append(training_loss/len(training_loader.dataset))
-        validation_losses.append(validation_loss/len(validation_loader.dataset))
+        # training_losses.append(training_loss/len(training_loader.dataset))
+        # validation_losses.append(validation_loss/len(validation_loader.dataset))
 
     # Testing        
-    test_loss = 0.0
+    # test_loss = 0.0
     correct = 0.0
     model.eval()
 
@@ -201,21 +201,21 @@ def train_pytorch(model, epochs, **kwargs):
 
             #.item() method should be removed from the following line if tensors are preferred
             # over floats
-            test_loss += cross_entropy(output, label, reduction="sum").item()
+            # test_loss += cross_entropy(output, label, reduction="sum").item()
             prediction = output.data.max(1, keepdim=True)[1]
 
             #.item() method should be removed from the following line if tensors are preferred
             # over floats
             correct += prediction.eq(label.data.view_as(prediction)).sum().item()
     
-    test_loss /= len(test_loader.dataset)
+    # test_loss /= len(test_loader.dataset)
     test_accuracy = 100. * correct / len(test_loader.dataset)
 
-    model_weights = []
-    for layer_weights in model.parameters():
-        model_weights.append(layer_weights)
+    # model_weights = []
+    # for layer_weights in model.parameters():
+    #     model_weights.append(layer_weights)
 
-    return model_weights, training_losses, validation_losses, test_loss, test_accuracy
+    return test_accuracy
 
 
 if __name__ == "__main__":
@@ -224,7 +224,8 @@ if __name__ == "__main__":
 
     model = MNIST_MLP(2)
 
-    model_weights, training_losses, validation_losses, test_loss, test_accuracy = train_pytorch(model, 10)
+    test_accuracy = train_pytorch(model, 10)
+    print(test_accuracy)
 
     end = time.time()
     print(f"Time elapsed: {end - start}")
