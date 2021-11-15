@@ -6,6 +6,7 @@ A backend module used to instantiate the MNIST dataset and train a PyTorch model
 from pathlib import Path
 import warnings
 import numpy as np
+import re
 import torch
 from torch import cuda
 from torch import Generator
@@ -70,12 +71,15 @@ def get_data_loaders(**kwargs):
                                                             [size_training, size_validation])       
 
     training_loader = DataLoader(training_dataset, batch_size=batch_size,
-                                 shuffle=shuffle)
+                                 shuffle=shuffle, num_workers=num_workers,
+                                 pin_memory=pin_memory)
 
     validation_loader = DataLoader(validation_dataset, batch_size=batch_size,
-                                   shuffle=shuffle)
+                                   shuffle=shuffle, num_workers=num_workers,
+                                   pin_memory=pin_memory)
 
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle,
+                             num_workers=num_workers, pin_memory=pin_memory)
 
     return training_loader, validation_loader, test_loader
 
@@ -117,7 +121,8 @@ def train_pytorch(model, epochs, **kwargs):
     # If reproducibility is desired, a seed must be set, and cuDNN must be disabled, as it uses
     # nondeterministic algorithms
     if seed is not None:
-        torch.backends.cudnn.enabled = False
+        torch.backends.cudnn.deterministic=True
+        torch.backends.cudnn.benchmark=True
         manual_seed(seed)
 
     # Sending network model to GPU if available
@@ -127,13 +132,27 @@ def train_pytorch(model, epochs, **kwargs):
     model = nn.DataParallel(model)
     model.to(device)
 
+    reg_params = []
+    no_reg_params = []
+    for name, param in model.named_parameters():
+        match = re.match(r".*weight", name)
+        if match is None:
+            no_reg_params.append(param)
+        else:
+            reg_params.append(param)
+
+    params = [
+        {'params': reg_params, 'weight_decay': 1e-5, 'name': 'reg_params'},
+        {'params': no_reg_params, 'weight_decay': 0, 'name': 'no_reg_params'}
+    ]
+
     # Set up optimiser
     if optimiser_class.lower() == "adam":
         optimiser = Adam(model.parameters())
     elif optimiser_class.lower() == "sgd":
         optimiser = SGD(model.parameters())
     else:
-        optimiser = RMSprop(model.parameters())
+        optimiser = RMSprop(params)
 
     # Training, validation and testing
     for epoch in range(1, epochs + 1):
