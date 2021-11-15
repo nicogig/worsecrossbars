@@ -81,7 +81,7 @@ def get_data_loaders(**kwargs):
     return training_loader, validation_loader, test_loader
 
 
-def train_pytorch(model, epochs, **kwargs):
+def train_pytorch(data_loaders, model, epochs, **kwargs):
     """
     """
 
@@ -103,8 +103,7 @@ def train_pytorch(model, epochs, **kwargs):
         raise ValueError("\"optimiser_class\" argument should be either \"rmsprop\", \"adam\" " +
                          "or \"sgd\".")
 
-    training_loader, validation_loader, test_loader = get_data_loaders(batch_size=batch_size,
-                                                                       seed=seed)
+    training_loader, validation_loader, test_loader = data_loaders
 
     # Results lists
     training_losses = []
@@ -213,7 +212,9 @@ if __name__ == "__main__":
 
     model = MNIST_MLP(2)
 
-    model_weights, training_losses, validation_losses, test_loss, test_accuracy = train_pytorch(model, 10)
+    data_loaders = get_data_loaders()
+
+    model_weights, training_losses, validation_losses, test_loss, test_accuracy = train_pytorch(data_loaders, model, 10)
 
     end = time.time()
     print(f"Time elapsed: {end - start}")
