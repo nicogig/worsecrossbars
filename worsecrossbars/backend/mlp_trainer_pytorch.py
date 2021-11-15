@@ -123,8 +123,9 @@ def train_pytorch(model, epochs, **kwargs):
         manual_seed(seed)
 
     # Sending network model to GPU if available
-    if cuda.is_available():
-        model = model.cuda()
+    # if cuda.is_available():
+    #     model = model.cuda()
+    model.to(device)
 
     # Set up optimiser
     if optimiser_class.lower() == "adam":
@@ -143,8 +144,9 @@ def train_pytorch(model, epochs, **kwargs):
 
         for data, label in training_loader:
 
-            if cuda.is_available():
-                data, label = data.cuda(), label.cuda()
+            # if cuda.is_available():
+            #     data, label = data.cuda(), label.cuda()
+            data, label = data.to(device), data.to(device)
 
             optimiser.zero_grad()
 
@@ -166,8 +168,9 @@ def train_pytorch(model, epochs, **kwargs):
 
             for data, label in validation_loader:
 
-                if cuda.is_available():
-                    data, label = data.cuda(), label.cuda()
+                # if cuda.is_available():
+                #     data, label = data.cuda(), label.cuda()
+                data, label = data.to(device), data.to(device)
                 
                 output = model(data)
 
@@ -187,8 +190,9 @@ def train_pytorch(model, epochs, **kwargs):
 
         for data, label in test_loader:
 
-            if cuda.is_available():
-                data, label = data.cuda(), label.cuda()
+            # if cuda.is_available():
+            #     data, label = data.cuda(), label.cuda()
+            data, label = data.to(device), data.to(device)
 
             output = model(data)
 
