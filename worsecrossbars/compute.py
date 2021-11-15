@@ -36,8 +36,8 @@ def stop_handler(signum, _):
     abruptly/unexpectedly.
     """
 
-    logging.error("Simulation terminated unexpectedly due to " +
-                  f"Signal {signal.Signals(signum).name}")
+    logging.error("Simulation terminated unexpectedly due to Signal %s",
+                  signal.Signals(signum).name)
     if command_line_args.teams:
         sims = json_object["simulations"]
         teams.send_message(f"Using parameters:\n{sims}\nSignal:{signal.Signals(signum).name}",
@@ -46,7 +46,7 @@ def stop_handler(signum, _):
     sys.exit(1)
 
 
-def worker(mnist_dataset, simulation_parameters, command_line_args):
+def worker(mnist_dataset, simulation_parameters):
     """
     A worker, an async class that handles the heavy-lifting computation-wise.
     """
@@ -56,7 +56,7 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
     noise_variance = simulation_parameters["noise_variance"]
     number_anns = simulation_parameters["number_ANNs"]
 
-    logging.info(f"Attempting simulation with following parameters: {simulation_parameters}")
+    logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
@@ -71,8 +71,8 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
     # in the previous step
     training_validation_data = training_validation_metrics(histories_list)
 
-    logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 " Done training. Computing loss and accuracy.")
+    logging.info("[%dHL_%dANNs_%dNV] Done training. Computing loss and accuracy.",
+                number_hidden_layers, number_anns, noise_variance)
 
     # Saving training/validation data to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
@@ -81,8 +81,8 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
         pickle.dump((training_validation_data, fault_type, number_hidden_layers, noise_variance),
                      file)
 
-    logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 " Saved training and validation data.")
+    logging.info("[%dHL_%dANNs_%dNV] Saved training and validation data.",
+                number_hidden_layers, number_anns, noise_variance)
 
     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
@@ -94,8 +94,8 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
         pickle.dump((percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
                      file)
 
-    logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 " Saved accuracy data.")
+    logging.info("[%dHL_%dANNs_%dNV] Saved accuracy data.",
+                number_hidden_layers, number_anns, noise_variance)
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
@@ -117,7 +117,7 @@ def main():
         validate_parameters(simulation_parameters)
         process = Process(
             target=worker,
-            args=[mnist_dataset, simulation_parameters, command_line_args]
+            args=[mnist_dataset, simulation_parameters]
         )
         process.start()
         pool.append(process)
