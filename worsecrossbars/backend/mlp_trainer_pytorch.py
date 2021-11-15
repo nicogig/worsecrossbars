@@ -36,7 +36,7 @@ def get_data_loaders(**kwargs):
     data_directory = kwargs.get("data_directory",
                                 str(Path.home().joinpath("worsecrossbars", "utils")))
     shuffle = kwargs.get("shuffle", True)
-    num_workers = kwargs.get("num_workers", 8)
+    num_workers = kwargs.get("num_workers", 16)
     pin_memory = kwargs.get("pin_memory", True)
 
     # Validating arguments
