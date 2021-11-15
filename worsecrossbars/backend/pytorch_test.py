@@ -2,7 +2,7 @@ import torch
 import datetime
 print(torch.__version__)
 
-dtype = torch.double
+dtype = torch.float32
 #device = torch.device("cpu")
 device = torch.device("cuda:0")
 
