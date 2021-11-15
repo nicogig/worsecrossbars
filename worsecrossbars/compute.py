@@ -72,7 +72,7 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
     training_validation_data = training_validation_metrics(histories_list)
 
     logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 "Done training. Computing loss and accuracy.")
+                 " Done training. Computing loss and accuracy.")
 
     # Saving training/validation data to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
@@ -82,7 +82,7 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
                      file)
 
     logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 "Saved training and validation data.")
+                 " Saved training and validation data.")
 
     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
@@ -95,7 +95,7 @@ def worker(mnist_dataset, simulation_parameters, command_line_args):
                      file)
 
     logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                 "Saved accuracy data.")
+                 " Saved accuracy data.")
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
