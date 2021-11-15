@@ -4,6 +4,7 @@ A backend module used to create a PyTorch model for a densely connected MLP with
 """
 
 import numpy as np
+import torch
 from torch import nn
 
 
@@ -59,8 +60,8 @@ class MNIST_MLP(nn.Module):
                              "with the same size as the number of layers being instantiated.")
 
         # Activation layers
-        self.sigmoid = nn.Sigmoid()
-        self.softmax = nn.Softmax(dim=1)
+        # self.sigmoid = nn.Sigmoid()
+        # self.softmax = nn.Softmax(dim=1)
 
         # Hidden layers
         self.hidden = nn.ModuleList()
@@ -81,8 +82,8 @@ class MNIST_MLP(nn.Module):
         x = x.view(-1, 784)
 
         for layer in self.hidden:
-            x = self.sigmoid(layer(x))
+            x = torch.sigmoid(layer(x))
 
-        output = self.softmax(self.output(x))
+        output = torch.softmax(self.output(x), dim=1)
 
         return output
