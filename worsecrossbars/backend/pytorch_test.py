@@ -1,48 +1,172 @@
 import torch
-import datetime
-print(torch.__version__)
+import numpy as np
+from torchvision import datasets
+import torchvision.transforms as transforms
+from torch.utils.data.sampler import SubsetRandomSampler
 
-dtype = torch.float16
-#device = torch.device("cpu")
-device = torch.device("cuda:0")
+# number of subprocesses to use for data loading
+num_workers = 0
+# how many samples per batch to load
+batch_size = 20
+# percentage of training set to use as validation
+valid_size = 0.2
+# convert data to torch.FloatTensor
+transform = transforms.ToTensor()
+# choose the training and testing datasets
+train_data = datasets.MNIST(root = 'data', train = True, download = True, transform = transform)
+test_data = datasets.MNIST(root = 'data', train = False, download = True, transform = transform)
+# obtain training indices that will be used for validation
+num_train = len(train_data)
+indices = list(range(num_train))
+np.random.shuffle(indices)
+split = int(np.floor(valid_size * num_train))
+train_index, valid_index = indices[split:], indices[:split]
+# define samplers for obtaining training and validation batches
+train_sampler = SubsetRandomSampler(train_index)
+valid_sampler = SubsetRandomSampler(valid_index)
+# prepare data loaders
+train_loader = torch.utils.data.DataLoader(train_data, batch_size = batch_size, 
+                                           sampler = train_sampler, num_workers = num_workers)
+valid_loader = torch.utils.data.DataLoader(train_data, batch_size = batch_size,
+                                          sampler = valid_sampler, num_workers = num_workers)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size = batch_size,
+                                         num_workers = num_workers)
 
-# N is batch size; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
-N, D_in, H, D_out = 64, 1000, 10000, 10
+import torch.nn as nn
+import torch.nn.functional as F
+# define NN architecture
+class Net(nn.Module):
+    def __init__(self):
+        super(Net,self).__init__()
+        # number of hidden nodes in each layer (512)
+        hidden_1 = 512
+        hidden_2 = 512
+        # linear layer (784 -> hidden_1)
+        self.fc1 = nn.Linear(28*28, 512)
+        # linear layer (n_hidden -> hidden_2)
+        self.fc2 = nn.Linear(512,512)
+        # linear layer (n_hidden -> 10)
+        self.fc3 = nn.Linear(512,10)
+        # dropout layer (p=0.2)
+        # dropout prevents overfitting of data
+        self.droput = nn.Dropout(0.2)
+        
+    def forward(self,x):
+        # flatten image input
+        x = x.view(-1,28*28)
+        # add hidden layer, with relu activation function
+        x = F.relu(self.fc1(x))
+        # add dropout layer
+        x = self.droput(x)
+         # add hidden layer, with relu activation function
+        x = F.relu(self.fc2(x))
+        # add dropout layer
+        x = self.droput(x)
+        # add output layer
+        x = self.fc3(x)
+        return x
+# initialize the NN
+model = Net()
+print(model)
 
-# Create random input and output data
-x = torch.randn(N, D_in, device=device, dtype=dtype)
-y = torch.randn(N, D_out, device=device, dtype=dtype)
+# specify loss function (categorical cross-entropy)
+criterion = nn.CrossEntropyLoss()
+# specify optimizer (stochastic gradient descent) and learning rate = 0.01
+optimizer = torch.optim.SGD(model.parameters(),lr = 0.01)
 
-# Randomly initialize weights
-w1 = torch.randn(D_in, H, device=device, dtype=dtype)
-w2 = torch.randn(H, D_out, device=device, dtype=dtype)
+# number of epochs to train the model
+n_epochs = 50
+# initialize tracker for minimum validation loss
+valid_loss_min = np.Inf  # set initial "min" to infinity
+for epoch in range(n_epochs):
+    # monitor losses
+    train_loss = 0
+    valid_loss = 0
+    
+     
+    ###################
+    # train the model #
+    ###################
+    model.train() # prep model for training
+    for data,label in train_loader:
+        # clear the gradients of all optimized variables
+        optimizer.zero_grad()
+        # forward pass: compute predicted outputs by passing inputs to the model
+        output = model(data)
+        # calculate the loss
+        loss = criterion(output,label)
+        # backward pass: compute gradient of the loss with respect to model parameters
+        loss.backward()
+        # perform a single optimization step (parameter update)
+        optimizer.step()
+        # update running training loss
+        train_loss += loss.item() * data.size(0)
+        
+        
+     ######################    
+    # validate the model #
+    ######################
+    model.eval()  # prep model for evaluation
+    for data,label in valid_loader:
+        # forward pass: compute predicted outputs by passing inputs to the model
+        output = model(data)
+        # calculate the loss
+        loss = criterion(output,label)
+        # update running validation loss 
+        valid_loss = loss.item() * data.size(0)
+    
+    # print training/validation statistics 
+    # calculate average loss over an epoch
+    train_loss = train_loss / len(train_loader.sampler)
+    valid_loss = valid_loss / len(valid_loader.sampler)
+    
+    print('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
+        epoch+1, 
+        train_loss,
+        valid_loss
+        ))
+    
+    # save model if validation loss has decreased
+    if valid_loss <= valid_loss_min:
+        print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
+        valid_loss_min,
+        valid_loss))
+        torch.save(model.state_dict(), 'model.pt')
+        valid_loss_min = valid_loss
 
+model.load_state_dict(torch.load('model.pt'))
 
-start = datetime.datetime.now()
-learning_rate = 1e-6
-for t in range(5000):
-    # Forward pass: compute predicted y
-    h = x.mm(w1)
-    h_relu = h.clamp(min=0)
-    y_pred = h_relu.mm(w2)
-
-    # Compute and print loss
-    loss = (y_pred - y).pow(2).sum().item()
-    #print(t, loss)
-
-    # Backprop to compute gradients of w1 and w2 with respect to loss
-    grad_y_pred = 2.0 * (y_pred - y)
-    grad_w2 = h_relu.t().mm(grad_y_pred)
-    grad_h_relu = grad_y_pred.mm(w2.t())
-    grad_h = grad_h_relu.clone()
-    grad_h[h < 0] = 0
-    grad_w1 = x.t().mm(grad_h)
-
-    # Update weights using gradient descent
-    w1 -= learning_rate * grad_w1
-    w2 -= learning_rate * grad_w2
-
-end = datetime.datetime.now()
-
-print(end-start)
+# initialize lists to monitor test loss and accuracy
+test_loss = 0.0
+class_correct = list(0. for i in range(10))
+class_total = list(0. for i in range(10))
+model.eval() # prep model for evaluation
+for data, target in test_loader:
+    # forward pass: compute predicted outputs by passing inputs to the model
+    output = model(data)
+    # calculate the loss
+    loss = criterion(output, target)
+    # update test loss 
+    test_loss += loss.item()*data.size(0)
+    # convert output probabilities to predicted class
+    _, pred = torch.max(output, 1)
+    # compare predictions to true label
+    correct = np.squeeze(pred.eq(target.data.view_as(pred)))
+    # calculate test accuracy for each object class
+    for i in range(len(target)):
+        label = target.data[i]
+        class_correct[label] += correct[i].item()
+        class_total[label] += 1
+# calculate and print avg test loss
+test_loss = test_loss/len(test_loader.sampler)
+print('Test Loss: {:.6f}\n'.format(test_loss))
+for i in range(10):
+    if class_total[i] > 0:
+        print('Test Accuracy of %5s: %2d%% (%2d/%2d)' % (
+            str(i), 100 * class_correct[i] / class_total[i],
+            np.sum(class_correct[i]), np.sum(class_total[i])))
+    # else:
+    #     print('Test Accuracy of %5s: N/A (no training examples)' % (classes[i]))
+print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
+    100. * np.sum(class_correct) / np.sum(class_total),
+    np.sum(class_correct), np.sum(class_total)))
