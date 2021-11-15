@@ -70,15 +70,12 @@ def get_data_loaders(**kwargs):
                                                             [size_training, size_validation])       
 
     training_loader = DataLoader(training_dataset, batch_size=batch_size,
-                                 shuffle=shuffle, num_workers=num_workers,
-                                 pin_memory=pin_memory)
+                                 shuffle=shuffle)
 
     validation_loader = DataLoader(validation_dataset, batch_size=batch_size,
-                                   shuffle=shuffle, num_workers=num_workers,
-                                   pin_memory=pin_memory)
+                                   shuffle=shuffle)
 
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle,
-                             num_workers=num_workers, pin_memory=pin_memory)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle)
 
     return training_loader, validation_loader, test_loader
 
