@@ -84,6 +84,6 @@ class MNIST_MLP(nn.Module):
         for layer in self.hidden:
             x = torch.sigmoid(layer(x))
 
-        output = torch.softmax(self.output(x), dim=1)
+        output = self.output(x)
 
         return output
