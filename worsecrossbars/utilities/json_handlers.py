@@ -3,6 +3,7 @@ json_handlers:
 An internal utility module to handle and validate JSON.
 """
 
+import logging
 import sys
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
@@ -71,5 +72,6 @@ def validate_json(extracted_json):
     try:
         validate(extracted_json, json_schema)
     except ValidationError as err:
+        logging.exception("An exception occurred while validating the JSON file.")
         print(f"{err.message}")
         sys.exit(0)

@@ -9,7 +9,8 @@ import signal
 import gc
 import platform
 import pickle
-import threading
+import logging
+from multiprocessing import Process
 from pathlib import Path
 import numpy as np
 from worsecrossbars.backend.mlp_trainer import create_datasets
@@ -25,7 +26,6 @@ from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import create_output_structure
 from worsecrossbars.utilities.io_operations import user_folders
-from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 
@@ -35,6 +35,9 @@ def stop_handler(signum, _):
     This function handles stop signals transmitted by the Kernel when the script terminates
     abruptly/unexpectedly.
     """
+
+    logging.error("Simulation terminated unexpectedly due to Signal %s",
+                  signal.Signals(signum).name)
     if command_line_args.teams:
         sims = json_object["simulations"]
         teams.send_message(f"Using parameters:\n{sims}\nSignal:{signal.Signals(signum).name}",
@@ -51,12 +54,10 @@ def worker(mnist_dataset, simulation_parameters):
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
+    number_anns = simulation_parameters["number_ANNs"]
 
-    if command_line_args.log:
-        log = Logging(simulation_parameters=simulation_parameters, output_folder=output_folder)
-        log.write(special="begin")
-    else:
-        log = Logging()
+    logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
+
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
                                title="Started simulation", color="ffca33")
@@ -64,14 +65,14 @@ def worker(mnist_dataset, simulation_parameters):
     percentages = np.arange(0, 1.01, 0.01)
 
     weights_list, histories_list = train_models(mnist_dataset, simulation_parameters,
-                                                epochs=10, batch_size=100, log=log)
+                                                epochs=10, batch_size=100)
 
     # Computing training and validation loss and accuracy by averaging over all the models trained
     # in the previous step
     training_validation_data = training_validation_metrics(histories_list)
 
-    if command_line_args.log:
-        log.write(string="Done training. Computing loss and accuracy.")
+    logging.info("[%dHL_%dANNs_%dNV] Done training. Computing loss and accuracy.",
+                number_hidden_layers, number_anns, noise_variance)
 
     # Saving training/validation data to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder,
@@ -80,12 +81,12 @@ def worker(mnist_dataset, simulation_parameters):
         pickle.dump((training_validation_data, fault_type, number_hidden_layers, noise_variance),
                      file)
 
-    if command_line_args.log:
-        log.write(string="Saved training and validation data.")
+    logging.info("[%dHL_%dANNs_%dNV] Saved training and validation data.",
+                number_hidden_layers, number_anns, noise_variance)
 
     # Running a variety of simulations to average out stochastic variance
     accuracies = run_simulation(weights_list, percentages, mnist_dataset,
-                                simulation_parameters, log)
+                                simulation_parameters)
 
     # Saving accuracies array to file
     with open(str(Path.home().joinpath("worsecrossbars", "outputs", output_folder, "accuracies",
@@ -93,9 +94,8 @@ def worker(mnist_dataset, simulation_parameters):
         pickle.dump((percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
                      file)
 
-    if command_line_args.log:
-        log.write(string="Saved accuracy data.")
-        log.write(special="end")
+    logging.info("[%dHL_%dANNs_%dNV] Saved accuracy data.",
+                number_hidden_layers, number_anns, noise_variance)
 
     if command_line_args.teams:
         teams.send_message(f"Using parameters:\n{simulation_parameters}",
@@ -106,7 +106,7 @@ def main():
     """
     Main point of entry for the computing-side of the package.
     """
-    tasks = []
+    pool = []
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -115,15 +115,15 @@ def main():
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
-        thread = threading.Thread(
+        process = Process(
             target=worker,
             args=[mnist_dataset, simulation_parameters]
         )
-        thread.start()
-        tasks.append(thread)
+        process.start()
+        pool.append(process)
 
-    for thread in tasks:
-        thread.join()
+    for process in pool:
+        process.join()
 
     for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
         accuracy_curves(accuracy_plot_parameters["plots_data"], output_folder,
@@ -139,6 +139,7 @@ def main():
 
     if command_line_args.dropbox:
         dbx.upload()
+        logging.info("Uploaded Simulation outcome to Dropbox.")
         if command_line_args.teams:
             teams.send_message(f"Simulations {output_folder} uploaded successfully.",
                            title="Uploaded to Dropbox", color="0060ff")
@@ -156,8 +157,6 @@ if __name__ == "__main__":
         help="Run the inital setup", type=bool, default=False)
     parser.add_argument("-w", dest="wipe_current", metavar="WIPE_CURRENT",
         help="Wipe the current output (or config)", type=bool, default=False)
-    parser.add_argument("-l", dest="log", metavar="LOG",
-        help="Enable logging the output in a separate file", type=bool, default=True)
     parser.add_argument("-d", dest="dropbox", metavar="DROPBOX",
         help="Enable Dropbox integration", type=bool, default=True)
     parser.add_argument("-t", dest="teams", metavar="MSTEAMS",
@@ -172,14 +171,24 @@ if __name__ == "__main__":
 
     else:
 
+        # Create user and output folders.
+        user_folders()
+        output_folder = create_output_structure(command_line_args.wipe_current)
+
+        logging.basicConfig(
+            filename=str(Path.home().joinpath(
+                "worsecrossbars", "outputs", output_folder, "logs", "run.log")),
+            filemode="w",
+            format="[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s",
+            level=logging.INFO,
+            datefmt="%d-%b-%y %H:%M:%S"
+        )
+
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
         json_object = read_external_json(str(json_path))
         validate_json(json_object)
 
-        # Create user and output folders.
-        user_folders()
-        output_folder = create_output_structure(command_line_args.wipe_current)
 
         if command_line_args.teams:
             teams = MSTeamsNotifier(read_webhook())

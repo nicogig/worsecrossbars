@@ -5,6 +5,7 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 
 import copy
 import gc
+import logging
 import numpy as np
 from worsecrossbars.backend.weight_mapping import choose_extremes
 from worsecrossbars.backend.weight_mapping import create_weight_interval
@@ -114,7 +115,7 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
     return accuracies
 
 
-def train_models(dataset, simulation_parameters, epochs, batch_size, log):
+def train_models(dataset, simulation_parameters, epochs, batch_size):
     """
     This function trains the generated Keras models on the MNIST dataset with the given parameters.
 
@@ -125,7 +126,6 @@ def train_models(dataset, simulation_parameters, epochs, batch_size, log):
         number_conductance_levels, number_simulations.
       epochs: Positive integer, number of epochs over which the models will be trained.
       batch_size: Positive integer, size of batches that will be used to train the models.
-      log: Instance of Logging class, necessary to log training progress.
 
     weights_list:
       List of arrays containing the weights of each of the "number_ANNs" trained networks.
@@ -150,8 +150,8 @@ def train_models(dataset, simulation_parameters, epochs, batch_size, log):
 
         gc.collect()
 
-        if log is not None:
-            log.write(string=f"Trained model {model_number+1} of {number_anns}")
+        logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
+                     f" Trained model {model_number+1} of {number_anns}")
 
     return weights_list, histories_list
 
@@ -201,7 +201,7 @@ def training_validation_metrics(histories_list):
            training_loss_values, validation_loss_values
 
 
-def run_simulation(weights_list, percentages_array, dataset, simulation_parameters, log):
+def run_simulation(weights_list, percentages_array, dataset, simulation_parameters):
     """
     This function runs the main simulation. This entails running one full fault_simulation for each
     of the "number_ANNs" networks trained above, so that the accuracies resulting from each can be
@@ -215,7 +215,6 @@ def run_simulation(weights_list, percentages_array, dataset, simulation_paramete
       simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
         needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
         number_conductance_levels, number_simulations.
-      log: Instance of Logging class, necessary to log simulation progress.
 
     accuracies_array:
       Array containing the average of all accuracies obtained for each of the "number_ANNs"
@@ -237,9 +236,8 @@ def run_simulation(weights_list, percentages_array, dataset, simulation_paramete
         accuracies_array[count] = fault_simulation(percentages_array, weights, model, dataset,
                                                    simulation_parameters)
 
+        logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
+                     f" Simulated model {count+1} of {number_anns}.")
         gc.collect()
-
-        if log is not None:
-            log.write(string=f"Simulated model {count+1} of {number_anns}.")
 
     return np.mean(accuracies_array, axis=0, dtype=np.float64)

@@ -12,7 +12,7 @@ def load_requirements():
 
 setup(
     name="worsecrossbars",
-    version="1.1.0",
+    version="1.2.0",
     packages=["worsecrossbars", "worsecrossbars.utilities",
               "worsecrossbars.backend", "worsecrossbars.plotting"],
     install_requires=load_requirements(),
