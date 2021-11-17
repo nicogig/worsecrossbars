@@ -227,7 +227,7 @@ def training_validation_metrics(histories_list: list) -> tuple:
 
 def run_simulation(
     weights_list: list, percentages_array: list, dataset: tuple, simulation_parameters: dict
-) -> Type[np.ndarray]:
+) -> np.ndarray:
     """This function runs the main simulation. This entails running one full fault_simulation for
     each of the "number_ANNs" networks trained above, so that the accuracies resulting from each can
     be averaged together to reduce the influence of stochastic variability.
