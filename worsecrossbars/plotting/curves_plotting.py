@@ -1,20 +1,19 @@
-"""
-curves_plotting:
+"""curves_plotting:
 A plotting module used to generate training/validation and accuracy curves.
 """
 import argparse
 import os
 import pickle
 from pathlib import Path
+from typing import Type
 
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def load_curves_data(files, folder, curves_type):
-    """
-    This function loads the data that the user has elected to plot.
+def load_curves_data(files: list, folder: str, curves_type: str) -> list:
+    """This function loads the data that the user has elected to plot.
 
     Args:
       files: List containing tuples of the parameters of the files that are to be plotted. The
@@ -22,9 +21,9 @@ def load_curves_data(files, folder, curves_type):
       folder: Path string, employed to indicate the location from which to load files.
       curves_type: String indicating whether training/validation or accuracy data is desired.
 
-    data_list:
-      List containing the required data objects (either accuracies_objects or
-      training_validation_objects).
+    Returns:
+        data_list: List containing the required data objects (either accuracies_objects or
+          training_validation_objects).
     """
 
     data_list = []
@@ -75,9 +74,8 @@ def load_curves_data(files, folder, curves_type):
     return data_list
 
 
-def load_font():
-    """
-    This function loads the computern modern font used in the plots.
+def load_font() -> Type[fm.FontProperties()]:
+    """This function loads the computern modern font used in the plots.
 
     fpath:
       Font path object pointing to the computern modern font.
@@ -93,9 +91,8 @@ def load_font():
     return fpath
 
 
-def accuracy_curves(files, folder, **kwargs):
-    """
-    This function plots accuracy curves with the given data.
+def accuracy_curves(files: list, folder: str, **kwargs):
+    """This function plots accuracy curves with the given data.
 
     As a reminder, the following statements are true about the accuracies_objects contained in the
     accuracies_objects_list variable loaded below:
@@ -178,9 +175,8 @@ def accuracy_curves(files, folder, **kwargs):
     plt.show()
 
 
-def training_validation_curves(files, folder, **kwargs):
-    """
-    This function plots training/validation curves with the given data.
+def training_validation_curves(files: list, folder: str, **kwargs):
+    """This function plots training/validation curves with the given data.
 
     As a reminder, the following statements are true about the training_validation_objects contained
     in the training_validation_objects_list variable loaded below:

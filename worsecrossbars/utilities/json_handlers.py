@@ -1,5 +1,4 @@
-"""
-json_handlers:
+"""json_handlers:
 An internal utility module to handle and validate JSON.
 """
 import logging
