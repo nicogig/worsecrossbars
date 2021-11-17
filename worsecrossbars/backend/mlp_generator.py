@@ -1,16 +1,19 @@
-"""
-mlp_generator:
+"""mlp_generator:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
+from typing import Type
+
+from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import GaussianNoise
 from tensorflow.keras.models import Sequential
 
 
-def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0.0):
-    """
-    This function returns a Keras model set up to be trained to recognise digits from the MNIST
+def mnist_mlp(
+    num_hidden_layers: int, neurons: list = None, model_name: str = "", noise_variance: float = 0.0
+) -> Type[Model]:
+    """This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
 
     The network architecture corresponds to that employed in the "Simulation of Inference Accuracy
@@ -41,8 +44,8 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0.0
       noise_variance: Positive integer/float, variance of the GaussianNoise layers instantiated
         during training to boost network performance.
 
-    model:
-      Keras model object, contaning the desired topology.
+    Returns:
+      model: Keras model object, contaning the desired topology.
     """
 
     default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}

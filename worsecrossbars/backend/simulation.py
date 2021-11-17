@@ -1,12 +1,14 @@
-"""
-simulation:
+"""simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
 import copy
 import gc
 import logging
+from typing import Type
+from typing import Union
 
 import numpy as np
+from tensorflow.keras import Model
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -15,10 +17,14 @@ from worsecrossbars.backend.weight_mapping import create_weight_interval
 from worsecrossbars.backend.weight_mapping import discretise_weights
 
 
-def weight_alterations(network_weights, fault_type, failure_percentage, extremes_list):
-    """
-    This function takes in and modifies network weights to simulate the effect of faulty memristive
-    devices being used in the physical implementation of the ANN.
+def weight_alterations(
+    network_weights: list,
+    fault_type: str,
+    failure_percentage: Union[int, float],
+    extremes_list: list,
+) -> list:
+    """This function takes in and modifies network weights to simulate the effect of faulty
+    memristive devices being used in the physical implementation of the ANN.
 
     It should be noted that only synapse parameters (i.e. weights, not neuron biases) are being
     altered. This is achieved by only modifying even-numbered layers, given that, in a
@@ -30,9 +36,9 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
       failure_percentage: Positive integer/float, percentage of devices affected by the fault.
       extremes_list: List containing minimum and maximum weight values in a given layer.
 
-    altered_weights:
-      Array containing the ANN weights altered to simulate the effect of the desired percentage of
-      devices being affected by the specified fault.
+    Returns:
+      altered_weights: Array containing the ANN weights altered to simulate the effect of the
+        desired percentage of devices being affected by the specified fault.
     """
 
     if isinstance(failure_percentage, int):
@@ -70,9 +76,14 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
     return altered_weights
 
 
-def fault_simulation(percentages_array, weights, network_model, dataset, simulation_parameters):
-    """
-    This function runs a fault simulation with the given parameters, and thus constitutes the
+def fault_simulation(
+    percentages_array: list,
+    weights: list,
+    network_model: Type[Model],
+    dataset: tuple,
+    simulation_parameters: dict,
+) -> list:
+    """This function runs a fault simulation with the given parameters, and thus constitutes the
     computational core of the package. Each simulation is run "number_simulations" times, to average
     out stochastic variability in the final results.
 
@@ -86,8 +97,9 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
         needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
         number_conductance_levels, number_simulations.
 
-    accuracies:
-      Array containing the ANN's inference accuracy at each percentage of faulty devices.
+    Returns:
+      accuracies: Array containing the ANN's inference accuracy at each percentage of faulty
+      devices.
     """
 
     extremes_list = choose_extremes(
@@ -126,9 +138,11 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
     return accuracies
 
 
-def train_models(dataset, simulation_parameters, epochs, batch_size):
-    """
-    This function trains the generated Keras models on the MNIST dataset with the given parameters.
+def train_models(
+    dataset: tuple, simulation_parameters: dict, epochs: int, batch_size: int
+) -> tuple:
+    """This function trains the generated Keras models on the MNIST dataset with the given
+    parameters.
 
     Args:
       dataset: MNIST dataset used to train the models.
@@ -138,11 +152,11 @@ def train_models(dataset, simulation_parameters, epochs, batch_size):
       epochs: Positive integer, number of epochs over which the models will be trained.
       batch_size: Positive integer, size of batches that will be used to train the models.
 
-    weights_list:
-      List of arrays containing the weights of each of the "number_ANNs" trained networks.
-
-    histories_list:
-      List of Keras history dictionaries for each of the "number_ANNs" trained networks.
+    Returns:
+      weights_list: List of arrays containing the weights of each of the "number_ANNs" trained
+        networks.
+      histories_list: List of Keras history dictionaries for each of the "number_ANNs" trained
+        networks.
     """
 
     number_anns = simulation_parameters["number_ANNs"]
@@ -169,27 +183,20 @@ def train_models(dataset, simulation_parameters, epochs, batch_size):
     return weights_list, histories_list
 
 
-def training_validation_metrics(histories_list):
-    """
-    This function calculates training and validation metrics by averaging the data generated during
-    model training and stored in the Keras histories dictionaries returned by the train_models
-    function.
+def training_validation_metrics(histories_list: list) -> tuple:
+    """This function calculates training and validation metrics by averaging the data generated
+    during model training and stored in the Keras histories dictionaries returned by the
+    train_models function.
 
     Args:
       histories_list: List containing Keras models' training histories, as output by the fit
         method run by the worsecrossbars.backend.mlp_trainer.train_mlp function.
 
-    training_accuracy_values:
-      Array containing the training accuracy values.
-
-    validation_accuracy_values:
-      Array containing the validation accuracy values.
-
-    training_loss_values:
-      Array containing the training loss values.
-
-    validation_loss_values:
-      Array containing the validation loss values.
+    Returns:
+      training_accuracy_values: Array containing the training accuracy values.
+      validation_accuracy_values: Array containing the validation accuracy values.
+      training_loss_values: Array containing the training loss values.
+      validation_loss_values: Array containing the validation loss values.
     """
 
     training_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
@@ -218,14 +225,16 @@ def training_validation_metrics(histories_list):
     )
 
 
-def run_simulation(weights_list, percentages_array, dataset, simulation_parameters):
-    """
-    This function runs the main simulation. This entails running one full fault_simulation for each
-    of the "number_ANNs" networks trained above, so that the accuracies resulting from each can be
-    averaged together to reduce the influence of stochastic variability.
+def run_simulation(
+    weights_list: list, percentages_array: list, dataset: tuple, simulation_parameters: dict
+) -> Type[np.ndarray]:
+    """This function runs the main simulation. This entails running one full fault_simulation for
+    each of the "number_ANNs" networks trained above, so that the accuracies resulting from each can
+    be averaged together to reduce the influence of stochastic variability.
 
     Args:
-      weights_list:
+      weights_list: List of arrays containing the weights of each of the "number_ANNs" trained
+        networks.
       percentages_array: Array containing the various percentages of faulty devices the user wants
         to simulate.
       dataset: MNIST test dataset, used to calculate inference accuracy.
@@ -233,11 +242,11 @@ def run_simulation(weights_list, percentages_array, dataset, simulation_paramete
         needed in the simulation, including fault_type, HRS_LRS_ratio, excluded_weights_proportion,
         number_conductance_levels, number_simulations.
 
-    accuracies_array:
-      Array containing the average of all accuracies obtained for each of the "number_ANNs"
-      networks (each itself run "number_simulations" times), for a total of "number_ANNs" *
-      "number_simulations" datapoints averaged together to obtain each value stored in the final
-      array.
+    Returns:
+      accuracies_array: Array containing the average of all accuracies obtained for each of the
+        "number_ANNs" networks (each itself run "number_simulations" times), for a total of
+        "number_ANNs" * "number_simulations" datapoints averaged together to obtain each value
+        stored in the final array.
     """
 
     number_anns = simulation_parameters["number_ANNs"]

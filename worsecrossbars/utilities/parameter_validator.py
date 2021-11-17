@@ -4,8 +4,8 @@ A utilities module used to assess the validity of the simulation parameters load
 
 
 def validate_parameters(simulation_parameters: dict):
-    """This function validates the dictionary containing the simulation parameters, by checking whether
-    the values provided are of the correct type, and take on legal values.
+    """This function validates the dictionary containing the simulation parameters, by checking
+    whether the values provided are of the correct type, and take on legal values.
 
     Args:
       simulation_parameters: Dictionary containing simulation parameters to be validated.
