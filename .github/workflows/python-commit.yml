@@ -19,7 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         pip install matplotlib pymsteams numpy dropbox wget jsonschema
-        pip install black pylint flake8 pyupgrade reorder-python-imports
+        pip install black pylint flake8 pyupgrade reorder-python-imports mypy
     - name: Running black
       run: |
         black --safe --line-length=100 $(find . -name "*.py" | xargs)
@@ -29,6 +29,9 @@ jobs:
     - name: Running flake8
       run: |
         flake8 --max-line-length=100 $(find . -name "*.py" | xargs)
+    - name: Running mypy
+      run: |
+        mypy --ignore-missing-imports $(find . -name "*.py" | xargs)
     - name: Checking imports
       run: |
         reorder-python-imports --py37-plus $(find . -name "*.py" | xargs)
