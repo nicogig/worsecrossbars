@@ -11,7 +11,7 @@ from typing import Union
 import numpy as np
 from numpy import ndarray
 from tensorflow.keras import Model
-from tensorflow.python.keras.callbacks import History
+from tensorflow.keras.callbacks import History
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
