@@ -7,9 +7,9 @@ import pickle
 from pathlib import Path
 from typing import Type
 
-import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.font_manager import FontProperties
 
 
 def load_curves_data(files: list, folder: str, curves_type: str) -> list:
@@ -74,7 +74,7 @@ def load_curves_data(files: list, folder: str, curves_type: str) -> list:
     return data_list
 
 
-def load_font() -> Type[fm.FontProperties()]:
+def load_font() -> Type[FontProperties]:
     """This function loads the computern modern font used in the plots.
 
     fpath:
@@ -82,11 +82,11 @@ def load_font() -> Type[fm.FontProperties()]:
     """
 
     if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
-        fpath = fm.FontProperties(
+        fpath = FontProperties(
             fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18
         )
     else:
-        fpath = fm.FontProperties(family="sans-serif", size=18)
+        fpath = FontProperties(family="sans-serif", size=18)
 
     return fpath
 

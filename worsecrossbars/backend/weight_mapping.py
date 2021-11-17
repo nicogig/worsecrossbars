@@ -34,7 +34,7 @@ def choose_extremes(
             w_min = w_max / hrs_lrs_ratio
             extremes_list.append((w_max, w_min))
         else:
-            extremes_list.append((None,))
+            extremes_list.append((None, None))
 
     return extremes_list
 
