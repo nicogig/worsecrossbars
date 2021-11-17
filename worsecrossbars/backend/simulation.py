@@ -2,16 +2,17 @@
 simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
-
 import copy
 import gc
 import logging
+
 import numpy as np
+
+from worsecrossbars.backend.mlp_generator import mnist_mlp
+from worsecrossbars.backend.mlp_trainer import train_mlp
 from worsecrossbars.backend.weight_mapping import choose_extremes
 from worsecrossbars.backend.weight_mapping import create_weight_interval
 from worsecrossbars.backend.weight_mapping import discretise_weights
-from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.mlp_trainer import train_mlp
 
 
 def weight_alterations(network_weights, fault_type, failure_percentage, extremes_list):
@@ -38,9 +39,7 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
         failure_percentage = float(failure_percentage)
 
     if not isinstance(failure_percentage, float) or failure_percentage < 0:
-        raise ValueError(
-            '"failure_percentage" argument should be a positive real number.'
-        )
+        raise ValueError('"failure_percentage" argument should be a positive real number.')
 
     altered_weights = copy.deepcopy(network_weights)
 
@@ -71,9 +70,7 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
     return altered_weights
 
 
-def fault_simulation(
-    percentages_array, weights, network_model, dataset, simulation_parameters
-):
+def fault_simulation(percentages_array, weights, network_model, dataset, simulation_parameters):
     """
     This function runs a fault simulation with the given parameters, and thus constitutes the
     computational core of the package. Each simulation is run "number_simulations" times, to average
@@ -248,9 +245,7 @@ def run_simulation(weights_list, percentages_array, dataset, simulation_paramete
     noise_variance = simulation_parameters["noise_variance"]
 
     model = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-    model.compile(
-        optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"]
-    )
+    model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
     accuracies_array = np.zeros((len(weights_list), len(percentages_array)))
 
     for count, weights in enumerate(weights_list):

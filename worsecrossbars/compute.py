@@ -2,32 +2,33 @@
 compute:
 Worsecrossbars' main module and entrypoint.
 """
-
 import argparse
-import sys
-import signal
 import gc
-import platform
-import pickle
 import logging
+import pickle
+import platform
+import signal
+import sys
 from multiprocessing import Process
 from pathlib import Path
+
 import numpy as np
+
 from worsecrossbars.backend.mlp_trainer import create_datasets
-from worsecrossbars.backend.simulation import training_validation_metrics
-from worsecrossbars.backend.simulation import train_models
 from worsecrossbars.backend.simulation import run_simulation
+from worsecrossbars.backend.simulation import train_models
+from worsecrossbars.backend.simulation import training_validation_metrics
 from worsecrossbars.plotting.curves_plotting import accuracy_curves
 from worsecrossbars.plotting.curves_plotting import training_validation_curves
-from worsecrossbars.utilities.parameter_validator import validate_parameters
+from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.initial_setup import main_setup
-from worsecrossbars.utilities.json_handlers import validate_json
+from worsecrossbars.utilities.io_operations import create_output_structure
 from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.io_operations import read_webhook
-from worsecrossbars.utilities.io_operations import create_output_structure
 from worsecrossbars.utilities.io_operations import user_folders
+from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.utilities.dropbox_upload import DropboxUpload
+from worsecrossbars.utilities.parameter_validator import validate_parameters
 
 
 def stop_handler(signum, _):
@@ -61,9 +62,7 @@ def worker(mnist_dataset, simulation_parameters):
     noise_variance = simulation_parameters["noise_variance"]
     number_anns = simulation_parameters["number_ANNs"]
 
-    logging.info(
-        "Attempting simulation with following parameters: %s", simulation_parameters
-    )
+    logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
 
     if command_line_args.teams:
         teams.send_message(
@@ -121,9 +120,7 @@ def worker(mnist_dataset, simulation_parameters):
     )
 
     # Running a variety of simulations to average out stochastic variance
-    accuracies = run_simulation(
-        weights_list, percentages, mnist_dataset, simulation_parameters
-    )
+    accuracies = run_simulation(weights_list, percentages, mnist_dataset, simulation_parameters)
 
     # Saving accuracies array to file
     with open(
@@ -269,9 +266,7 @@ if __name__ == "__main__":
 
         logging.basicConfig(
             filename=str(
-                Path.home().joinpath(
-                    "worsecrossbars", "outputs", output_folder, "logs", "run.log"
-                )
+                Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs", "run.log")
             ),
             filemode="w",
             format="[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s",

@@ -3,13 +3,12 @@ io_operations:
 A module that holds multiple utility functions used to
 interact with the File System.
 """
-
-import sys
-import os
 import json
+import os
 import shutil
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 
 def read_external_json(file_path):
@@ -80,9 +79,9 @@ def create_output_structure(wipe_current=True):
     home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "accuracies").mkdir(
         parents=True, exist_ok=True
     )
-    home_dir.joinpath(
-        "worsecrossbars", "outputs", folder, "plots", "training_validation"
-    ).mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "training_validation").mkdir(
+        parents=True, exist_ok=True
+    )
     home_dir.joinpath("worsecrossbars", "outputs", folder, "training_validation").mkdir(
         parents=True, exist_ok=True
     )

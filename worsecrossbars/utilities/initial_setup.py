@@ -2,12 +2,14 @@
 initial_setup:
 Module used to configure the system to use worsecrossbars.
 """
-
 import os
 from pathlib import Path
 from urllib.error import URLError
+
 import wget
-from worsecrossbars.utilities import io_operations, auth_dropbox
+
+from worsecrossbars.utilities import auth_dropbox
+from worsecrossbars.utilities import io_operations
 
 
 def main_setup(overwrite_configs=False):
@@ -41,7 +43,5 @@ def main_setup(overwrite_configs=False):
             Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")
         ):
             auth_dropbox.authenticate()
-        if not os.path.exists(
-            Path.home().joinpath("worsecrossbars", "config", "msteams.json")
-        ):
+        if not os.path.exists(Path.home().joinpath("worsecrossbars", "config", "msteams.json")):
             io_operations.store_webhook()

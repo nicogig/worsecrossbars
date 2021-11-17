@@ -2,14 +2,14 @@
 curves_plotting:
 A plotting module used to generate training/validation and accuracy curves.
 """
-
-import os
 import argparse
+import os
 import pickle
 from pathlib import Path
-import numpy as np
+
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def load_curves_data(files, folder, curves_type):
@@ -57,8 +57,7 @@ def load_curves_data(files, folder, curves_type):
 
         else:
             raise ValueError(
-                '"curves_type" parameter must be either "accuracy" or '
-                + '"training_validation".'
+                '"curves_type" parameter must be either "accuracy" or ' + '"training_validation".'
             )
 
         try:
@@ -229,9 +228,7 @@ def training_validation_curves(files, folder, **kwargs):
         raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    training_validation_objects_list = load_curves_data(
-        files, folder, "training_validation"
-    )
+    training_validation_objects_list = load_curves_data(files, folder, "training_validation")
 
     epochs = list(range(1, len(training_validation_objects_list[0][0][0]) + 1))
 

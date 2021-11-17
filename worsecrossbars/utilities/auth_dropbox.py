@@ -4,17 +4,18 @@ An internal module used to establish a secure connection
 to Dropbox and authenticate against a Dropbox App.
 Uses OAuth 2.
 """
-
-import os
 import json
+import os
 import sys
 from pathlib import Path
+
 from dropbox import Dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
-from dropbox.oauth import NotApprovedException
 from dropbox.oauth import BadRequestException
 from dropbox.oauth import BadStateException
+from dropbox.oauth import NotApprovedException
 from dropbox.oauth import ProviderException
+
 from worsecrossbars.utilities import io_operations
 
 
@@ -25,9 +26,7 @@ def authenticate():
     config. The resulting user_secrets are stored in the HOME folder.
     """
 
-    if not os.path.exists(
-        Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
-    ):
+    if not os.path.exists(Path.home().joinpath("worsecrossbars", "config", "app_keys.json")):
         io_operations.store_dropbox_keys()
         authenticate()
         return

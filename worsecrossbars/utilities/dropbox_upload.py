@@ -3,12 +3,12 @@ dropbox_upload:
 An internal module to upload a user's output folder
 to Dropbox.
 """
-
-import os
-import sys
 import json
+import os
 import shutil
+import sys
 from pathlib import Path
+
 import dropbox
 
 
@@ -29,11 +29,7 @@ class DropboxUpload:
         else:
             self.output_folder = folder
             with open(
-                str(
-                    Path.home().joinpath(
-                        "worsecrossbars", "config", "user_secrets.json"
-                    )
-                ),
+                str(Path.home().joinpath("worsecrossbars", "config", "user_secrets.json")),
                 encoding="utf8",
             ) as json_file:
                 self.dropbox_secrets = json.load(json_file)
@@ -61,11 +57,7 @@ class DropboxUpload:
             shutil.make_archive(
                 f"output_{self.output_folder}",
                 "zip",
-                str(
-                    Path.home().joinpath(
-                        "worsecrossbars", "outputs", self.output_folder
-                    )
-                ),
+                str(Path.home().joinpath("worsecrossbars", "outputs", self.output_folder)),
             )
             with open(f"output_{self.output_folder}.zip", "rb") as file:
                 data = file.read()

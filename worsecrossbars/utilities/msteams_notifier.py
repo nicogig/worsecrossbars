@@ -3,7 +3,6 @@ msteams_notifier:
 An internal module used to send notifications
 to the user via Microsoft Teams.
 """
-
 import pymsteams
 
 

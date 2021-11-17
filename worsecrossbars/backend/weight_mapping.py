@@ -2,8 +2,8 @@
 weight_mapping:
 A backend module used to map ANN weights into real-world resistance levels.
 """
-
 import copy
+
 import numpy as np
 
 
@@ -55,9 +55,7 @@ def create_weight_interval(list_of_extremes, number_of_levels):
 
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            weight_interval_list.append(
-                np.linspace(element[1], element[0], number_of_levels)
-            )
+            weight_interval_list.append(np.linspace(element[1], element[0], number_of_levels))
 
     return weight_interval_list
 

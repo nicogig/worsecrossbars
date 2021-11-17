@@ -2,9 +2,9 @@
 json_handlers:
 An internal utility module to handle and validate JSON.
 """
-
 import logging
 import sys
+
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 

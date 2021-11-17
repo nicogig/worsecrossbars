@@ -2,7 +2,6 @@
 mlp_trainer:
 A backend module used to create the MNIST dataset and train a Keras model on it.
 """
-
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
@@ -39,13 +38,8 @@ def create_datasets(training_validation_ratio):
     if isinstance(training_validation_ratio, int):
         training_validation_ratio = float(training_validation_ratio)
 
-    if (
-        not isinstance(training_validation_ratio, float)
-        or training_validation_ratio < 0
-    ):
-        raise ValueError(
-            '"training_validation_ratio" argument should be a positive real number.'
-        )
+    if not isinstance(training_validation_ratio, float) or training_validation_ratio < 0:
+        raise ValueError('"training_validation_ratio" argument should be a positive real number.')
 
     # Dataset download
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
@@ -102,9 +96,7 @@ def train_mlp(dataset, model, epochs, batch_size):
     if not isinstance(batch_size, int) or batch_size < 1:
         raise ValueError('"batch_size" argument should be an integer greater than 1.')
 
-    model.compile(
-        optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"]
-    )
+    model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
 
     # Training with validation test
     mlp_history = model.fit(
@@ -115,9 +107,7 @@ def train_mlp(dataset, model, epochs, batch_size):
         validation_data=(dataset[0][0], dataset[0][1]),
         verbose=0,
     )
-    mlp_test_loss, mlp_test_acc = model.evaluate(
-        dataset[1][0], dataset[1][1], verbose=0
-    )
+    mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 
     # Extracting network weights
     mlp_weights = model.get_weights()

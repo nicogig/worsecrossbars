@@ -2,10 +2,9 @@
 mlp_generator:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
-
+from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import GaussianNoise
-from tensorflow.keras.layers import Activation
 from tensorflow.keras.models import Sequential
 
 
