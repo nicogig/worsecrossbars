@@ -34,7 +34,7 @@ def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion)
             w_min = w_max / hrs_lrs_ratio
             extremes_list.append((w_max, w_min))
         else:
-            extremes_list.append((None, ))
+            extremes_list.append((None,))
 
     return extremes_list
 
@@ -55,7 +55,9 @@ def create_weight_interval(list_of_extremes, number_of_levels):
 
     for count, element in enumerate(list_of_extremes):
         if count % 2 == 0:
-            weight_interval_list.append(np.linspace(element[1], element[0], number_of_levels))
+            weight_interval_list.append(
+                np.linspace(element[1], element[0], number_of_levels)
+            )
 
     return weight_interval_list
 
@@ -88,8 +90,13 @@ def discretise_weights(network_weights, network_weight_intervals):
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
             index_new = np.array(
-                [index[i] - 1 if abs(req_int[index[i] - 1] - layer_weights[i]) < \
-                abs(req_int[index[i]] - layer_weights[i]) else index[i] for i in range(len(index))]
+                [
+                    index[i] - 1
+                    if abs(req_int[index[i] - 1] - layer_weights[i])
+                    < abs(req_int[index[i]] - layer_weights[i])
+                    else index[i]
+                    for i in range(len(index))
+                ]
             )
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)

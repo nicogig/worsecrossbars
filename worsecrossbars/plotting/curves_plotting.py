@@ -32,27 +32,45 @@ def load_curves_data(files, folder, curves_type):
     for filetuple in files:
 
         if curves_type == "accuracy":
-            filepath = str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-            "accuracies", f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + \
-            f"{float(filetuple[2])}NV.pickle"))
+            filepath = str(
+                Path.home().joinpath(
+                    "worsecrossbars",
+                    "outputs",
+                    folder,
+                    "accuracies",
+                    f"accuracies_{filetuple[0]}_{filetuple[1]}HL_"
+                    + f"{float(filetuple[2])}NV.pickle",
+                )
+            )
 
         elif curves_type == "training_validation":
-            filepath = str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-            "training_validation", f"training_validation_{filetuple[0]}_{filetuple[1]}HL_" + \
-            f"{float(filetuple[2])}NV.pickle"))
+            filepath = str(
+                Path.home().joinpath(
+                    "worsecrossbars",
+                    "outputs",
+                    folder,
+                    "training_validation",
+                    f"training_validation_{filetuple[0]}_{filetuple[1]}HL_"
+                    + f"{float(filetuple[2])}NV.pickle",
+                )
+            )
 
         else:
-            raise ValueError("\"curves_type\" parameter must be either \"accuracy\" or " +
-            "\"training_validation\".")
+            raise ValueError(
+                '"curves_type" parameter must be either "accuracy" or '
+                + '"training_validation".'
+            )
 
         try:
             with open(filepath, "rb") as file:
                 data_list.append(pickle.load(file))
         except FileNotFoundError as file_error:
-            print("The data you are attempting to plot does not exist. Please, check that the " +
-                  "command line arguments or the plots_data attribute in the .json file " +
-                  "are being entered in the format faultType_numberHiddenLayers_" +
-                  "noiseVariance, e.g. STUCKZERO_2_1.5.")
+            print(
+                "The data you are attempting to plot does not exist. Please, check that the "
+                + "command line arguments or the plots_data attribute in the .json file "
+                + "are being entered in the format faultType_numberHiddenLayers_"
+                + "noiseVariance, e.g. STUCKZERO_2_1.5."
+            )
             raise file_error
 
     return data_list
@@ -68,8 +86,8 @@ def load_font():
 
     if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
         fpath = fm.FontProperties(
-            fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"),
-            size=18)
+            fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18
+        )
     else:
         fpath = fm.FontProperties(family="sans-serif", size=18)
 
@@ -118,7 +136,7 @@ def accuracy_curves(files, folder, **kwargs):
         title = "Influence of faulty devices on ANN inference accuracy"
 
     if not isinstance(filename, str):
-        raise ValueError("\"filename\" parameter must be a valid string.")
+        raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
     accuracies_objects_list = load_curves_data(files, folder, "accuracy")
@@ -129,7 +147,12 @@ def accuracy_curves(files, folder, **kwargs):
 
     for accuracies_object in accuracies_objects_list:
         label = f"{accuracies_object[2]}, {accuracies_object[3]}HL, {float(accuracies_object[4])}NV"
-        plt.plot(accuracies_object[0]*100, accuracies_object[1]*100, label=label, linewidth=2)
+        plt.plot(
+            accuracies_object[0] * 100,
+            accuracies_object[1] * 100,
+            label=label,
+            linewidth=2,
+        )
 
     plt.xlabel(xlabel, font=fpath, fontsize=20)
     plt.ylabel("Mean accuracy (%)", font=fpath, fontsize=20)
@@ -143,8 +166,13 @@ def accuracy_curves(files, folder, **kwargs):
     if filename != "":
         plt.tight_layout()
         plt.savefig(
-            str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-                                     "plots", "accuracies", filename)), dpi=300)
+            str(
+                Path.home().joinpath(
+                    "worsecrossbars", "outputs", folder, "plots", "accuracies", filename
+                )
+            ),
+            dpi=300,
+        )
         return
 
     plt.title(title, font=fpath, fontsize=20)
@@ -189,21 +217,23 @@ def training_validation_curves(files, folder, **kwargs):
 
     # Validating arguments
     if not isinstance(value_type, str):
-        raise ValueError("\"value_type\" parameter must be a string object.")
+        raise ValueError('"value_type" parameter must be a string object.')
 
-    if (value_type.lower() != "accuracy" and value_type.lower() != "loss"):
-        raise ValueError("\"value_type\" parameter must be either \"accuracy\" or \"loss\".")
+    if value_type.lower() != "accuracy" and value_type.lower() != "loss":
+        raise ValueError('"value_type" parameter must be either "accuracy" or "loss".')
 
     if not isinstance(title, str):
-        raise ValueError("\"title\" parameter must be a string object.")
+        raise ValueError('"title" parameter must be a string object.')
 
     if not isinstance(filename, str):
-        raise ValueError("\"filename\" parameter must be a valid string.")
+        raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    training_validation_objects_list = load_curves_data(files, folder, "training_validation")
+    training_validation_objects_list = load_curves_data(
+        files, folder, "training_validation"
+    )
 
-    epochs = list(range(1, len(training_validation_objects_list[0][0][0])+1))
+    epochs = list(range(1, len(training_validation_objects_list[0][0][0]) + 1))
 
     # Plotting
     fig = plt.figure()
@@ -211,12 +241,16 @@ def training_validation_curves(files, folder, **kwargs):
 
     for training_validation_object in training_validation_objects_list:
 
-        training_label = f"Training ({training_validation_object[1]}, " + \
-                             f"{training_validation_object[2]}HL, " + \
-                             f"{float(training_validation_object[3])}NV)"
-        validation_label = f"Validation ({training_validation_object[1]}, " + \
-                             f"{training_validation_object[2]}HL, " + \
-                             f"{float(training_validation_object[3])}NV)"
+        training_label = (
+            f"Training ({training_validation_object[1]}, "
+            + f"{training_validation_object[2]}HL, "
+            + f"{float(training_validation_object[3])}NV)"
+        )
+        validation_label = (
+            f"Validation ({training_validation_object[1]}, "
+            + f"{training_validation_object[2]}HL, "
+            + f"{float(training_validation_object[3])}NV)"
+        )
 
         if value_type.lower() == "accuracy":
 
@@ -225,12 +259,24 @@ def training_validation_curves(files, folder, **kwargs):
             ylabel = "Accuracy (%)"
 
             # Plotting training accuracy
-            plt.plot(epochs, training_validation_object[0][0]*100, "-o", markersize=7,
-                     label=training_label, linewidth=2)
+            plt.plot(
+                epochs,
+                training_validation_object[0][0] * 100,
+                "-o",
+                markersize=7,
+                label=training_label,
+                linewidth=2,
+            )
 
             # Plotting validation accuracy
-            plt.plot(epochs, training_validation_object[0][1]*100, "-D", markersize=7,
-                     label=validation_label, linewidth=2)
+            plt.plot(
+                epochs,
+                training_validation_object[0][1] * 100,
+                "-D",
+                markersize=7,
+                label=validation_label,
+                linewidth=2,
+            )
 
         else:
 
@@ -239,12 +285,24 @@ def training_validation_curves(files, folder, **kwargs):
             ylabel = "Loss"
 
             # Plotting training loss
-            plt.plot(epochs, training_validation_object[0][2], "-o", markersize=7,
-                     label=training_label, linewidth=2)
+            plt.plot(
+                epochs,
+                training_validation_object[0][2],
+                "-o",
+                markersize=7,
+                label=training_label,
+                linewidth=2,
+            )
 
             # Plotting validation loss
-            plt.plot(epochs, training_validation_object[0][3], "-D", markersize=7,
-                     label=validation_label, linewidth=2)
+            plt.plot(
+                epochs,
+                training_validation_object[0][3],
+                "-D",
+                markersize=7,
+                label=validation_label,
+                linewidth=2,
+            )
 
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(ylabel, font=fpath, fontsize=20)
@@ -258,8 +316,18 @@ def training_validation_curves(files, folder, **kwargs):
     if filename != "":
         plt.tight_layout()
         plt.savefig(
-            str(Path.home().joinpath("worsecrossbars", "outputs", folder,
-                                     "plots", "training_validation", filename)), dpi=300)
+            str(
+                Path.home().joinpath(
+                    "worsecrossbars",
+                    "outputs",
+                    folder,
+                    "plots",
+                    "training_validation",
+                    filename,
+                )
+            ),
+            dpi=300,
+        )
         return
 
     plt.title(title, font=fpath, fontsize=20)
@@ -275,32 +343,79 @@ if __name__ == "__main__":
     # string in the "files" list has the structure faultType_numberHiddenLayers_noiseVariance,
     # e.g. STUCKZERO_1_0
 
-    parser.add_argument("files", nargs="+", metavar="FILES",
-        help="List of strings, each containing the parameters of a datafile to plot", type=str)
-    parser.add_argument("--folder", metavar="FOLDER", required=True,
-        help="String indicating the folder the user wants to load from / save to", type=str)
-    parser.add_argument("--curves_type", metavar="CURVES_TYPE", required=True,
+    parser.add_argument(
+        "files",
+        nargs="+",
+        metavar="FILES",
+        help="List of strings, each containing the parameters of a datafile to plot",
+        type=str,
+    )
+    parser.add_argument(
+        "--folder",
+        metavar="FOLDER",
+        required=True,
+        help="String indicating the folder the user wants to load from / save to",
+        type=str,
+    )
+    parser.add_argument(
+        "--curves_type",
+        metavar="CURVES_TYPE",
+        required=True,
         help="String indicating whether training/validation or accuracy plots are desired",
-        type=str, choices=["accuracy", "training_validation"])
+        type=str,
+        choices=["accuracy", "training_validation"],
+    )
 
     # Adding optional arguments to the command line parser
-    parser.add_argument("-x", dest="xlabel", metavar="PLOT_XLABEL",
-        help="Give the plot a specific xlabel", type=str, default="")
-    parser.add_argument("-t", dest="title", metavar="PLOT_TITLE",
-        help="Give the plot a specific title", type=str, default="")
-    parser.add_argument("-f", dest="filename", metavar="PLOT_FILENAME",
-        help="Give the plot a specific filename", type=str, default="")
-    parser.add_argument("-v", dest="value_type", metavar="PLOT_VALUETYPE",
-        help="Choose whether an accuracy or a loss plot should be produced", type=str, default="")
+    parser.add_argument(
+        "-x",
+        dest="xlabel",
+        metavar="PLOT_XLABEL",
+        help="Give the plot a specific xlabel",
+        type=str,
+        default="",
+    )
+    parser.add_argument(
+        "-t",
+        dest="title",
+        metavar="PLOT_TITLE",
+        help="Give the plot a specific title",
+        type=str,
+        default="",
+    )
+    parser.add_argument(
+        "-f",
+        dest="filename",
+        metavar="PLOT_FILENAME",
+        help="Give the plot a specific filename",
+        type=str,
+        default="",
+    )
+    parser.add_argument(
+        "-v",
+        dest="value_type",
+        metavar="PLOT_VALUETYPE",
+        help="Choose whether an accuracy or a loss plot should be produced",
+        type=str,
+        default="",
+    )
 
     command_line_args = parser.parse_args()
 
     if command_line_args.curves_type == "accuracy":
-        accuracy_curves(command_line_args.files, command_line_args.folder,
-                        xlabel=command_line_args.xlabel, title=command_line_args.title,
-                        filename=command_line_args.filename)
+        accuracy_curves(
+            command_line_args.files,
+            command_line_args.folder,
+            xlabel=command_line_args.xlabel,
+            title=command_line_args.title,
+            filename=command_line_args.filename,
+        )
 
     elif command_line_args.curves_type == "training_validation":
-        training_validation_curves(command_line_args.files, command_line_args.folder,
-                               title=command_line_args.title, filename=command_line_args.filename,
-                               value_type=command_line_args.value_type)
+        training_validation_curves(
+            command_line_args.files,
+            command_line_args.folder,
+            title=command_line_args.title,
+            filename=command_line_args.filename,
+            value_type=command_line_args.value_type,
+        )

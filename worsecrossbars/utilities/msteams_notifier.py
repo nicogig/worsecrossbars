@@ -15,10 +15,10 @@ class MSTeamsNotifier:
       webhook: The Webhook URL.
     """
 
-    def __init__ (self, webhook):
+    def __init__(self, webhook):
         self.webhook_url = webhook
 
-    def __call__ (self):
+    def __call__(self):
         pass
 
     def send_message(self, message, title=None, color=None):

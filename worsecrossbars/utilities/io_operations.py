@@ -12,7 +12,7 @@ from pathlib import Path
 from datetime import datetime
 
 
-def read_external_json (file_path):
+def read_external_json(file_path):
     """
     Read the contents of a JSON file and dump it in an object.
 
@@ -28,8 +28,10 @@ def read_external_json (file_path):
             with open(file_path, "r", encoding="utf8") as json_file:
                 json_object = json.load(json_file)
         except IsADirectoryError:
-            print("The given config file argument is invalid. Please, ensure the compute module",
-                  "is being run on a valid .json file. Call the module with the flag -h for help.")
+            print(
+                "The given config file argument is invalid. Please, ensure the compute module",
+                "is being run on a valid .json file. Call the module with the flag -h for help.",
+            )
             sys.exit(1)
         return json_object
 
@@ -69,33 +71,38 @@ def create_output_structure(wipe_current=True):
             except OSError:
                 os.remove(path)
 
-    home_dir.joinpath("worsecrossbars", "outputs", \
-        folder, "accuracies").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", \
-        folder, "logs").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", \
-        folder, "plots", "accuracies").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", \
-        folder, "plots", "training_validation").mkdir(parents=True, exist_ok=True)
-    home_dir.joinpath("worsecrossbars", "outputs", \
-        folder, "training_validation").mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", folder, "accuracies").mkdir(
+        parents=True, exist_ok=True
+    )
+    home_dir.joinpath("worsecrossbars", "outputs", folder, "logs").mkdir(
+        parents=True, exist_ok=True
+    )
+    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "accuracies").mkdir(
+        parents=True, exist_ok=True
+    )
+    home_dir.joinpath(
+        "worsecrossbars", "outputs", folder, "plots", "training_validation"
+    ).mkdir(parents=True, exist_ok=True)
+    home_dir.joinpath("worsecrossbars", "outputs", folder, "training_validation").mkdir(
+        parents=True, exist_ok=True
+    )
 
     return folder
 
 
-def store_webhook ():
+def store_webhook():
     """
     Asks the user for a MSTeam Webhook URL and stores it.
     """
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
-    jsonified_webhook = {"msteams_webhook":webhook_url}
+    jsonified_webhook = {"msteams_webhook": webhook_url}
     with open(str(working_file), "w", encoding="utf8") as outfile:
         json.dump(jsonified_webhook, outfile)
 
 
-def read_webhook ():
+def read_webhook():
     """
     Reads the Webhook URL from the user's HOME directory.
     """
@@ -111,7 +118,7 @@ def read_webhook ():
         return webhook_url
 
 
-def store_dropbox_keys ():
+def store_dropbox_keys():
     """
     Asks the user for Dropbox keys, and stores them.
     """
@@ -119,7 +126,7 @@ def store_dropbox_keys ():
     working_file = Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
     app_key = input("Enter the APP KEY from your Dropbox App: ").strip()
     app_secret = input("Enter the APP SECRET from your Dropbox App: ").strip()
-    app_keys = {"APP_KEY":app_key, "APP_SECRET":app_secret}
+    app_keys = {"APP_KEY": app_key, "APP_SECRET": app_secret}
 
     with open(str(working_file), "w", encoding="utf8") as outfile:
         json.dump(app_keys, outfile)

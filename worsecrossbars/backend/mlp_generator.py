@@ -55,11 +55,13 @@ def mnist_mlp(num_hidden_layers, neurons=None, model_name="", noise_variance=0.0
         model_name = f"MNIST_MLP_{num_hidden_layers}HL"
 
     if not isinstance(neurons, list) or len(neurons) != num_hidden_layers:
-        raise ValueError("\"neurons\" argument should be a list object with the same length as " +
-                         "the number of layers being instantiated.")
+        raise ValueError(
+            '"neurons" argument should be a list object with the same length as '
+            + "the number of layers being instantiated."
+        )
 
     if not isinstance(model_name, str):
-        raise ValueError("\"model_name\" argument should be a string object.")
+        raise ValueError('"model_name" argument should be a string object.')
 
     model = Sequential(name=model_name)
 

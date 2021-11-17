@@ -38,7 +38,9 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
         failure_percentage = float(failure_percentage)
 
     if not isinstance(failure_percentage, float) or failure_percentage < 0:
-        raise ValueError("\"failure_percentage\" argument should be a positive real number.")
+        raise ValueError(
+            '"failure_percentage" argument should be a positive real number.'
+        )
 
     altered_weights = copy.deepcopy(network_weights)
 
@@ -52,20 +54,26 @@ def weight_alterations(network_weights, fault_type, failure_percentage, extremes
             else:
                 fault_value = extremes_list[count][1]
 
-            indices = np.random.choice(layer.shape[1]*layer.shape[0], replace=False,
-                                       size=int(layer.shape[1]*layer.shape[0]*failure_percentage))
+            indices = np.random.choice(
+                layer.shape[1] * layer.shape[0],
+                replace=False,
+                size=int(layer.shape[1] * layer.shape[0] * failure_percentage),
+            )
 
             # Creating a sign mask to ensure that devices stuck at HRS/LRS retain the correct sign
             # (i.e. that the associated weights remain negative if they were negative)
             signs_mask = np.sign(layer)
 
-            layer[np.unravel_index(indices, layer.shape)] = fault_value * \
-                signs_mask[np.unravel_index(indices, layer.shape)]
+            layer[np.unravel_index(indices, layer.shape)] = (
+                fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
+            )
 
     return altered_weights
 
 
-def fault_simulation(percentages_array, weights, network_model, dataset, simulation_parameters):
+def fault_simulation(
+    percentages_array, weights, network_model, dataset, simulation_parameters
+):
     """
     This function runs a fault simulation with the given parameters, and thus constitutes the
     computational core of the package. Each simulation is run "number_simulations" times, to average
@@ -85,10 +93,14 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
       Array containing the ANN's inference accuracy at each percentage of faulty devices.
     """
 
-    extremes_list = choose_extremes(weights, simulation_parameters["HRS_LRS_ratio"],
-                                    simulation_parameters["excluded_weights_proportion"])
-    weight_intervals = create_weight_interval(extremes_list,
-                                              simulation_parameters["number_conductance_levels"])
+    extremes_list = choose_extremes(
+        weights,
+        simulation_parameters["HRS_LRS_ratio"],
+        simulation_parameters["excluded_weights_proportion"],
+    )
+    weight_intervals = create_weight_interval(
+        extremes_list, simulation_parameters["number_conductance_levels"]
+    )
     weights = discretise_weights(weights, weight_intervals)
 
     accuracies = np.zeros(len(percentages_array))
@@ -98,14 +110,16 @@ def fault_simulation(percentages_array, weights, network_model, dataset, simulat
         accuracies_list = []
 
         for percentage in percentages_array:
-            altered_weights = weight_alterations(weights, simulation_parameters["fault_type"],
-                                                 percentage, extremes_list)
+            altered_weights = weight_alterations(
+                weights, simulation_parameters["fault_type"], percentage, extremes_list
+            )
 
             # The "set_weights" function sets the ANN's weights to the values specified in the
             # list of arrays "altered_weights"
             network_model.set_weights(altered_weights)
-            accuracies_list.append(network_model.evaluate(dataset[1][0],
-                                   dataset[1][1], verbose=0)[1])
+            accuracies_list.append(
+                network_model.evaluate(dataset[1][0], dataset[1][1], verbose=0)[1]
+            )
 
         accuracies += np.array(accuracies_list)
         gc.collect()
@@ -150,8 +164,10 @@ def train_models(dataset, simulation_parameters, epochs, batch_size):
 
         gc.collect()
 
-        logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                     f" Trained model {model_number+1} of {number_anns}")
+        logging.info(
+            f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]"
+            + f" Trained model {model_number+1} of {number_anns}"
+        )
 
     return weights_list, histories_list
 
@@ -197,8 +213,12 @@ def training_validation_metrics(histories_list):
     training_loss_values /= len(histories_list)
     validation_loss_values /= len(histories_list)
 
-    return training_accuracy_values, validation_accuracy_values, \
-           training_loss_values, validation_loss_values
+    return (
+        training_accuracy_values,
+        validation_accuracy_values,
+        training_loss_values,
+        validation_loss_values,
+    )
 
 
 def run_simulation(weights_list, percentages_array, dataset, simulation_parameters):
@@ -228,16 +248,21 @@ def run_simulation(weights_list, percentages_array, dataset, simulation_paramete
     noise_variance = simulation_parameters["noise_variance"]
 
     model = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
-    model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
+    model.compile(
+        optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"]
+    )
     accuracies_array = np.zeros((len(weights_list), len(percentages_array)))
 
     for count, weights in enumerate(weights_list):
 
-        accuracies_array[count] = fault_simulation(percentages_array, weights, model, dataset,
-                                                   simulation_parameters)
+        accuracies_array[count] = fault_simulation(
+            percentages_array, weights, model, dataset, simulation_parameters
+        )
 
-        logging.info(f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]" +
-                     f" Simulated model {count+1} of {number_anns}.")
+        logging.info(
+            f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]"
+            + f" Simulated model {count+1} of {number_anns}."
+        )
         gc.collect()
 
     return np.mean(accuracies_array, axis=0, dtype=np.float64)
