@@ -1,5 +1,4 @@
-"""
-initial_setup:
+"""initial_setup:
 Module used to configure the system to use worsecrossbars.
 """
 import os
@@ -12,9 +11,8 @@ from worsecrossbars.utilities import auth_dropbox
 from worsecrossbars.utilities import io_operations
 
 
-def main_setup(overwrite_configs=False):
-    """
-    A function to download the correct fonts, and prep the system to use worsecrossbars.
+def main_setup(overwrite_configs: bool = False):
+    """A function to download the correct fonts, and prep the system to use worsecrossbars.
 
     Args:
       overwrite_configs: Delete the folder and ask the user for new configs,

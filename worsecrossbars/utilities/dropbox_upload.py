@@ -1,5 +1,4 @@
-"""
-dropbox_upload:
+"""dropbox_upload:
 An internal module to upload a user's output folder
 to Dropbox.
 """
@@ -13,8 +12,7 @@ import dropbox
 
 
 class DropboxUpload:
-    """
-    A Dropbox handler that deals with authentication and upload.
+    """A Dropbox handler that deals with authentication and upload.
 
     Args:
       folder: The output folder of the module.
@@ -44,9 +42,7 @@ class DropboxUpload:
         pass
 
     def upload(self):
-        """
-        Uploads the output folder to Dropbox.
-        """
+        """Uploads the output folder to Dropbox."""
 
         if self.auth_checked:
             dbx = dropbox.Dropbox(
