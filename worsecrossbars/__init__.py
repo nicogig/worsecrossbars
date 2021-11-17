@@ -1,5 +1,4 @@
-"""
-Init module for worsecrossbars.
+"""Init module for worsecrossbars.
 Called when initialising worsecrossbar.
 """
 import os

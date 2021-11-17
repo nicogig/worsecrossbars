@@ -1,5 +1,4 @@
-"""
-compute:
+"""compute:
 Worsecrossbars' main module and entrypoint.
 """
 import argparse
@@ -32,10 +31,8 @@ from worsecrossbars.utilities.parameter_validator import validate_parameters
 
 
 def stop_handler(signum, _):
-    """
-    This function handles stop signals transmitted by the Kernel when the script terminates
-    abruptly/unexpectedly.
-    """
+    """This function handles stop signals transmitted by the Kernel when the script terminates
+    abruptly/unexpectedly."""
 
     logging.error(
         "Simulation terminated unexpectedly due to Signal %s",
@@ -53,9 +50,7 @@ def stop_handler(signum, _):
 
 
 def worker(mnist_dataset, simulation_parameters):
-    """
-    A worker, an async class that handles the heavy-lifting computation-wise.
-    """
+    """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
@@ -156,9 +151,8 @@ def worker(mnist_dataset, simulation_parameters):
 
 
 def main():
-    """
-    Main point of entry for the computing-side of the package.
-    """
+    """Main point of entry for the computing-side of the package."""
+
     pool = []
 
     if command_line_args.dropbox:
