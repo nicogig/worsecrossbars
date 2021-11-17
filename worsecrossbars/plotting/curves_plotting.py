@@ -5,6 +5,7 @@ import argparse
 import os
 import pickle
 from pathlib import Path
+from typing import Type
 
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
@@ -73,7 +74,7 @@ def load_curves_data(files: list, folder: str, curves_type: str) -> list:
     return data_list
 
 
-def load_font() -> fm.FontProperties():
+def load_font() -> Type[fm.FontProperties()]:
     """This function loads the computern modern font used in the plots.
 
     fpath:
