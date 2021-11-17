@@ -1,5 +1,4 @@
-"""
-weight_mapping:
+"""weight_mapping:
 A backend module used to map ANN weights into real-world resistance levels.
 """
 import copy
@@ -7,17 +6,18 @@ import copy
 import numpy as np
 
 
-def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion):
-    """
-    This function chooses the minimum and maximum discrete weights of the memristor ANN.
+def choose_extremes(
+    network_weights: list, hrs_lrs_ratio: float, excluded_weights_proportion: float
+) -> list:
+    """This function chooses the minimum and maximum discrete weights of the memristor ANN.
 
     Args:
       network_weights: The weights as outputted by the training functions.
       hrs_lrs_ratio: The desired HRS/LRS ratio.
       excluded_weights_proportion: The proportion of weights at the tails to be excluded.
 
-    extremes_list:
-      The list of extremes at each layer of the network.
+    Returns:
+      extremes_list: The list of extremes at each layer of the network.
     """
 
     extremes_list = []
@@ -39,16 +39,15 @@ def choose_extremes(network_weights, hrs_lrs_ratio, excluded_weights_proportion)
     return extremes_list
 
 
-def create_weight_interval(list_of_extremes, number_of_levels):
-    """
-    This function creates an evenly spaced weight interval.
+def create_weight_interval(list_of_extremes: list, number_of_levels: int) -> list:
+    """This function creates an evenly spaced weight interval.
 
     Args:
       list_of_extremes: The list of extremes in each layer.
       number_of_levels: The number of weights needed.
 
-    weight_interval_list:
-      A list of linearly spaced weight intervals for the synaptic layers.
+    Returns:
+      weight_interval_list: A list of linearly spaced weight intervals for the synaptic layers.
     """
 
     weight_interval_list = []
@@ -60,17 +59,16 @@ def create_weight_interval(list_of_extremes, number_of_levels):
     return weight_interval_list
 
 
-def discretise_weights(network_weights, network_weight_intervals):
-    """
-    This function alters the weights in the network so that they conform to the list of allowed
+def discretise_weights(network_weights: list, network_weight_intervals: list) -> list:
+    """This function alters the weights in the network so that they conform to the list of allowed
     weights.
 
     Args:
       network_weights: The weights as output by the training functions.
       network_weight_intervals: A list of spaced weight intervals.
 
-    discretised_weights:
-      The altered network weights, now discretised.
+    Returns:
+      discretised_weights: The altered network weights, now discretised.
     """
 
     discretised_weights = copy.deepcopy(network_weights)
