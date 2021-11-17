@@ -1,9 +1,4 @@
 repos:
--   repo: https://github.com/psf/black
-    rev: 21.11b0
-    hooks:
-    -   id: black
-        args: [--safe, --line-length=100]
 
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
@@ -15,6 +10,12 @@ repos:
     -   id: debug-statements
         language_version: python3
 
+-   repo: https://github.com/psf/black
+    rev: 21.11b0
+    hooks:
+    -   id: black
+        args: [--safe, --line-length=100]
+
 # -   repo: https://github.com/PyCQA/bandit
 #     rev: 1.7.0
 #     hooks:
@@ -24,7 +25,8 @@ repos:
     rev: v2.11.1
     hooks:
     - id: pylint
-      args: [--disable=E0401]
+      args: ["--rcfile=pylintrc", "--load-plugins=pylint.extensions.docparams"]
+#"--disable=E0401",
 
 -   repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
@@ -32,6 +34,11 @@ repos:
     -   id: flake8
         args: ["--max-line-length=100"]
         language_version: python3
+
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
 
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.6.0
@@ -43,5 +50,6 @@ repos:
     rev: v2.29.1
     hooks:
     -   id: pyupgrade
+        args: [--py37-plus]
 
 # ADD MYPY?
