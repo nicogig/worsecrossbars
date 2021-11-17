@@ -82,7 +82,7 @@ def fault_simulation(
     network_model: Type[Model],
     dataset: tuple,
     simulation_parameters: dict,
-) -> Type[np.ndarray]:
+) -> np.ndarray:
     """This function runs a fault simulation with the given parameters, and thus constitutes the
     computational core of the package. Each simulation is run "number_simulations" times, to average
     out stochastic variability in the final results.
