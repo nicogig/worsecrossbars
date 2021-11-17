@@ -24,7 +24,7 @@ def read_external_json(file_path):
         sys.exit(1)
     else:
         try:
-            with open(file_path, "r", encoding="utf8") as json_file:
+            with open(file_path, encoding="utf8") as json_file:
                 json_object = json.load(json_file)
         except IsADirectoryError:
             print(
@@ -112,7 +112,7 @@ def read_webhook():
         print("Please run this module with --setup before using Internet options!")
         sys.exit(0)
     else:
-        with open(str(working_file), "r", encoding="utf8") as json_file:
+        with open(str(working_file), encoding="utf8") as json_file:
             webhook_url = json.load(json_file)["msteams_webhook"]
         return webhook_url
 
