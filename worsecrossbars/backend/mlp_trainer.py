@@ -1,14 +1,16 @@
-"""
-mlp_trainer:
+"""mlp_trainer:
 A backend module used to create the MNIST dataset and train a Keras model on it.
 """
+from typing import Type
+from typing import Union
+
+from tensorflow.keras import Model
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
 
-def create_datasets(training_validation_ratio):
-    """
-    This function creates traning and validation datasets based on the MNIST digit database,
+def create_datasets(training_validation_ratio: Union[int, float]) -> tuple:
+    """This function creates traning and validation datasets based on the MNIST digit database,
     according to the given training/validation split.
 
     Args:
@@ -16,23 +18,13 @@ def create_datasets(training_validation_ratio):
         validation datasets, indicating that the training dataset is "training_validation_ratio"
         times bigger than the validation dataset.
 
-    validation_data:
-      Array containing validation data.
-
-    validation_labels:
-      Array containing validation labels.
-
-    training_data:
-      Array containing training data.
-
-    training_labels:
-      Array containing training labels.
-
-    test_data:
-      Array containing test data.
-
-    test_labels:
-      Array containing test labels.
+    Returns:
+      validation_data: Array containing validation data.
+      validation_labels: Array containing validation labels.
+      training_data: Array containing training data.
+      training_labels: Array containing training labels.
+      test_data: Array containing test data.
+      test_labels: Array containing test labels.
     """
 
     if isinstance(training_validation_ratio, int):
@@ -63,9 +55,8 @@ def create_datasets(training_validation_ratio):
     )
 
 
-def train_mlp(dataset, model, epochs, batch_size):
-    """
-    This function trains a given Keras model on the dataset provided to it.
+def train_mlp(dataset: tuple, model: Type[Model], epochs: int, batch_size: int) -> tuple:
+    """This function trains a given Keras model on the dataset provided to it.
 
     Args:
       dataset: Tuple of tuples, containing training, validation and testing images and labels, as
@@ -74,20 +65,17 @@ def train_mlp(dataset, model, epochs, batch_size):
       epochs: Positive integer, number of epochs used in training.
       batch_size: Positive integer, number of batches used in training.
 
-    mlp_weights:
-      List containing the parameters associated with each layer of the ANN. mlp_weights[0] comprises
-      the weights related to the synapses between layer 1 and layer 2, mlp_weights[1] contains the
-      bias terms for the neurons in layer 2, and so forth.
+    Returns:
+      mlp_weights: List containing the parameters associated with each layer of the ANN.
+        mlp_weights[0] comprises the weights related to the synapses between layer 1 and layer 2,
+        mlp_weights[1] contains the bias terms for the neurons in layer 2, and so forth.
 
-    mlp_history:
-      Keras history object, containing information regarding network performance at different
-      epochs.
+      mlp_history: Keras history object, containing information regarding network performance at
+        different epochs.
 
-    mlp_test_loss:
-      Final test loss
+      mlp_test_loss: Final test loss
 
-    mlp_test_acc:
-      Final test accuracy
+      mlp_test_acc: Final test accuracy
     """
 
     if not isinstance(epochs, int) or epochs < 1:
