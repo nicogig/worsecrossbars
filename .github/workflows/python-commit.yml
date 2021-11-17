@@ -25,7 +25,7 @@ jobs:
         black --safe --line-length=100 $(find . -name "*.py" | xargs)
     - name: Analysing the code with pylint
       run: |
-        pylint --ignored-modules=tensorflow.keras $(find . -name "*.py" | xargs)
+        pylint --ignored-modules=tensorflow.keras --disable=W9006 $(find . -name "*.py" | xargs)
     - name: Running flake8
       run: |
         flake8 --max-line-length=100 $(find . -name "*.py" | xargs)
