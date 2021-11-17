@@ -22,7 +22,7 @@ jobs:
         pip install black pylint flake8 pyupgrade reorder-python-imports
     - name: Analysing the code with black
       run: |
-        black --safe --line-length $(find . -name "*.py" | xargs)
+        black --safe --line-length=100 $(find . -name "*.py" | xargs)
     - name: Analysing the code with pylint
       run: |
         pylint --ignored-modules=tensorflow.keras $(find . -name "*.py" | xargs)
