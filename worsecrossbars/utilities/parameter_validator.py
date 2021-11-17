@@ -1,12 +1,10 @@
-"""
-parameter_validator:
+"""parameter_validator:
 A utilities module used to assess the validity of the simulation parameters loaded from JSON dict.
 """
 
 
-def validate_parameters(simulation_parameters):
-    """
-    This function validates the dictionary containing the simulation parameters, by checking whether
+def validate_parameters(simulation_parameters: dict):
+    """This function validates the dictionary containing the simulation parameters, by checking whether
     the values provided are of the correct type, and take on legal values.
 
     Args:
