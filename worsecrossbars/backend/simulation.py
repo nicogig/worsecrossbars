@@ -4,11 +4,14 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 import copy
 import gc
 import logging
-from typing import Type
+from typing import List
+from typing import Tuple
 from typing import Union
 
 import numpy as np
+from numpy import ndarray
 from tensorflow.keras import Model
+from tensorflow.python.keras.callbacks import History
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -18,11 +21,11 @@ from worsecrossbars.backend.weight_mapping import discretise_weights
 
 
 def weight_alterations(
-    network_weights: list,
+    network_weights: List[ndarray],
     fault_type: str,
     failure_percentage: Union[int, float],
-    extremes_list: list,
-) -> list:
+    extremes_list: List[Tuple[Union[int, float, None], Union[int, float, None]]],
+) -> List[ndarray]:
     """This function takes in and modifies network weights to simulate the effect of faulty
     memristive devices being used in the physical implementation of the ANN.
 
@@ -77,10 +80,10 @@ def weight_alterations(
 
 
 def fault_simulation(
-    percentages_array: list,
-    weights: list,
-    network_model: Type[Model],
-    dataset: tuple,
+    percentages_array: List[float],
+    weights: List[ndarray],
+    network_model: Model,
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
 ) -> np.ndarray:
     """This function runs a fault simulation with the given parameters, and thus constitutes the
@@ -139,8 +142,11 @@ def fault_simulation(
 
 
 def train_models(
-    dataset: tuple, simulation_parameters: dict, epochs: int, batch_size: int
-) -> tuple:
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    simulation_parameters: dict,
+    epochs: int,
+    batch_size: int,
+) -> Tuple[List[List[ndarray]], List[History]]:
     """This function trains the generated Keras models on the MNIST dataset with the given
     parameters.
 
@@ -183,7 +189,9 @@ def train_models(
     return weights_list, histories_list
 
 
-def training_validation_metrics(histories_list: list) -> tuple:
+def training_validation_metrics(
+    histories_list: List[History],
+) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
     """This function calculates training and validation metrics by averaging the data generated
     during model training and stored in the Keras histories dictionaries returned by the
     train_models function.
@@ -226,7 +234,10 @@ def training_validation_metrics(histories_list: list) -> tuple:
 
 
 def run_simulation(
-    weights_list: list, percentages_array: list, dataset: tuple, simulation_parameters: dict
+    weights_list: List[List[ndarray]],
+    percentages_array: List[float],
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    simulation_parameters: dict,
 ) -> np.ndarray:
     """This function runs the main simulation. This entails running one full fault_simulation for
     each of the "number_ANNs" networks trained above, so that the accuracies resulting from each can

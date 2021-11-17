@@ -2,13 +2,17 @@
 A backend module used to map ANN weights into real-world resistance levels.
 """
 import copy
+from typing import List
+from typing import Tuple
+from typing import Union
 
 import numpy as np
+from numpy import ndarray
 
 
 def choose_extremes(
-    network_weights: list, hrs_lrs_ratio: float, excluded_weights_proportion: float
-) -> list:
+    network_weights: List[ndarray], hrs_lrs_ratio: float, excluded_weights_proportion: float
+) -> List[Tuple[Union[int, float, None], Union[int, float, None]]]:
     """This function chooses the minimum and maximum discrete weights of the memristor ANN.
 
     Args:
@@ -39,11 +43,14 @@ def choose_extremes(
     return extremes_list
 
 
-def create_weight_interval(list_of_extremes: list, number_of_levels: int) -> list:
+def create_weight_interval(
+    extremes_list: List[Tuple[Union[int, float, None], Union[int, float, None]]],
+    number_of_levels: int,
+) -> List[ndarray]:
     """This function creates an evenly spaced weight interval.
 
     Args:
-      list_of_extremes: The list of extremes in each layer.
+      extremes_list: The list of extremes in each layer.
       number_of_levels: The number of weights needed.
 
     Returns:
@@ -52,14 +59,16 @@ def create_weight_interval(list_of_extremes: list, number_of_levels: int) -> lis
 
     weight_interval_list = []
 
-    for count, element in enumerate(list_of_extremes):
+    for count, element in enumerate(extremes_list):
         if count % 2 == 0:
             weight_interval_list.append(np.linspace(element[1], element[0], number_of_levels))
 
     return weight_interval_list
 
 
-def discretise_weights(network_weights: list, network_weight_intervals: list) -> list:
+def discretise_weights(
+    network_weights: List[ndarray], network_weight_intervals: List[ndarray]
+) -> List[ndarray]:
     """This function alters the weights in the network so that they conform to the list of allowed
     weights.
 

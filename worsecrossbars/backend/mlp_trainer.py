@@ -1,12 +1,13 @@
 """mlp_trainer:
 A backend module used to create the MNIST dataset and train a Keras model on it.
 """
+from typing import List
 from typing import Tuple
-from typing import Type
 from typing import Union
 
 from numpy import ndarray
 from tensorflow.keras import Model
+from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
@@ -59,7 +60,12 @@ def create_datasets(
     )
 
 
-def train_mlp(dataset: tuple, model: Type[Model], epochs: int, batch_size: int) -> tuple:
+def train_mlp(
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    model: Model,
+    epochs: int,
+    batch_size: int,
+) -> Tuple[List[ndarray], History, float, float]:
     """This function trains a given Keras model on the dataset provided to it.
 
     Args:

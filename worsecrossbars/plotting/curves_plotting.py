@@ -5,14 +5,15 @@ import argparse
 import os
 import pickle
 from pathlib import Path
-from typing import Type
+from typing import List
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
 
 
-def load_curves_data(files: list, folder: str, curves_type: str) -> list:
+def load_curves_data(files: List[Tuple[str, str, str]], folder: str, curves_type: str) -> list:
     """This function loads the data that the user has elected to plot.
 
     Args:
@@ -74,7 +75,7 @@ def load_curves_data(files: list, folder: str, curves_type: str) -> list:
     return data_list
 
 
-def load_font() -> Type[FontProperties]:
+def load_font() -> FontProperties:
     """This function loads the computern modern font used in the plots.
 
     fpath:

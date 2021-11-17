@@ -1,7 +1,7 @@
 """mlp_generator:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
-from typing import Type
+from typing import List
 
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
@@ -11,8 +11,11 @@ from tensorflow.keras.models import Sequential
 
 
 def mnist_mlp(
-    num_hidden_layers: int, neurons: list = None, model_name: str = "", noise_variance: float = 0.0
-) -> Type[Model]:
+    num_hidden_layers: int,
+    neurons: List[int] = None,
+    model_name: str = "",
+    noise_variance: float = 0.0,
+) -> Model:
     """This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
 
