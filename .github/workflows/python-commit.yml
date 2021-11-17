@@ -20,10 +20,10 @@ jobs:
         pip install wheel
         pip install matplotlib pymsteams numpy dropbox wget jsonschema
         pip install black pylint flake8 pyupgrade reorder-python-imports
-    - name: Analysing the code with black
+    - name: Running black
       run: |
         black --safe --line-length=100 $(find . -name "*.py" | xargs)
-    - name: Analysing the code with pylint
+    - name: Running pylint
       run: |
         pylint --ignored-modules=tensorflow.keras --disable=W9006 $(find . -name "*.py" | xargs)
     - name: Running flake8
@@ -32,6 +32,6 @@ jobs:
     - name: Checking imports
       run: |
         reorder-python-imports --py37-plus $(find . -name "*.py" | xargs)
-    - name: Checking Syntax
+    - name: Checking syntax
       run: |
         pyupgrade --py37-plus $(find . -name "*.py" | xargs)
