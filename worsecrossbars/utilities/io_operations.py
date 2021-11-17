@@ -1,5 +1,4 @@
-"""
-io_operations:
+"""io_operations:
 A module that holds multiple utility functions used to
 interact with the File System.
 """
@@ -11,12 +10,14 @@ from datetime import datetime
 from pathlib import Path
 
 
-def read_external_json(file_path):
-    """
-    Read the contents of a JSON file and dump it in an object.
+def read_external_json(file_path: str) -> dict:
+    """Read the contents of a JSON file and dump it in an object.
 
     Args:
       file_path: The file location on the File System, as a string.
+
+    Returns:
+      json_object: Dictionary containing the data stored in the given JSON file
     """
 
     if not os.path.exists(file_path):
@@ -36,25 +37,21 @@ def read_external_json(file_path):
 
 
 def user_folders():
-    """
-    Creates the basic folder structure in the user's HOME folder.
-    """
+    """Creates the basic folder structure in the user's HOME folder."""
 
     home_dir = Path.home()
     home_dir.joinpath("worsecrossbars", "config").mkdir(parents=True, exist_ok=True)
     home_dir.joinpath("worsecrossbars", "utils").mkdir(parents=True, exist_ok=True)
 
 
-def create_output_structure(wipe_current=True):
-    """
-    Create an output folder to store the results of the simulation.
+def create_output_structure(wipe_current: bool = True) -> str:
+    """Create an output folder to store the results of the simulation.
 
     Args:
-      extracted_json: The object containing the JSON parameters.
       wipe_current: Delete all other folders in "outputs".
 
-    folder:
-      The name of the output folder.
+    Returns:
+      folder: The name of the output folder.
     """
 
     home_dir = Path.home()
@@ -90,9 +87,7 @@ def create_output_structure(wipe_current=True):
 
 
 def store_webhook():
-    """
-    Asks the user for a MSTeam Webhook URL and stores it.
-    """
+    """Asks the user for a MSTeam Webhook URL and stores it."""
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
     webhook_url = input("Please enter the MS Teams Webhook URL: ")
@@ -101,9 +96,11 @@ def store_webhook():
         json.dump(jsonified_webhook, outfile)
 
 
-def read_webhook():
-    """
-    Reads the Webhook URL from the user's HOME directory.
+def read_webhook() -> str:
+    """Reads the Webhook URL from the user's HOME directory.
+
+    Returns:
+      webhook_url: String, contains the webhook URL.
     """
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
@@ -118,9 +115,7 @@ def read_webhook():
 
 
 def store_dropbox_keys():
-    """
-    Asks the user for Dropbox keys, and stores them.
-    """
+    """Asks the user for Dropbox keys, and stores them."""
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
     app_key = input("Enter the APP KEY from your Dropbox App: ").strip()

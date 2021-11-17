@@ -8,3 +8,5 @@ load-plugins=
 
 # Minimum supported python version
 py-version=3.7
+
+default-docstring-type=google
