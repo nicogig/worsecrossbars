@@ -6,7 +6,6 @@ import gc
 import logging
 from typing import List
 from typing import Tuple
-from typing import Union
 
 import numpy as np
 from numpy import ndarray
@@ -23,8 +22,8 @@ from worsecrossbars.backend.weight_mapping import discretise_weights
 def weight_alterations(
     network_weights: List[ndarray],
     fault_type: str,
-    failure_percentage: Union[int, float],
-    extremes_list: List[Tuple[Union[int, float], Union[int, float]]],
+    failure_percentage: float,
+    extremes_list: List[Tuple[float, float]],
 ) -> List[ndarray]:
     """This function takes in and modifies network weights to simulate the effect of faulty
     memristive devices being used in the physical implementation of the ANN.

@@ -4,7 +4,6 @@ A backend module used to map ANN weights into real-world resistance levels.
 import copy
 from typing import List
 from typing import Tuple
-from typing import Union
 
 import numpy as np
 from numpy import ndarray
@@ -12,7 +11,7 @@ from numpy import ndarray
 
 def choose_extremes(
     network_weights: List[ndarray], hrs_lrs_ratio: float, excluded_weights_proportion: float
-) -> List[Tuple[Union[int, float], Union[int, float]]]:
+) -> List[Tuple[float, float]]:
     """This function chooses the minimum and maximum discrete weights of the memristor ANN.
 
     Args:
@@ -44,7 +43,7 @@ def choose_extremes(
 
 
 def create_weight_interval(
-    extremes_list: List[Tuple[Union[int, float], Union[int, float]]],
+    extremes_list: List[Tuple[float, float]],
     number_of_levels: int,
 ) -> List[ndarray]:
     """This function creates an evenly spaced weight interval.

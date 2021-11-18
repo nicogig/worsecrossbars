@@ -3,7 +3,6 @@ A backend module used to create the MNIST dataset and train a Keras model on it.
 """
 from typing import List
 from typing import Tuple
-from typing import Union
 
 from numpy import ndarray
 from tensorflow.keras import Model
@@ -13,7 +12,7 @@ from tensorflow.keras.utils import to_categorical
 
 
 def create_datasets(
-    training_validation_ratio: Union[int, float]
+    training_validation_ratio: float,
 ) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
     """This function creates traning and validation datasets based on the MNIST digit database,
     according to the given training/validation split.
