@@ -18,7 +18,7 @@ from dropbox.oauth import ProviderException
 from worsecrossbars.utilities import io_operations
 
 
-def authenticate():
+def authenticate() -> None:
     """Authenticates a user against the Dropbox OAuth 2.0
     Interface. Uses APP_KEY and APP_SECRET from the user's
     config. The resulting user_secrets are stored in the HOME folder.

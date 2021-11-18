@@ -1,10 +1,12 @@
 """Setup module.
 Called by pip when installing the package.
 """
+from typing import List
+
 from setuptools import setup
 
 
-def load_requirements() -> list:
+def load_requirements() -> List[str]:
     """Load the requirements from the associated file."""
     with open("requirements.txt", encoding="utf8") as file:
         return file.read().splitlines()
