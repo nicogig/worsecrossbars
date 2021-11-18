@@ -11,68 +11,83 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
+from numpy import ndarray
 
 
-def load_curves_data(files: List[Tuple[str, str, str]], folder: str, curves_type: str) -> list:
-    """This function loads the data that the user has elected to plot.
+def load_accuracy_data(
+    files: List[Tuple[str, str, str]], folder: str
+) -> List[Tuple[List[float], ndarray, str, int, float]]:
+    """This function loads the accuracy data that the user has elected to plot.
 
     Args:
       files: List containing tuples of the parameters of the files that are to be plotted. The
         structure should be [("STUCKZERO, "1", "0.5"), ..., ("STUCKHRS", "2", "3.1")].
       folder: Path string, employed to indicate the location from which to load files.
-      curves_type: String indicating whether training/validation or accuracy data is desired.
 
     Returns:
-        data_list: List containing the required data objects (either accuracies_objects or
-          training_validation_objects).
+        accuracies_list: List containing the required accuracies_objects.
     """
 
-    data_list = []
+    accuracies_list = []
 
     for filetuple in files:
 
-        if curves_type == "accuracy":
-            filepath = str(
-                Path.home().joinpath(
-                    "worsecrossbars",
-                    "outputs",
-                    folder,
-                    "accuracies",
-                    f"accuracies_{filetuple[0]}_{filetuple[1]}HL_"
-                    + f"{float(filetuple[2])}NV.pickle",
-                )
+        filepath = str(
+            Path.home().joinpath(
+                "worsecrossbars",
+                "outputs",
+                folder,
+                "accuracies",
+                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.pickle",
             )
-
-        elif curves_type == "training_validation":
-            filepath = str(
-                Path.home().joinpath(
-                    "worsecrossbars",
-                    "outputs",
-                    folder,
-                    "training_validation",
-                    f"training_validation_{filetuple[0]}_{filetuple[1]}HL_"
-                    + f"{float(filetuple[2])}NV.pickle",
-                )
-            )
-
-        else:
-            raise ValueError(
-                '"curves_type" parameter must be either "accuracy" or ' + '"training_validation".'
-            )
+        )
 
         try:
             with open(filepath, "rb") as file:
-                data_list.append(pickle.load(file))
+                accuracies_list.append(pickle.load(file))
         except FileNotFoundError as file_error:
-            print(
-                "The data you are attempting to plot does not exist. Please, check that the "
-                + "command line arguments or the plots_data attribute in the .json file "
-                + "are being entered in the format faultType_numberHiddenLayers_"
-                + "noiseVariance, e.g. STUCKZERO_2_1.5."
-            )
+            print("The data you are attempting to plot does not exist.")
             raise file_error
 
-    return data_list
+    return accuracies_list
+
+
+def load_training_validation_data(
+    files: List[Tuple[str, str, str]], folder: str
+) -> List[Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], str, int, float]]:
+    """This function loads the training/validation data that the user has elected to plot.
+
+    Args:
+      files: List containing tuples of the parameters of the files that are to be plotted. The
+        structure should be [("STUCKZERO, "1", "0.5"), ..., ("STUCKHRS", "2", "3.1")].
+      folder: Path string, employed to indicate the location from which to load files.
+
+    Returns:
+        training_validation_list: List containing the required training_validation_objects.
+    """
+
+    training_validation_list = []
+
+    for filetuple in files:
+
+        filepath = str(
+            Path.home().joinpath(
+                "worsecrossbars",
+                "outputs",
+                folder,
+                "accuracies",
+                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.pickle",
+            )
+        )
+
+        try:
+            with open(filepath, "rb") as file:
+                training_validation_list.append(pickle.load(file))
+        except FileNotFoundError as file_error:
+            print("The data you are attempting to plot does not exist.")
+            raise file_error
+
+    return training_validation_list
 
 
 def load_font() -> FontProperties:
@@ -136,7 +151,7 @@ def accuracy_curves(files: list, folder: str, **kwargs):
         raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    accuracies_objects_list = load_curves_data(files, folder, "accuracy")
+    accuracies_objects_list = load_accuracy_data(files, folder)
 
     # Plotting
     fig = plt.figure()
@@ -225,7 +240,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
         raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    training_validation_objects_list = load_curves_data(files, folder, "training_validation")
+    training_validation_objects_list = load_training_validation_data(files, folder)
 
     epochs = list(range(1, len(training_validation_objects_list[0][0][0]) + 1))
 
