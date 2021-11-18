@@ -56,7 +56,7 @@ def weight_alterations(
 
         if count % 2 == 0:
             if fault_type == "STUCKZERO":
-                fault_value = 0
+                fault_value = 0.0
             elif fault_type == "STUCKHRS":
                 fault_value = extremes_list[count][0]
             else:
