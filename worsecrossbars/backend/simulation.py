@@ -24,7 +24,7 @@ def weight_alterations(
     network_weights: List[ndarray],
     fault_type: str,
     failure_percentage: Union[int, float],
-    extremes_list: List[Tuple[Union[int, float, None], Union[int, float, None]]],
+    extremes_list: List[Tuple[Union[int, float], Union[int, float]]],
 ) -> List[ndarray]:
     """This function takes in and modifies network weights to simulate the effect of faulty
     memristive devices being used in the physical implementation of the ANN.
