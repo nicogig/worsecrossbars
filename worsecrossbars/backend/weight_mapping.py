@@ -12,7 +12,7 @@ from numpy import ndarray
 
 def choose_extremes(
     network_weights: List[ndarray], hrs_lrs_ratio: float, excluded_weights_proportion: float
-) -> List[Tuple[Union[int, float, None], Union[int, float, None]]]:
+) -> List[Tuple[Union[int, float], Union[int, float]]]:
     """This function chooses the minimum and maximum discrete weights of the memristor ANN.
 
     Args:
@@ -38,13 +38,13 @@ def choose_extremes(
             w_min = w_max / hrs_lrs_ratio
             extremes_list.append((w_max, w_min))
         else:
-            extremes_list.append((None, None))
+            extremes_list.append((np.nan, np.nan))
 
     return extremes_list
 
 
 def create_weight_interval(
-    extremes_list: List[Tuple[Union[int, float, None], Union[int, float, None]]],
+    extremes_list: List[Tuple[Union[int, float], Union[int, float]]],
     number_of_levels: int,
 ) -> List[ndarray]:
     """This function creates an evenly spaced weight interval.
