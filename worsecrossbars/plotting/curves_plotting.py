@@ -107,7 +107,7 @@ def load_font() -> FontProperties:
     return fpath
 
 
-def accuracy_curves(files: list, folder: str, **kwargs):
+def accuracy_curves(files: List[str], folder: str, **kwargs) -> None:
     """This function plots accuracy curves with the given data.
 
     As a reminder, the following statements are true about the accuracies_objects contained in the
@@ -120,7 +120,7 @@ def accuracy_curves(files: list, folder: str, **kwargs):
 
     Args:
       files: List containing strings of the parameters of the files that are to be plotted. The
-        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"].
+        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS_2_3.1"].
       folder: Path string, employed to indicate the location in which to save the plots.
       **kwargs: Valid keyword arguments are listed below
         - xlabel: String, label used on the x axis.
@@ -129,8 +129,12 @@ def accuracy_curves(files: list, folder: str, **kwargs):
             string), the plot is not saved to file.
     """
 
-    # Turning list of strings into a list of tuples
-    files = [tuple(filestring.split("_")) for filestring in files]
+    # Turning list of strings into a list of tuples, ensuring only first three substrings are kept,
+    # if more are given
+    filetuples = [
+        (filestring.split("_")[0], filestring.split("_")[1], filestring.split("_")[2])
+        for filestring in files
+    ]
 
     # Importing LaTeX font for plots
     fpath = load_font()
@@ -151,7 +155,7 @@ def accuracy_curves(files: list, folder: str, **kwargs):
         raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    accuracies_objects_list = load_accuracy_data(files, folder)
+    accuracies_objects_list = load_accuracy_data(filetuples, folder)
 
     # Plotting
     fig = plt.figure()
@@ -191,7 +195,7 @@ def accuracy_curves(files: list, folder: str, **kwargs):
     plt.show()
 
 
-def training_validation_curves(files: list, folder: str, **kwargs):
+def training_validation_curves(files: List[str], folder: str, **kwargs) -> None:
     """This function plots training/validation curves with the given data.
 
     As a reminder, the following statements are true about the training_validation_objects contained
@@ -206,7 +210,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
 
     Args:
       files: List containing strings of the parameters of the files that are to be plotted. The
-        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS"_"2"_"3.1"].
+        structure should be ["STUCKZERO_1_0.5", ..., "STUCKHRS_2_3.1"].
       folder: Path string, employed to indicate the location in which to save the plots.
       **kwargs: Valid keyword arguments are listed below
         - title: String, title used for the plot.
@@ -215,8 +219,12 @@ def training_validation_curves(files: list, folder: str, **kwargs):
         - value_type: String indicating whether an accuracy plot or a loss plot is desired.
     """
 
-    # Turning list of strings into a list of tuples
-    files = [tuple(filestring.split("_")) for filestring in files]
+    # Turning list of strings into a list of tuples, ensuring only first three substrings are kept,
+    # if more are given
+    filetuples = [
+        (filestring.split("_")[0], filestring.split("_")[1], filestring.split("_")[2])
+        for filestring in files
+    ]
 
     # Importing LaTeX font for plots
     fpath = load_font()
@@ -240,9 +248,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
         raise ValueError('"filename" parameter must be a valid string.')
 
     # Loading data
-    training_validation_objects_list = load_training_validation_data(files, folder)
-
-    epochs = list(range(1, len(training_validation_objects_list[0][0][0]) + 1))
+    training_validation_objects_list = load_training_validation_data(filetuples, folder)
 
     # Plotting
     fig = plt.figure()
@@ -269,7 +275,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
 
             # Plotting training accuracy
             plt.plot(
-                epochs,
+                list(range(1, len(training_validation_object[0][0]) + 1)),
                 training_validation_object[0][0] * 100,
                 "-o",
                 markersize=7,
@@ -279,7 +285,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
 
             # Plotting validation accuracy
             plt.plot(
-                epochs,
+                list(range(1, len(training_validation_object[0][0]) + 1)),
                 training_validation_object[0][1] * 100,
                 "-D",
                 markersize=7,
@@ -295,7 +301,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
 
             # Plotting training loss
             plt.plot(
-                epochs,
+                list(range(1, len(training_validation_object[0][0]) + 1)),
                 training_validation_object[0][2],
                 "-o",
                 markersize=7,
@@ -305,7 +311,7 @@ def training_validation_curves(files: list, folder: str, **kwargs):
 
             # Plotting validation loss
             plt.plot(
-                epochs,
+                list(range(1, len(training_validation_object[0][0]) + 1)),
                 training_validation_object[0][3],
                 "-D",
                 markersize=7,
@@ -316,7 +322,11 @@ def training_validation_curves(files: list, folder: str, **kwargs):
     plt.xlabel("Epochs", font=fpath, fontsize=20)
     plt.ylabel(ylabel, font=fpath, fontsize=20)
     plt.grid()
-    plt.xticks(np.arange(1, len(epochs) + 1, step=1), font=fpath, fontsize=14)
+    plt.xticks(
+        np.arange(1, len(training_validation_objects_list[0][0][0]) + 1, step=1),
+        font=fpath,
+        fontsize=14,
+    )
     plt.yticks(font=fpath, fontsize=14)
 
     training_validation_legend = plt.legend()
