@@ -66,7 +66,7 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
             color="ffca33",
         )
 
-    percentages = np.arange(0, 1.01, 0.01)
+    percentages = np.arange(0, 1.01, 0.01).round(2)
 
     weights_list, histories_list = train_models(
         mnist_dataset, simulation_parameters, epochs=10, batch_size=100
