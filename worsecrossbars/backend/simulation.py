@@ -15,11 +15,13 @@ from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
 from worsecrossbars.backend.weights_manipulation import alter_weights
 from worsecrossbars.backend.weights_manipulation import discretise_weights
+from worsecrossbars.backend.weights_manipulation import join_weights
+from worsecrossbars.backend.weights_manipulation import split_weights
 
 
 def fault_simulation(
     percentages: ndarray,
-    weights: List[ndarray],
+    network_weights: List[ndarray],
     network_model: Model,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
@@ -31,7 +33,7 @@ def fault_simulation(
     Args:
       percentages: Array containing the various percentages of faulty devices the user wants
         to simulate.
-      weights: Array containing trained weights that are to be altered to simulate faults.
+      network_weights: Array containing trained weights that are to be altered to simulate faults.
       network_model: Keras model containing the network topology being simulated.
       dataset: MNIST test dataset, used to calculate inference accuracy.
       simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
@@ -43,7 +45,10 @@ def fault_simulation(
       devices.
     """
 
-    weights = discretise_weights(weights, simulation_parameters)
+    positive_cba, negative_cba = split_weights(network_weights)
+
+    discretised_positive_cba = discretise_weights(positive_cba, simulation_parameters)
+    discretised_negative_cba = discretise_weights(negative_cba, simulation_parameters)
 
     accuracies = np.zeros(len(percentages))
 
@@ -52,11 +57,18 @@ def fault_simulation(
         accuracies_list = []
 
         for percentage in percentages:
-            altered_weights = alter_weights(weights, percentage, simulation_parameters)
+            altered_positive_weights = alter_weights(
+                discretised_positive_cba, percentage, simulation_parameters
+            )
+            altered_negative_weights = alter_weights(
+                discretised_negative_cba, percentage, simulation_parameters
+            )
 
             # The "set_weights" function sets the ANN's weights to the values specified in the
             # list of arrays "altered_weights"
-            network_model.set_weights(altered_weights)
+            network_model.set_weights(
+                join_weights(altered_positive_weights, altered_negative_weights)
+            )
             accuracies_list.append(
                 network_model.evaluate(dataset[1][0], dataset[1][1], verbose=0)[1]
             )
