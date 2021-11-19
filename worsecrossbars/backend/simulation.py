@@ -45,10 +45,10 @@ def fault_simulation(
       devices.
     """
 
-    positive_cba, negative_cba = split_weights(network_weights)
+    cba_weights = split_weights(network_weights)
 
-    discretised_positive_cba = discretise_weights(positive_cba, simulation_parameters)
-    discretised_negative_cba = discretise_weights(negative_cba, simulation_parameters)
+    discretised_positive_cba = discretise_weights(cba_weights[0], simulation_parameters)
+    discretised_negative_cba = discretise_weights(cba_weights[1], simulation_parameters)
 
     accuracies = np.zeros(len(percentages))
 
@@ -57,11 +57,15 @@ def fault_simulation(
         accuracies_list = []
 
         for percentage in percentages:
+            random_split = np.random.rand()
+
             altered_positive_weights = alter_weights(
-                discretised_positive_cba, percentage, simulation_parameters
+                discretised_positive_cba, percentage * random_split, simulation_parameters
             )
             altered_negative_weights = alter_weights(
-                discretised_negative_cba, percentage, simulation_parameters
+                discretised_negative_cba,
+                percentage - percentage * random_split,
+                simulation_parameters,
             )
 
             # The "set_weights" function sets the ANN's weights to the values specified in the
