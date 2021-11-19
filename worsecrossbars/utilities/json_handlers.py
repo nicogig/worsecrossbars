@@ -8,7 +8,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
 
-def validate_json(extracted_json: dict):
+def validate_json(extracted_json: dict) -> None:
     """Validate a given JSON object against a standard schema.
 
     Args:

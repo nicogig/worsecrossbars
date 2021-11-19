@@ -36,7 +36,7 @@ def read_external_json(file_path: str) -> dict:
         return json_object
 
 
-def user_folders():
+def user_folders() -> None:
     """Creates the basic folder structure in the user's HOME folder."""
 
     home_dir = Path.home()
@@ -86,7 +86,7 @@ def create_output_structure(wipe_current: bool = True) -> str:
     return folder
 
 
-def store_webhook():
+def store_webhook() -> None:
     """Asks the user for a MSTeam Webhook URL and stores it."""
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "msteams.json")
@@ -114,7 +114,7 @@ def read_webhook() -> str:
         return webhook_url
 
 
-def store_dropbox_keys():
+def store_dropbox_keys() -> None:
     """Asks the user for Dropbox keys, and stores them."""
 
     working_file = Path.home().joinpath("worsecrossbars", "config", "app_keys.json")
