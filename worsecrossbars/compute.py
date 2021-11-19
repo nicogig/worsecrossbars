@@ -3,8 +3,8 @@ Worsecrossbars' main module and entrypoint.
 """
 import argparse
 import gc
+import json
 import logging
-import pickle
 import platform
 import signal
 import sys
@@ -49,7 +49,7 @@ def stop_handler(signum, _):
     sys.exit(1)
 
 
-def worker(mnist_dataset, simulation_parameters):
+def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
@@ -59,8 +59,8 @@ def worker(mnist_dataset, simulation_parameters):
 
     logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
 
-    if command_line_args.teams:
-        teams.send_message(
+    if _teams:
+        _teams.send_message(
             f"Using parameters:\n{simulation_parameters}",
             title="Started simulation",
             color="ffca33",
@@ -89,23 +89,22 @@ def worker(mnist_dataset, simulation_parameters):
             Path.home().joinpath(
                 "worsecrossbars",
                 "outputs",
-                output_folder,
+                _output_folder,
                 "training_validation",
                 f"training_validation_{fault_type}_{number_hidden_layers}HL"
-                + f"_{noise_variance}NV.pickle",
+                + f"_{noise_variance}NV.json",
             )
         ),
-        "wb",
+        "w",
+        encoding="utf-8",
     ) as file:
-        pickle.dump(
-            (
-                training_validation_data,
-                fault_type,
-                number_hidden_layers,
-                noise_variance,
-            ),
-            file,
-        )
+        output_object = {
+            "training_validation_data": [data.tolist() for data in training_validation_data],
+            "fault_type": fault_type,
+            "number_hidden_layers": number_hidden_layers,
+            "noise_variance": noise_variance,
+        }
+        json.dump(output_object, file)
 
     logging.info(
         "[%dHL_%dANNs_%dNV] Saved training and validation data.",
@@ -123,17 +122,22 @@ def worker(mnist_dataset, simulation_parameters):
             Path.home().joinpath(
                 "worsecrossbars",
                 "outputs",
-                output_folder,
+                _output_folder,
                 "accuracies",
-                f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle",
+                f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.json",
             )
         ),
-        "wb",
+        "w",
+        encoding="utf-8",
     ) as file:
-        pickle.dump(
-            (percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
-            file,
-        )
+        output_object = {
+            "percentages": percentages.tolist(),
+            "accuracies": accuracies.tolist(),
+            "fault_type": fault_type,
+            "number_hidden_layers": number_hidden_layers,
+            "noise_variance": noise_variance,
+        }
+        json.dump(output_object, file)
 
     logging.info(
         "[%dHL_%dANNs_%dNV] Saved accuracy data.",
@@ -142,8 +146,8 @@ def worker(mnist_dataset, simulation_parameters):
         noise_variance,
     )
 
-    if command_line_args.teams:
-        teams.send_message(
+    if _teams:
+        _teams.send_message(
             f"Using parameters:\n{simulation_parameters}",
             title="Finished simulation",
             color="1fd513",
@@ -162,7 +166,14 @@ def main():
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
-        process = Process(target=worker, args=[mnist_dataset, simulation_parameters])
+        if command_line_args.teams is None:
+            process = Process(
+                target=worker, args=[mnist_dataset, simulation_parameters, output_folder]
+            )
+        else:
+            process = Process(
+                target=worker, args=[mnist_dataset, simulation_parameters, output_folder, teams]
+            )
         process.start()
         pool.append(process)
 
