@@ -213,3 +213,32 @@ def split_weights(network_weights: List[ndarray]) -> Tuple[List[ndarray], List[n
             negative_cba.append(layer_weights)
 
     return positive_cba, negative_cba
+
+
+def join_weights(positive_cba: List[ndarray], negative_cba: List[ndarray]) -> List[ndarray]:
+    """This function takes in the weights of each of the two crossbar arrays and joins them into a
+    single array of weights, so that the performance of a neural network implemented with said CBAs
+    can be simulated.
+
+    Args:
+      positive_cba: List containing network weights to be programmed onto the crossbar array with
+        positive input voltages.
+      negative_cba: List containing network weights to be programmed onto the crossbar array with
+        negative input voltages.
+
+    Returns:
+      joined_weights: List containing joined network weights for simulation purposes.
+    """
+
+    # For a first attempt, the weights shall simply be joined back together by subtraction
+
+    joined_weights = []
+
+    for count, layer_weights in enumerate(zip(positive_cba, negative_cba)):
+
+        if count % 2 == 0:
+            joined_weights.append(layer_weights[0] - layer_weights[1])
+        else:
+            joined_weights.append(layer_weights[0])
+
+    return joined_weights
