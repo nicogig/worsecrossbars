@@ -1,7 +1,6 @@
 """simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
-import copy
 import gc
 import logging
 from typing import List
@@ -14,83 +13,23 @@ from tensorflow.keras.callbacks import History
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
-from worsecrossbars.backend.weight_mapping import choose_extremes
-from worsecrossbars.backend.weight_mapping import create_weight_interval
-from worsecrossbars.backend.weight_mapping import discretise_weights
-
-
-def weight_alterations(
-    network_weights: List[ndarray],
-    fault_type: str,
-    failure_percentage: float,
-    extremes_list: List[Tuple[float, float]],
-) -> List[ndarray]:
-    """This function takes in and modifies network weights to simulate the effect of faulty
-    memristive devices being used in the physical implementation of the ANN.
-
-    It should be noted that only synapse parameters (i.e. weights, not neuron biases) are being
-    altered. This is achieved by only modifying even-numbered layers, given that, in a
-    densely-connected MLP built with Keras, odd-numbered layers contain neuron biases.
-
-    Args:
-      network_weights: Array containing the weights as outputted by the training functions.
-      fault_type: String, indicates which fault is being simulated.
-      failure_percentage: Positive integer/float, percentage of devices affected by the fault.
-      extremes_list: List containing minimum and maximum weight values in a given layer.
-
-    Returns:
-      altered_weights: Array containing the ANN weights altered to simulate the effect of the
-        desired percentage of devices being affected by the specified fault.
-    """
-
-    if isinstance(failure_percentage, int):
-        failure_percentage = float(failure_percentage)
-
-    if not isinstance(failure_percentage, float) or failure_percentage < 0:
-        raise ValueError('"failure_percentage" argument should be a positive real number.')
-
-    altered_weights = copy.deepcopy(network_weights)
-
-    for count, layer in enumerate(altered_weights):
-
-        if count % 2 == 0:
-            if fault_type == "STUCKZERO":
-                fault_value = 0.0
-            elif fault_type == "STUCKHRS":
-                fault_value = extremes_list[count][0]
-            else:
-                fault_value = extremes_list[count][1]
-
-            indices = np.random.choice(
-                layer.shape[1] * layer.shape[0],
-                replace=False,
-                size=int(layer.shape[1] * layer.shape[0] * failure_percentage),
-            )
-
-            # Creating a sign mask to ensure that devices stuck at HRS/LRS retain the correct sign
-            # (i.e. that the associated weights remain negative if they were negative)
-            signs_mask = np.sign(layer)
-
-            layer[np.unravel_index(indices, layer.shape)] = (
-                fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
-            )
-
-    return altered_weights
+from worsecrossbars.backend.weights_manipulation import alter_weights
+from worsecrossbars.backend.weights_manipulation import discretise_weights
 
 
 def fault_simulation(
-    percentages_array: List[float],
+    percentages: ndarray,
     weights: List[ndarray],
     network_model: Model,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
-) -> np.ndarray:
+) -> ndarray:
     """This function runs a fault simulation with the given parameters, and thus constitutes the
     computational core of the package. Each simulation is run "number_simulations" times, to average
     out stochastic variability in the final results.
 
     Args:
-      percentages_array: Array containing the various percentages of faulty devices the user wants
+      percentages: Array containing the various percentages of faulty devices the user wants
         to simulate.
       weights: Array containing trained weights that are to be altered to simulate faults.
       network_model: Keras model containing the network topology being simulated.
@@ -104,26 +43,16 @@ def fault_simulation(
       devices.
     """
 
-    extremes_list = choose_extremes(
-        weights,
-        simulation_parameters["HRS_LRS_ratio"],
-        simulation_parameters["excluded_weights_proportion"],
-    )
-    weight_intervals = create_weight_interval(
-        extremes_list, simulation_parameters["number_conductance_levels"]
-    )
-    weights = discretise_weights(weights, weight_intervals)
+    weights = discretise_weights(weights, simulation_parameters)
 
-    accuracies = np.zeros(len(percentages_array))
+    accuracies = np.zeros(len(percentages))
 
     for _ in range(simulation_parameters["number_simulations"]):
 
         accuracies_list = []
 
-        for percentage in percentages_array:
-            altered_weights = weight_alterations(
-                weights, simulation_parameters["fault_type"], percentage, extremes_list
-            )
+        for percentage in percentages:
+            altered_weights = alter_weights(weights, percentage, simulation_parameters)
 
             # The "set_weights" function sets the ANN's weights to the values specified in the
             # list of arrays "altered_weights"
@@ -234,10 +163,10 @@ def training_validation_metrics(
 
 def run_simulation(
     weights_list: List[List[ndarray]],
-    percentages_array: List[float],
+    percentages: ndarray,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
-) -> np.ndarray:
+) -> ndarray:
     """This function runs the main simulation. This entails running one full fault_simulation for
     each of the "number_ANNs" networks trained above, so that the accuracies resulting from each can
     be averaged together to reduce the influence of stochastic variability.
@@ -245,7 +174,7 @@ def run_simulation(
     Args:
       weights_list: List of arrays containing the weights of each of the "number_ANNs" trained
         networks.
-      percentages_array: Array containing the various percentages of faulty devices the user wants
+      percentages: Array containing the various percentages of faulty devices the user wants
         to simulate.
       dataset: MNIST test dataset, used to calculate inference accuracy.
       simulation_parameters: Python dictionary (loaded from a JSON file) containing all parameters
@@ -265,12 +194,12 @@ def run_simulation(
 
     model = mnist_mlp(number_hidden_layers, noise_variance=noise_variance)
     model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
-    accuracies_array = np.zeros((len(weights_list), len(percentages_array)))
+    accuracies_array = np.zeros((len(weights_list), len(percentages)))
 
     for count, weights in enumerate(weights_list):
 
         accuracies_array[count] = fault_simulation(
-            percentages_array, weights, model, dataset, simulation_parameters
+            percentages, weights, model, dataset, simulation_parameters
         )
 
         logging.info(
