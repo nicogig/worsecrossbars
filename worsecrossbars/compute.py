@@ -55,7 +55,6 @@ def worker(mnist_dataset, simulation_parameters):
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
-    number_anns = simulation_parameters["number_ANNs"]
 
     logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
 
@@ -77,9 +76,9 @@ def worker(mnist_dataset, simulation_parameters):
     training_validation_data = training_validation_metrics(histories_list)
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Done training. Computing loss and accuracy.",
+        "[%dHL_%s_%fNV] Done training. Computing loss and accuracy.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
@@ -108,9 +107,9 @@ def worker(mnist_dataset, simulation_parameters):
         )
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Saved training and validation data.",
+        "[%dHL_%s_%fNV] Saved training and validation data.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
@@ -136,9 +135,9 @@ def worker(mnist_dataset, simulation_parameters):
         )
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Saved accuracy data.",
+        "[%dHL_%s_%fNV] Saved accuracy data.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
@@ -189,7 +188,7 @@ def main():
 
     if command_line_args.dropbox:
         dbx.upload()
-        logging.info("Uploaded Simulation outcome to Dropbox.")
+        logging.info("Uploaded simulation outcome to Dropbox.")
         if command_line_args.teams:
             teams.send_message(
                 f"Simulations {output_folder} uploaded successfully.",
