@@ -75,8 +75,9 @@ def load_training_validation_data(
                 "worsecrossbars",
                 "outputs",
                 folder,
-                "accuracies",
-                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.pickle",
+                "training_validation",
+                f"training_validation_{filetuple[0]}_{filetuple[1]}HL_"
+                + f"{float(filetuple[2])}NV.pickle",
             )
         )
 
