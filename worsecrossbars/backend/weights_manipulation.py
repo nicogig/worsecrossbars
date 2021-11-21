@@ -171,12 +171,15 @@ def alter_weights(
             )
 
             # Creating a sign mask to ensure that devices stuck at HRS/LRS retain the correct sign
-            # (i.e. that the associated weights remain negative if they were negative)
-            signs_mask = np.sign(layer)
+            # (i.e. that the associated weights remain negative if they were negative). This should
+            # no longer be needed, as all weights are now taken as positive.
 
-            layer[np.unravel_index(indices, layer.shape)] = (
-                fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
-            )
+            # signs_mask = np.sign(layer)
+            # layer[np.unravel_index(indices, layer.shape)] = (
+            #     fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
+            # )
+
+            layer[np.unravel_index(indices, layer.shape)] = fault_value
 
     return altered_weights
 
