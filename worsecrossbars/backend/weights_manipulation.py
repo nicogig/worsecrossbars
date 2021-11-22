@@ -99,7 +99,7 @@ def discretise_weights(
                 extremes_list, simulation_parameters["number_conductance_levels"]
             )
             req_int = network_weight_intervals[weight_int_count]
-            req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
+            # req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
             mask = index > len(req_int) - 1
             index[mask] = len(req_int) - 1
