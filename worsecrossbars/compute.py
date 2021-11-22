@@ -76,7 +76,7 @@ def worker(mnist_dataset, simulation_parameters):
     training_validation_data = training_validation_metrics(histories_list)
 
     logging.info(
-        "[%dHL_%s_%fNV] Done training. Computing loss and accuracy.",
+        "[%dHL_%s_%.2fNV] Done training. Computing loss and accuracy.",
         number_hidden_layers,
         fault_type,
         noise_variance,
@@ -107,7 +107,7 @@ def worker(mnist_dataset, simulation_parameters):
         )
 
     logging.info(
-        "[%dHL_%s_%fNV] Saved training and validation data.",
+        "[%dHL_%s_%.2fNV] Saved training and validation data.",
         number_hidden_layers,
         fault_type,
         noise_variance,
@@ -135,7 +135,7 @@ def worker(mnist_dataset, simulation_parameters):
         )
 
     logging.info(
-        "[%dHL_%s_%fNV] Saved accuracy data.",
+        "[%dHL_%s_%.2fNV] Saved accuracy data.",
         number_hidden_layers,
         fault_type,
         noise_variance,

@@ -109,6 +109,7 @@ def train_models(
         networks.
     """
 
+    fault_type = simulation_parameters["fault_type"]
     number_anns = simulation_parameters["number_ANNs"]
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     noise_variance = simulation_parameters["noise_variance"]
@@ -126,8 +127,12 @@ def train_models(
         gc.collect()
 
         logging.info(
-            f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]"
-            + f" Trained model {model_number+1} of {number_anns}"
+            "[%dHL_%s_%.2fNV] Trained model %d of %d.",
+            number_hidden_layers,
+            fault_type,
+            noise_variance,
+            model_number + 1,
+            number_anns,
         )
 
     return weights_list, histories_list
@@ -204,6 +209,7 @@ def run_simulation(
         stored in the final array.
     """
 
+    fault_type = simulation_parameters["fault_type"]
     number_anns = simulation_parameters["number_ANNs"]
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     noise_variance = simulation_parameters["noise_variance"]
@@ -219,8 +225,12 @@ def run_simulation(
         )
 
         logging.info(
-            f"[{number_hidden_layers}HL_{number_anns}ANNs_{noise_variance}NV]"
-            + f" Simulated model {count+1} of {number_anns}."
+            "[%dHL_%s_%.2fNV] Simulated model %d of %d.",
+            number_hidden_layers,
+            fault_type,
+            noise_variance,
+            count + 1,
+            number_anns,
         )
         gc.collect()
 
