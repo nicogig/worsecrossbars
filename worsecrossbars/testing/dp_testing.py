@@ -84,7 +84,7 @@ if __name__ == "__main__":
     model = mnist_mlp(1, [5])
     dataset = create_datasets(training_validation_ratio=3)
 
-    trained_weights, _, _, _ = train_mlp(dataset, model, 10, 100)
+    trained_weights, *_ = train_mlp(dataset, model, 10, 100)
 
     # Testing split_weights function
     test_split_weights(trained_weights)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     test_join_weights(trained_weights, positive_cba, negative_cba)
 
     discretised_positive_cba = wm.discretise_weights(positive_cba, simulation_parameters)
-    # discretised_negative_cba = wm.discretise_weights(negative_cba, simulation_parameters)
+    altered_weights = wm.alter_weights(discretised_positive_cba, 0.25, simulation_parameters)
 
-    print(positive_cba)
     print(discretised_positive_cba)
+    print(altered_weights)

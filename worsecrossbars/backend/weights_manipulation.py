@@ -98,7 +98,7 @@ def discretise_weights(
         if count % 2 == 0:
 
             # Checking which weights are equal to 0, and thus correspond to devices which shall not
-            # be electroform and, consequently, shall not undergo discretisation.
+            # be electroformed and, consequently, shall not undergo discretisation.
             zeros_mask = layer_weights != 0.0
 
             original_shape = layer_weights.shape
@@ -160,7 +160,7 @@ def alter_weights(
         simulation_parameters["excluded_weights_proportion"],
     )
 
-    for count, layer in enumerate(altered_weights):
+    for count, layer_weights in enumerate(altered_weights):
 
         if count % 2 == 0:
             if simulation_parameters["fault_type"] == "STUCKZERO":
@@ -170,22 +170,18 @@ def alter_weights(
             else:
                 fault_value = extremes_list[count][1]
 
+            # Checking which weights are equal to 0, and thus correspond to devices which shall not
+            # be electroformed and, consequently, shall not be altered.
+            choice_probabilites = layer_weights.flatten() / layer_weights.sum()
+
             indices = np.random.choice(
-                layer.shape[1] * layer.shape[0],
+                layer_weights.shape[0] * layer_weights.shape[1],
                 replace=False,
-                size=int(layer.shape[1] * layer.shape[0] * failure_percentage),
+                size=int(layer_weights.shape[0] * layer_weights.shape[1] * failure_percentage),
+                p=choice_probabilites,
             )
 
-            # Creating a sign mask to ensure that devices stuck at HRS/LRS retain the correct sign
-            # (i.e. that the associated weights remain negative if they were negative). This should
-            # no longer be needed, as all weights are now taken as positive.
-
-            # signs_mask = np.sign(layer)
-            # layer[np.unravel_index(indices, layer.shape)] = (
-            #     fault_value * signs_mask[np.unravel_index(indices, layer.shape)]
-            # )
-
-            layer[np.unravel_index(indices, layer.shape)] = fault_value
+            layer_weights[np.unravel_index(indices, layer_weights.shape)] = fault_value
 
     return altered_weights
 
