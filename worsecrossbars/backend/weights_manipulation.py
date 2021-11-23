@@ -61,6 +61,8 @@ def create_weight_interval(
     for count, element in enumerate(extremes_list):
         if count % 2 == 0:
             weight_interval_list.append(np.linspace(element[1], element[0], number_of_levels))
+        else:
+            weight_interval_list.append(np.empty(number_of_levels))
 
     return weight_interval_list
 
@@ -82,13 +84,13 @@ def discretise_weights(
     """
 
     discretised_weights = copy.deepcopy(network_weights)
-    weight_int_count = -1
 
     extremes_list = choose_extremes(
         network_weights,
         simulation_parameters["HRS_LRS_ratio"],
         simulation_parameters["excluded_weights_proportion"],
     )
+
     network_weight_intervals = create_weight_interval(
         extremes_list, simulation_parameters["number_conductance_levels"]
     )
@@ -96,10 +98,14 @@ def discretise_weights(
     for count, layer_weights in enumerate(discretised_weights):
 
         if count % 2 == 0:
-            weight_int_count += 1
+
+            # Checking which weights are equal to 0, and thus correspond to devices which shall not
+            # be electroform and, consequently, shall not undergo discretisation.
+            zeros_mask = layer_weights != 0.0
+
             original_shape = layer_weights.shape
             layer_weights = layer_weights.flatten()
-            req_int = network_weight_intervals[weight_int_count]
+            req_int = network_weight_intervals[count]
             # req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
             mask = index > len(req_int) - 1
@@ -115,6 +121,7 @@ def discretise_weights(
             )
             layer_weights = np.array([req_int[_] for _ in index_new])
             layer_weights = np.reshape(layer_weights, original_shape)
+            layer_weights *= zeros_mask
             discretised_weights[count] = layer_weights
 
     return discretised_weights
