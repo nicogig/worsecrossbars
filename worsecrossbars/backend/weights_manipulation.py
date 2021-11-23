@@ -84,20 +84,21 @@ def discretise_weights(
     discretised_weights = copy.deepcopy(network_weights)
     weight_int_count = -1
 
+    extremes_list = choose_extremes(
+        network_weights,
+        simulation_parameters["HRS_LRS_ratio"],
+        simulation_parameters["excluded_weights_proportion"],
+    )
+    network_weight_intervals = create_weight_interval(
+        extremes_list, simulation_parameters["number_conductance_levels"]
+    )
+
     for count, layer_weights in enumerate(discretised_weights):
 
         if count % 2 == 0:
             weight_int_count += 1
             original_shape = layer_weights.shape
             layer_weights = layer_weights.flatten()
-            extremes_list = choose_extremes(
-                network_weights,
-                simulation_parameters["HRS_LRS_ratio"],
-                simulation_parameters["excluded_weights_proportion"],
-            )
-            network_weight_intervals = create_weight_interval(
-                extremes_list, simulation_parameters["number_conductance_levels"]
-            )
             req_int = network_weight_intervals[weight_int_count]
             # req_int = np.concatenate((np.negative(req_int)[::-1], req_int), axis=None)
             index = np.searchsorted(req_int, layer_weights)
