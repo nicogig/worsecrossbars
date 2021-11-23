@@ -177,7 +177,7 @@ def alter_weights(
             indices = np.random.choice(
                 layer_weights.shape[0] * layer_weights.shape[1],
                 replace=False,
-                size=int(layer_weights.shape[0] * layer_weights.shape[1] * failure_percentage),
+                size=int(np.count_nonzero(layer_weights) * failure_percentage),
                 p=choice_probabilites,
             )
 
