@@ -1,29 +1,25 @@
-"""
-msteams_notifier:
+"""msteams_notifier:
 An internal module used to send notifications
 to the user via Microsoft Teams.
 """
-
 import pymsteams
 
 
 class MSTeamsNotifier:
-    """
-    An handler used to store the Webhook URL and provide messagging features.
+    """A handler used to store the Webhook URL and provide messagging features.
 
     Args:
       webhook: The Webhook URL.
     """
 
-    def __init__ (self, webhook):
+    def __init__(self, webhook):
         self.webhook_url = webhook
 
-    def __call__ (self):
+    def __call__(self):
         pass
 
-    def send_message(self, message, title=None, color=None):
-        """
-        Send a message to the channel indicated by the Webhook URL.
+    def send_message(self, message: str, title: str = None, color: str = None):
+        """Send a message to the channel indicated by the Webhook URL.
 
         Args:
           message: The message to send.

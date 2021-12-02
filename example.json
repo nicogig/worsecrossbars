@@ -3,33 +3,38 @@
         {
             "HRS_LRS_ratio": 5,
             "number_conductance_levels": 10,
-            "excluded_weights_proportion" : 0.015,
+            "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 1,
             "fault_type": "STUCKZERO",
             "noise_variance": 0,
-            "number_ANNs": 2,
-            "number_simulations": 2
+            "number_ANNs": 10,
+            "number_simulations": 10
         },
         {
             "HRS_LRS_ratio": 5,
             "number_conductance_levels": 10,
-            "excluded_weights_proportion" : 0.015,
+            "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 2,
             "fault_type": "STUCKHRS",
-            "noise_variance": 1,
-            "number_ANNs": 2,
-            "number_simulations": 2
+            "noise_variance": 0,
+            "number_ANNs": 10,
+            "number_simulations": 10
         }
     ],
     "accuracy_plots_parameters": [
         {
-            "plots_data": ["STUCKZERO_1_0", "STUCKHRS_2_1"],
+            "plots_data": [
+                "STUCKZERO_1_0",
+                "STUCKHRS_2_0"
+            ],
             "xlabel": "xlabel",
             "title": "title",
             "filename": "filename1"
         },
         {
-            "plots_data": ["STUCKZERO_1_0"],
+            "plots_data": [
+                "STUCKZERO_1_0"
+            ],
             "xlabel": "xlabel",
             "title": "title",
             "filename": "filename2"
@@ -37,13 +42,18 @@
     ],
     "training_validation_plots_parameters": [
         {
-            "plots_data": ["STUCKZERO_1_0", "STUCKHRS_2_1"],
+            "plots_data": [
+                "STUCKZERO_1_0",
+                "STUCKHRS_2_0"
+            ],
             "title": "title",
             "filename": "filename1",
             "value_type": "accuracy"
         },
         {
-            "plots_data": ["STUCKZERO_1_0"],
+            "plots_data": [
+                "STUCKZERO_1_0"
+            ],
             "title": "title",
             "filename": "filename2",
             "value_type": "loss"
