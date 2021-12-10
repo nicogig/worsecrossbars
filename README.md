@@ -1,20 +1,20 @@
 # worsecrossbars
 
-<p align="center" width="100%">
-    <img width="100%" src="docs/imgs/logo_new.gif">
+<p align="center" width="80%">
+    <img width="100%" src="docs/imgs/logo.gif">
 </p>
 
 ### A tool for simulating faulty devices in a memristive-based neural network.
 
 ## Installation
 
-To get started, pull this repository in your environment. Then, install using
+To get started, download the package from the Releases tab. Then, install using
 
 ```
-python3 -m pip install .
+python3 -m pip install worsecrossbars-x.x.x-py3-none-any.whl
 ```
 
-In the repository's root folder.
+In the folder where you downloaded the file.
 
 ## Quick Start
 
