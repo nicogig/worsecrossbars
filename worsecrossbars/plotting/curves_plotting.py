@@ -2,8 +2,8 @@
 A plotting module used to generate training/validation and accuracy curves.
 """
 import argparse
+import json
 import os
-import pickle
 from pathlib import Path
 from typing import List
 from typing import Tuple
@@ -16,7 +16,7 @@ from numpy import ndarray
 
 def load_accuracy_data(
     files: List[Tuple[str, str, str]], folder: str
-) -> List[Tuple[List[float], ndarray, str, int, float]]:
+) -> List[Tuple[ndarray, ndarray, str, int, float]]:
     """This function loads the accuracy data that the user has elected to plot.
 
     Args:
@@ -38,13 +38,22 @@ def load_accuracy_data(
                 "outputs",
                 folder,
                 "accuracies",
-                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.pickle",
+                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.json",
             )
         )
 
         try:
             with open(filepath, "rb") as file:
-                accuracies_list.append(pickle.load(file))
+                json_object = json.load(file)
+                accuracies_list.append(
+                    (
+                        np.array(json_object["percentages"]),
+                        np.array(json_object["accuracies"]),
+                        json_object["fault_type"],
+                        json_object["number_hidden_layers"],
+                        json_object["noise_variance"],
+                    )
+                )
         except FileNotFoundError as file_error:
             print("The data you are attempting to plot does not exist.")
             raise file_error
@@ -75,14 +84,28 @@ def load_training_validation_data(
                 "worsecrossbars",
                 "outputs",
                 folder,
-                "accuracies",
-                f"accuracies_{filetuple[0]}_{filetuple[1]}HL_" + f"{float(filetuple[2])}NV.pickle",
+                "training_validation",
+                f"training_validation_{filetuple[0]}_{filetuple[1]}HL_"
+                + f"{float(filetuple[2])}NV.json",
             )
         )
 
         try:
             with open(filepath, "rb") as file:
-                training_validation_list.append(pickle.load(file))
+                json_object = json.load(file)
+                training_validation_list.append(
+                    (
+                        (
+                            np.array(json_object["training_validation_data"][0]),
+                            np.array(json_object["training_validation_data"][1]),
+                            np.array(json_object["training_validation_data"][2]),
+                            np.array(json_object["training_validation_data"][3]),
+                        ),
+                        json_object["fault_type"],
+                        json_object["number_hidden_layers"],
+                        json_object["noise_variance"],
+                    )
+                )
         except FileNotFoundError as file_error:
             print("The data you are attempting to plot does not exist.")
             raise file_error

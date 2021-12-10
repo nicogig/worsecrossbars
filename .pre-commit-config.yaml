@@ -16,10 +16,10 @@ repos:
     -   id: black
         args: [--safe, --line-length=100]
 
-# -   repo: https://github.com/PyCQA/bandit
-#     rev: 1.7.0
-#     hooks:
-#     - id: bandit
+-   repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+    - id: bandit
 
 -   repo: https://github.com/PyCQA/pylint
     rev: v2.11.1

@@ -3,8 +3,8 @@ Worsecrossbars' main module and entrypoint.
 """
 import argparse
 import gc
+import json
 import logging
-import pickle
 import platform
 import signal
 import sys
@@ -49,24 +49,23 @@ def stop_handler(signum, _):
     sys.exit(1)
 
 
-def worker(mnist_dataset, simulation_parameters):
+def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
-    number_anns = simulation_parameters["number_ANNs"]
 
     logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
 
-    if command_line_args.teams:
-        teams.send_message(
+    if _teams:
+        _teams.send_message(
             f"Using parameters:\n{simulation_parameters}",
             title="Started simulation",
             color="ffca33",
         )
 
-    percentages = np.arange(0, 1.01, 0.01)
+    percentages = np.arange(0, 1.01, 0.01).round(2)
 
     weights_list, histories_list = train_models(
         mnist_dataset, simulation_parameters, epochs=10, batch_size=100
@@ -77,9 +76,9 @@ def worker(mnist_dataset, simulation_parameters):
     training_validation_data = training_validation_metrics(histories_list)
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Done training. Computing loss and accuracy.",
+        "[%dHL_%s_%.2fNV] Done training. Computing loss and accuracy.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
@@ -89,28 +88,27 @@ def worker(mnist_dataset, simulation_parameters):
             Path.home().joinpath(
                 "worsecrossbars",
                 "outputs",
-                output_folder,
+                _output_folder,
                 "training_validation",
                 f"training_validation_{fault_type}_{number_hidden_layers}HL"
-                + f"_{noise_variance}NV.pickle",
+                + f"_{noise_variance}NV.json",
             )
         ),
-        "wb",
+        "w",
+        encoding="utf-8",
     ) as file:
-        pickle.dump(
-            (
-                training_validation_data,
-                fault_type,
-                number_hidden_layers,
-                noise_variance,
-            ),
-            file,
-        )
+        output_object = {
+            "training_validation_data": [data.tolist() for data in training_validation_data],
+            "fault_type": fault_type,
+            "number_hidden_layers": number_hidden_layers,
+            "noise_variance": noise_variance,
+        }
+        json.dump(output_object, file)
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Saved training and validation data.",
+        "[%dHL_%s_%.2fNV] Saved training and validation data.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
@@ -123,27 +121,32 @@ def worker(mnist_dataset, simulation_parameters):
             Path.home().joinpath(
                 "worsecrossbars",
                 "outputs",
-                output_folder,
+                _output_folder,
                 "accuracies",
-                f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.pickle",
+                f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.json",
             )
         ),
-        "wb",
+        "w",
+        encoding="utf-8",
     ) as file:
-        pickle.dump(
-            (percentages, accuracies, fault_type, number_hidden_layers, noise_variance),
-            file,
-        )
+        output_object = {
+            "percentages": percentages.tolist(),
+            "accuracies": accuracies.tolist(),
+            "fault_type": fault_type,
+            "number_hidden_layers": number_hidden_layers,
+            "noise_variance": noise_variance,
+        }
+        json.dump(output_object, file)
 
     logging.info(
-        "[%dHL_%dANNs_%dNV] Saved accuracy data.",
+        "[%dHL_%s_%.2fNV] Saved accuracy data.",
         number_hidden_layers,
-        number_anns,
+        fault_type,
         noise_variance,
     )
 
-    if command_line_args.teams:
-        teams.send_message(
+    if _teams:
+        _teams.send_message(
             f"Using parameters:\n{simulation_parameters}",
             title="Finished simulation",
             color="1fd513",
@@ -162,7 +165,14 @@ def main():
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
-        process = Process(target=worker, args=[mnist_dataset, simulation_parameters])
+        if command_line_args.teams is None:
+            process = Process(
+                target=worker, args=[mnist_dataset, simulation_parameters, output_folder]
+            )
+        else:
+            process = Process(
+                target=worker, args=[mnist_dataset, simulation_parameters, output_folder, teams]
+            )
         process.start()
         pool.append(process)
 
@@ -189,7 +199,7 @@ def main():
 
     if command_line_args.dropbox:
         dbx.upload()
-        logging.info("Uploaded Simulation outcome to Dropbox.")
+        logging.info("Uploaded simulation outcome to Dropbox.")
         if command_line_args.teams:
             teams.send_message(
                 f"Simulations {output_folder} uploaded successfully.",

@@ -35,7 +35,7 @@ def authenticate() -> None:
     ) as json_file:
         app_keys = json.load(json_file)
 
-    auth_flow = DropboxOAuth2FlowNoRedirect(
+    auth_flow = DropboxOAuth2FlowNoRedirect(  # nosec
         app_keys["APP_KEY"],
         consumer_secret=app_keys["APP_SECRET"],
         token_access_type="offline",
