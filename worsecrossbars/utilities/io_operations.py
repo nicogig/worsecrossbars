@@ -44,7 +44,7 @@ def user_folders() -> None:
     home_dir.joinpath("worsecrossbars", "utils").mkdir(parents=True, exist_ok=True)
 
 
-def create_output_structure(wipe_current: bool = True) -> str:
+def create_output_structure(wipe_current: bool = True, pytorch: bool = False) -> str:
     """Create an output folder to store the results of the simulation.
 
     Args:
@@ -57,6 +57,9 @@ def create_output_structure(wipe_current: bool = True) -> str:
     home_dir = Path.home()
     time_now = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
     folder = f"{time_now.__str__()}"
+
+    if pytorch:
+        folder += "_pytorch"
 
     if wipe_current:
         directory = str(home_dir.joinpath("worsecrossbars", "outputs"))

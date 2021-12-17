@@ -1,5 +1,5 @@
-"""simulation:
-A backend module used to simulate the effect of faulty devices on memristive ANN performance.
+"""simulation_pytorch:
+A backend module acting as a PyTorch variant of "simulation".
 """
 import gc
 import logging
@@ -8,11 +8,8 @@ from typing import Tuple
 
 import numpy as np
 from numpy import ndarray
-from tensorflow.keras import Model
-from tensorflow.keras.callbacks import History
+from torch.utils.data import DataLoader
 
-from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.mlp_trainer import train_mlp
 from worsecrossbars.backend.mlp_generator_pytorch import MNIST_MLP
 from worsecrossbars.backend.weights_manipulation import alter_weights
 from worsecrossbars.backend.weights_manipulation import discretise_weights
@@ -20,7 +17,7 @@ from worsecrossbars.backend.weights_manipulation import join_weights
 from worsecrossbars.backend.weights_manipulation import split_weights
 
 
-def fault_simulation(
+def fault_simulation_pytorch(
     percentages: ndarray,
     network_weights: List[ndarray],
     network_model: Model,
@@ -83,13 +80,12 @@ def fault_simulation(
     return accuracies
 
 
-def train_models(
-    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+def train_models_pytorch(
+    dataset: Tuple[DataLoader, DataLoader, DataLoader],
     simulation_parameters: dict,
     epochs: int,
-    batch_size: int,
 ) -> Tuple[List[List[ndarray]], List[History]]:
-    """This function trains the generated Keras models on the MNIST dataset with the given
+    """This function trains the generated Pytorch models on the MNIST dataset with the given
     parameters.
 
     Args:
@@ -136,51 +132,51 @@ def train_models(
     return weights_list, histories_list
 
 
-def training_validation_metrics(
-    histories_list: List[History],
-) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
-    """This function calculates training and validation metrics by averaging the data generated
-    during model training and stored in the Keras histories dictionaries returned by the
-    train_models function.
+# def training_validation_metrics(
+#     histories_list: List[History],
+# ) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
+#     """This function calculates training and validation metrics by averaging the data generated
+#     during model training and stored in the Keras histories dictionaries returned by the
+#     train_models function.
 
-    Args:
-      histories_list: List containing Keras models' training histories, as output by the fit
-        method run by the worsecrossbars.backend.mlp_trainer.train_mlp function.
+#     Args:
+#       histories_list: List containing Keras models' training histories, as output by the fit
+#         method run by the worsecrossbars.backend.mlp_trainer.train_mlp function.
 
-    Returns:
-      training_accuracy_values: Array containing the training accuracy values.
-      validation_accuracy_values: Array containing the validation accuracy values.
-      training_loss_values: Array containing the training loss values.
-      validation_loss_values: Array containing the validation loss values.
-    """
+#     Returns:
+#       training_accuracy_values: Array containing the training accuracy values.
+#       validation_accuracy_values: Array containing the validation accuracy values.
+#       training_loss_values: Array containing the training loss values.
+#       validation_loss_values: Array containing the validation loss values.
+#     """
 
-    training_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    training_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
-    validation_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
+#     training_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
+#     validation_accuracy_values = np.zeros(len(histories_list[0].history["accuracy"]))
+#     training_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
+#     validation_loss_values = np.zeros(len(histories_list[0].history["accuracy"]))
 
-    for history in histories_list:
+#     for history in histories_list:
 
-        history_dict = history.history
-        training_accuracy_values += np.array(history_dict["accuracy"])
-        validation_accuracy_values += np.array(history_dict["val_accuracy"])
-        training_loss_values += np.array(history_dict["loss"])
-        validation_loss_values += np.array(history_dict["val_loss"])
+#         history_dict = history.history
+#         training_accuracy_values += np.array(history_dict["accuracy"])
+#         validation_accuracy_values += np.array(history_dict["val_accuracy"])
+#         training_loss_values += np.array(history_dict["loss"])
+#         validation_loss_values += np.array(history_dict["val_loss"])
 
-    training_accuracy_values /= len(histories_list)
-    validation_accuracy_values /= len(histories_list)
-    training_loss_values /= len(histories_list)
-    validation_loss_values /= len(histories_list)
+#     training_accuracy_values /= len(histories_list)
+#     validation_accuracy_values /= len(histories_list)
+#     training_loss_values /= len(histories_list)
+#     validation_loss_values /= len(histories_list)
 
-    return (
-        training_accuracy_values,
-        validation_accuracy_values,
-        training_loss_values,
-        validation_loss_values,
-    )
+#     return (
+#         training_accuracy_values,
+#         validation_accuracy_values,
+#         training_loss_values,
+#         validation_loss_values,
+#     )
 
 
-def run_simulation(
+def run_simulation_pytorch(
     weights_list: List[List[ndarray]],
     percentages: ndarray,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],

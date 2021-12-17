@@ -14,9 +14,12 @@ from pathlib import Path
 import numpy as np
 
 from worsecrossbars.backend.mlp_trainer import create_datasets
+from worsecrossbars.backend.mlp_trainer_pytorch import get_data_loaders
 from worsecrossbars.backend.simulation import run_simulation
 from worsecrossbars.backend.simulation import train_models
 from worsecrossbars.backend.simulation import training_validation_metrics
+from worsecrossbars.backend.simulation_pytorch import run_simulation_pytorch
+from worsecrossbars.backend.simulation_pytorch import train_models_pytorch
 from worsecrossbars.plotting.curves_plotting import accuracy_curves
 from worsecrossbars.plotting.curves_plotting import training_validation_curves
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
@@ -67,13 +70,21 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
 
     percentages = np.arange(0, 1.01, 0.01).round(2)
 
-    weights_list, histories_list = train_models(
-        mnist_dataset, simulation_parameters, epochs=10, batch_size=100
-    )
+    if command_line_args.pytorch:
+        weights_list, histories_list = train_models_pytorch(
+            mnist_dataset, simulation_parameters, epochs=10
+        )
+    else:
+        weights_list, histories_list = train_models(
+            mnist_dataset, simulation_parameters, epochs=10, batch_size=100
+        )
 
     # Computing training and validation loss and accuracy by averaging over all the models trained
     # in the previous step
-    training_validation_data = training_validation_metrics(histories_list)
+    if command_line_args.pytorch:
+        training_validation_data = None
+    else:
+        training_validation_data = training_validation_metrics(histories_list)
 
     logging.info(
         "[%dHL_%s_%.2fNV] Done training. Computing loss and accuracy.",
@@ -113,6 +124,10 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     )
 
     # Running a variety of simulations to average out stochastic variance
+    if command_line_args.pytorch:
+        accuracies = run_simulation_pytorch(
+            weights_list, percentages, mnist_dataset, simulation_parameters
+        )
     accuracies = run_simulation(weights_list, percentages, mnist_dataset, simulation_parameters)
 
     # Saving accuracies array to file
@@ -161,7 +176,10 @@ def main():
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    mnist_dataset = create_datasets(training_validation_ratio=3)
+    if command_line_args.pytorch:
+        mnist_dataset = get_data_loaders(validation_size=0.25)
+    else:
+        mnist_dataset = create_datasets(training_validation_ratio=3)
 
     for simulation_parameters in json_object["simulations"]:
         validate_parameters(simulation_parameters)
@@ -254,6 +272,14 @@ if __name__ == "__main__":
         type=bool,
         default=True,
     )
+    parser.add_argument(
+        "--pytorch",
+        dest="pytorch",
+        metavar="PYTORCH",
+        help="Enable Pytorch backend",
+        type=bool,
+        default=False,
+    )
 
     command_line_args = parser.parse_args()
 
@@ -266,7 +292,9 @@ if __name__ == "__main__":
 
         # Create user and output folders.
         user_folders()
-        output_folder = create_output_structure(command_line_args.wipe_current)
+        output_folder = create_output_structure(
+            command_line_args.wipe_current, command_line_args.pytorch
+        )
 
         logging.basicConfig(
             filename=str(
