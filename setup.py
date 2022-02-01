@@ -14,7 +14,7 @@ def load_requirements() -> List[str]:
 
 setup(
     name="worsecrossbars",
-    version="1.2.0",
+    version="1.3.1",
     packages=[
         "worsecrossbars",
         "worsecrossbars.utilities",
