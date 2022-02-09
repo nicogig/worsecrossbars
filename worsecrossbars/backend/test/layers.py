@@ -41,6 +41,14 @@ class GaussianNoise(nn.Module):
             x = x + sampled_noise
         return x 
 
+
+class LinearMemristorLayer(nn.Module):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+
+
 class DenseMemristorLayer(layers.Layer):
     def __init__(self, neurons_in: int, neurons_out: int, **kwargs) -> None:
         self.neurons_in = neurons_in
