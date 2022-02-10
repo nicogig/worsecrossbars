@@ -1,9 +1,6 @@
 """nonidealities:
 A backend module used to simulate various memristive nonidealities.
 """
-from abc import ABC
-from abc import abstractmethod
-from typing import Dict
 from typing import Tuple
 
 import numpy as np
@@ -11,55 +8,47 @@ import torch
 import torch.nn as nn
 
 
-class LinearityPreserving(ABC):
-    @abstractmethod
-    def alter_G(self, conductances: torch.Tensor) -> torch.Tensor:
+class StuckAtValue:
+    """This class ..."""
+
+    def __init__(self, value: float, probability: float, label: str) -> None:
+        self.value = value
+        self.probability = probability
+        self.label = f"{label}: {value:.2g}, {probability:.2g}"
+        self.is_linearity_preserving = True
+
+    def alter_conductances(self, conductances: torch.Tensor) -> torch.Tensor:
         """A method to disturb conductances in a PyTorch Tensor.
 
         Args:
             conductances: A PyTorch tensor containing memristive conductances.
 
         Returns:
-            altered_conductances
+            altered_conductances: A PyTorch tensor containing the altered memristive conductances.
         """
-
-
-class LinearityNonPreserving(ABC):
-    @abstractmethod
-    def calc_I(self, voltages: torch.Tensor, conductances: torch.Tensor) -> torch.Tensor:
-        """
-        TODO: pipo
-        """
-
-
-class StuckAtValue(LinearityPreserving):
-    """This class ..."""
-
-    def __init__(self, value: float, probability: float, label: str) -> None:
-        self.value = value
-        self.probability = probability
-        self.label = f"{label}: {value::.2g}, {probability::.2g}"
-
-    def alter_G(self, conductances: torch.Tensor) -> torch.Tensor:
 
         # Creating a mask of bools to alter a given percentage of conductance values
         mask = torch.rand(conductances.shape, dtype=torch.float64) < self.probability
-        conductances = torch.where(mask, self.value, conductances)
+        altered_conductances = torch.where(mask, self.value, conductances)
 
-        return conductances
+        return altered_conductances
 
 
 class StuckDistribution:
+    """This class ..."""
+
     def __init__(self) -> None:
         pass
 
 
 class D2DVariability:
+    """This class ..."""
+
     def __init__(self) -> None:
         pass
 
 
-class IVNonlinear(LinearityNonPreserving):
+class IVNonlinear:
     """This class ..."""
 
     def __init__(self, V_ref: float, avg_gamma: float, std_gamma: float, label: str) -> None:
@@ -68,8 +57,11 @@ class IVNonlinear(LinearityNonPreserving):
         self.std_gamma = std_gamma
         self.label = f"{label}: {avg_gamma:.2g}, {std_gamma:.2g}"
         self.k_V = 2 * self.V_ref
+        self.is_linearity_preserving = False
 
-    def calc_I(self, voltages, conductances):
+    def calc_currents(
+        self, voltages: torch.Tensor, conductances: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """This function implements Equation 9 from "Nonideality-Aware Training for Accurate and
         Robust Low-Power Memristive Neural Networks" in order to compute output currents in a MCBA
         affected by IV nonlinearities. The lowest possible value assigned to nonlinearity parameter
@@ -81,31 +73,23 @@ class IVNonlinear(LinearityNonPreserving):
 
         Returns:
           currents:
-
+          individual_currents:
         """
 
         # Generating a truncated normal distribution (with a low value of 2) describing the possible
         # values taken on by the nonlinearity parameter gamma, which we shall sample from in order
         # to assign a nonlinearity parameter to each memristor in the crossbar array.
-
         gammas = nn.init.trunc_normal_(
-            torch.zeros(conductances.get_shape().as_list()),
-            mean=self.avg_gamma,
-            std=self.std_gamma,
-            a=2.0,
-            b=np.inf,
+            torch.zeros(conductances.shape), self.avg_gamma, self.std_gamma, 2.0, np.inf
         )
-        # gamma_distr = tfp.distributions.TruncatedNormal(self.avg_gamma, self.std_gamma, 2.0, np.inf)
-        # gammas = gamma_distr.sample(sample_shape=conductances.get_shape().as_list())
 
-        v_sign_tensor = torch.unsqueeze(torch.sign(voltages), -1)
-        ohmic_current = v_sign_tensor * self.V_ref * torch.unsqueeze(conductances, 0)
+        voltage_signs = torch.unsqueeze(torch.sign(voltages), -1)
+        ohmic_currents = voltage_signs * self.V_ref * torch.unsqueeze(conductances, 0)
         v_v_ref_ratio = torch.unsqueeze(torch.abs(voltages) / self.V_ref, -1)
 
-        log_sampled_n = torch.log(gammas)
-        exponent = log_sampled_n / torch.log(torch.full([1], 2, dtype=log_sampled_n.dtype))
+        log_gammas = torch.log2(gammas)
 
-        individual_I = ohmic_current * v_v_ref_ratio ** exponent
-        I = torch.sum(individual_I, dim=1)
+        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
+        currents = torch.sum(individual_currents, dim=1)
 
-        return I, individual_I
+        return currents, individual_currents
