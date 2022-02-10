@@ -1,31 +1,11 @@
 """layers:
 A backend module dedicated to the creation of custom synaptic layers for TensorFlow.
-
-Comment: Please do not touch this in any way, I'm still working on it!
-- nicogig
 """
-from dataclasses import dataclass
-from typing import Any
-from typing import List
-
 import numpy as np
 import torch
 import torch.nn as nn
 from backend import mapping
-from backend import nonidealities
 from torch.nn.parameter import Parameter
-
-
-@dataclass
-class MemristorLayerConfig:
-    nonidealities: List[Any]
-    is_regularized: bool
-    G_off: float
-    G_on: float
-    k_V: float
-    mapping_rule: str = "lowest"
-    is_training: bool = True
-    uses_double_weights: bool = False
 
 
 class GaussianNoise(nn.Module):
@@ -56,58 +36,95 @@ class GaussianNoise(nn.Module):
         return x
 
 
-class LinearMemristorLayer(nn.Module):
-    def __init__(self, neurons_in, neurons_out, config: MemristorLayerConfig) -> None:
+class MemristiveLinear(nn.Module):
+    """This class ..."""
+
+    def __init__(
+        self, neurons_in: int, neurons_out: int, G_off: float, G_on: float, k_V: float, **kwargs
+    ) -> None:
+
         super().__init__()
+
+        # Assigning positional arguments to the layer
         self.neurons_in = neurons_in
         self.neurons_out = neurons_out
-        self.config = config
+        self.G_off = G_off
+        self.G_on = G_on
+        self.k_V = k_V
+
+        # Unpacking kwargs
+        self.nonidealities = kwargs.get("nonidealities", [])
+        self.regulariser = kwargs.get("regulariser", "L1")
+        self.mapping_rule = kwargs.get("mapping_rule", "lowest")
+        self.uses_double_weights = kwargs.get("uses_double_weights", False)
+
+        # Building layer
         self.build()
 
     def build(self):
-        std_dv = 1 / np.sqrt(self.neurons_in)
-        self.w = Parameter(
-            torch.normal(mean=0.0, std=std_dv, size=(self.neurons_in, self.neurons_out))
-        )
-        self.b = Parameter(torch.zeros(size=(self.neurons_out,)))
+        """"""
 
-    def combined_weights(self):
+        # Initialising weights according to a normal distribution with mean 0 and standard deviation
+        # equal to 1 / np.sqrt(self.neurons_in)
+        self.w = Parameter(
+            torch.normal(0.0, 1 / np.sqrt(self.neurons_in), (self.neurons_in, self.neurons_out))
+        )
+
+        # Initialising layer biases to zero
+        self.b = Parameter(torch.zeros(self.neurons_out))
+
+    def combine_weights(self):
+        """"""
+
         bias = torch.unsqueeze(self.b, dim=0)
         combined_weights = torch.cat([self.w, bias], 0)
         return combined_weights
 
     def memristive_outputs(self, x, weights):
-        voltages = self.config.k_V * x
-        conductances, max_weight = mapping.weights_to_conductances(
-            weights, self.config.G_off, self.config.G_on, self.config.mapping_rule
-        )
-        for nonideality in self.config.nonidealities:
-            if nonideality.is_linearity_preserving:
-                conductances = nonideality.alter_G(conductances)
+        """"""
 
-        i, i_individual = None, None
+        # Converting neuronal inputs to voltages
+        voltages = self.k_V * x
+
+        # Mapping network weights to conductances
+        conductances, max_weight = mapping.weights_to_conductances(
+            weights, self.G_off, self.G_on, self.mapping_rule
+        )
+
+        # Applying linearity-preserving nonidealities
+        for nonideality in self.nonidealities:
+            if nonideality.is_linearity_preserving:
+                conductances = nonideality.alter_conductances(conductances)
+
+        # Applying linearity-non-preserving nonidealities
+        currents, individual_currents = None, None
         for nonideality in self.config.nonidealities:
             if not nonideality.is_linearity_preserving:
-                i, i_individual = nonideality.calc_I(voltages, conductances)
+                currents, individual_currents = nonideality.calc_currents(voltages, conductances)
 
-        if i is None or i_individual is None:
-            if self.config.is_training:
-                i = torch.tensordot(voltages, conductances, dims=1)
+        # If no linearity-non-preserving nonideality is present, calculate output currents in an
+        # ideal fashion
+        if currents is None or individual_currents is None:
+            if self.is_training:
+                currents = torch.tensordot(voltages, conductances, dims=1)
             else:
-                i_individual = torch.unsqueeze(voltages, dim=-1) * torch.unsqueeze(
+                individual_currents = torch.unsqueeze(voltages, dim=-1) * torch.unsqueeze(
                     conductances, dim=0
                 )
-                i = torch.sum(i_individual, dim=1)
+                currents = torch.sum(individual_currents, dim=1)
 
-        i_total = i[:, 0::2] - i[:, 1::2]
-        k_cond = (self.config.G_on - self.config.G_off) / max_weight
-        y_disturbed = i_total / (self.config.k_V * k_cond)
+        total_currents = currents[:, 0::2] - currents[:, 1::2]
+        k_cond = (self.G_on - self.G_off) / max_weight
+        y_disturbed = total_currents / (self.k_V * k_cond)
 
         return y_disturbed
 
     def forward(self, x):
-        ones = torch.ones([x.size[0], 1])
-        inputs = torch.cat([x, ones], 1)
+        """"""
 
+        inputs = torch.cat([x, torch.ones([x.size[0], 1])], 1)
+
+        # Calculating layers outputs
         self.out = self.memristive_outputs(inputs, self.combined_weights())
+
         return self.out

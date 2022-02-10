@@ -13,10 +13,10 @@ from pathlib import Path
 
 import numpy as np
 
-from worsecrossbars.backend.mlp_trainer import create_datasets
-from worsecrossbars.backend.simulation import run_simulation
-from worsecrossbars.backend.simulation import train_models
-from worsecrossbars.backend.simulation import training_validation_metrics
+from worsecrossbars.keras_legacy.mlp_trainer import create_datasets
+from worsecrossbars.keras_legacy.simulation import run_simulation
+from worsecrossbars.keras_legacy.simulation import train_models
+from worsecrossbars.keras_legacy.simulation import training_validation_metrics
 from worsecrossbars.plotting.curves_plotting import accuracy_curves
 from worsecrossbars.plotting.curves_plotting import training_validation_curves
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload

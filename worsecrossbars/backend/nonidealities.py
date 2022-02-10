@@ -18,7 +18,7 @@ class StuckAtValue:
         self.is_linearity_preserving = True
 
     def alter_conductances(self, conductances: torch.Tensor) -> torch.Tensor:
-        """A method to disturb conductances in a PyTorch Tensor.
+        """A method to alter conductances stored in a PyTorch Tensor.
 
         Args:
             conductances: A PyTorch tensor containing memristive conductances.
@@ -89,7 +89,7 @@ class IVNonlinear:
 
         log_gammas = torch.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
         currents = torch.sum(individual_currents, dim=1)
 
         return currents, individual_currents

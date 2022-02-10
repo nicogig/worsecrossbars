@@ -7,10 +7,10 @@ from typing import List
 import numpy as np
 from numpy import ndarray
 
-import worsecrossbars.backend.weights_manipulation as wm
-from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.mlp_trainer import create_datasets
-from worsecrossbars.backend.mlp_trainer import train_mlp
+import worsecrossbars.keras_legacy.weights_manipulation as wm
+from worsecrossbars.keras_legacy.mlp_generator import mnist_mlp
+from worsecrossbars.keras_legacy.mlp_trainer import create_datasets
+from worsecrossbars.keras_legacy.mlp_trainer import train_mlp
 
 
 def test_split_weights(network_weights: List[ndarray]) -> None:

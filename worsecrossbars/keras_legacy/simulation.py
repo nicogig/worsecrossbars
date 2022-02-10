@@ -11,12 +11,12 @@ from numpy import ndarray
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 
-from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.mlp_trainer import train_mlp
-from worsecrossbars.backend.weights_manipulation import alter_weights
-from worsecrossbars.backend.weights_manipulation import discretise_weights
-from worsecrossbars.backend.weights_manipulation import join_weights
-from worsecrossbars.backend.weights_manipulation import split_weights
+from worsecrossbars.keras_legacy.mlp_generator import mnist_mlp
+from worsecrossbars.keras_legacy.mlp_trainer import train_mlp
+from worsecrossbars.keras_legacy.weights_manipulation import alter_weights
+from worsecrossbars.keras_legacy.weights_manipulation import discretise_weights
+from worsecrossbars.keras_legacy.weights_manipulation import join_weights
+from worsecrossbars.keras_legacy.weights_manipulation import split_weights
 
 
 def fault_simulation(
