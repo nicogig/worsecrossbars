@@ -82,12 +82,12 @@ class LinearMemristorLayer(nn.Module):
             weights, self.config.G_off, self.config.G_on, self.config.mapping_rule
         )
         for nonideality in self.config.nonidealities:
-            if isinstance(nonideality, nonidealities.LinearityPreserving):
+            if nonideality.is_linearity_preserving:
                 conductances = nonideality.alter_G(conductances)
 
         i, i_individual = None, None
         for nonideality in self.config.nonidealities:
-            if isinstance(nonideality, nonidealities.LinearityNonPreserving):
+            if not nonideality.is_linearity_preserving:
                 i, i_individual = nonideality.calc_I(voltages, conductances)
 
         if i is None or i_individual is None:
