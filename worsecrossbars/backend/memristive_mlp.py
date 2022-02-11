@@ -12,6 +12,8 @@ from torch.optim import RMSprop
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 
+from layers import MemristiveLinear
+
 
 class MemristiveMLP(nn.Module):
     """This class implements a PyTorch model set up to be trained to recognise digits from the
@@ -93,15 +95,15 @@ class MemristiveMLP(nn.Module):
 
         # Hidden layers
         self.hidden = nn.ModuleList()
-        self.hidden.append(nn.MemristiveLinear(784, hidden_layer_sizes[0]))
+        self.hidden.append(MemristiveLinear(784, hidden_layer_sizes[0]))
 
         for index in range(number_hidden_layers - 1):
             self.hidden.append(
-                nn.MemristiveLinear(hidden_layer_sizes[index], hidden_layer_sizes[index + 1])
+                MemristiveLinear(hidden_layer_sizes[index], hidden_layer_sizes[index + 1])
             )
 
         # Output layer
-        self.output = nn.MemristiveLinear(hidden_layer_sizes[-1], 10)
+        self.output = MemristiveLinear(hidden_layer_sizes[-1], 10)
 
     def forward(self, x):
         """"""
