@@ -1,9 +1,11 @@
 """memristive_mlp:
 A backend module used to create a PyTorch model for a densely connected MLP with a given topology.
 """
+from typing import List
 from typing import Tuple
 
 import torch
+from layers import MemristiveLinear
 from torch import nn
 from torch.nn.modules.loss import CrossEntropyLoss
 from torch.optim import Adam
@@ -11,8 +13,6 @@ from torch.optim import Optimizer
 from torch.optim import RMSprop
 from torch.optim import SGD
 from torch.utils.data import DataLoader
-
-from layers import MemristiveLinear
 
 
 class MemristiveMLP(nn.Module):
@@ -50,7 +50,11 @@ class MemristiveMLP(nn.Module):
     def __init__(
         self,
         number_hidden_layers: int,
+        G_off: float,
+        G_on: float,
+        k_V: float,
         hidden_layer_sizes: list = None,
+        nonidealities: list = [],
         noise_variance: float = 0.0,
         device: torch.device = None,
     ) -> None:
@@ -95,15 +99,28 @@ class MemristiveMLP(nn.Module):
 
         # Hidden layers
         self.hidden = nn.ModuleList()
-        self.hidden.append(MemristiveLinear(784, hidden_layer_sizes[0]))
+        self.hidden.append(
+            MemristiveLinear(
+                784, hidden_layer_sizes[0], G_off, G_on, k_V, nonidealities=nonidealities
+            )
+        )
 
         for index in range(number_hidden_layers - 1):
             self.hidden.append(
-                MemristiveLinear(hidden_layer_sizes[index], hidden_layer_sizes[index + 1])
+                MemristiveLinear(
+                    hidden_layer_sizes[index],
+                    hidden_layer_sizes[index + 1],
+                    G_off,
+                    G_on,
+                    k_V,
+                    nonidealities=nonidealities,
+                )
             )
 
         # Output layer
-        self.output = MemristiveLinear(hidden_layer_sizes[-1], 10)
+        self.output = MemristiveLinear(
+            hidden_layer_sizes[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities
+        )
 
     def forward(self, x):
         """"""
