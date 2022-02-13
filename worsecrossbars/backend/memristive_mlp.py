@@ -14,6 +14,9 @@ from torch.optim import RMSprop
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 
+from worsecrossbars.backend.layers import MemristiveLinear
+from worsecrossbars.backend.layers import GaussianNoise
+
 
 class MemristiveMLP(nn.Module):
     """This class implements a PyTorch model set up to be trained to recognise digits from the
@@ -92,6 +95,9 @@ class MemristiveMLP(nn.Module):
                 '"hidden_layer_sizes" argument should be a list object with the same size as the'
                 + "number of layers being instantiated."
             )
+
+        # Noise layers
+        self.noise = GaussianNoise(self.device, noise_variance)
 
         # Activation layers
         self.sigmoid = nn.Sigmoid()
