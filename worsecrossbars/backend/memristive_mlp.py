@@ -46,8 +46,8 @@ class MemristiveMLP(nn.Module):
         as part of the model.
       hidden_layer_sizes: List of size number_hidden_layers, contains the number of neurons to be
         instantiated in each densely-connected layer.
-      noise_variance: Positive integer/float, variance of the GaussianNoise layers instantiated
-        during training to boost network performance.
+      noise_sd: Positive integer/float, relative standard deviation of the GaussianNoise layers
+        instantiated during training to boost network performance.
     """
 
     def __init__(
@@ -58,7 +58,7 @@ class MemristiveMLP(nn.Module):
         k_V: float,
         hidden_layer_sizes: list = None,
         nonidealities: list = [],
-        noise_variance: float = 0.0,
+        noise_sd: float = 0.0,
         device: torch.device = None,
     ) -> None:
 
@@ -97,7 +97,7 @@ class MemristiveMLP(nn.Module):
             )
 
         # Noise layers
-        self.noise = GaussianNoise(self.device, noise_variance)
+        self.noise = GaussianNoise(self.device, noise_sd)
 
         # Activation layers
         self.sigmoid = nn.Sigmoid()
@@ -135,7 +135,7 @@ class MemristiveMLP(nn.Module):
         x = x.view(-1, 784)
 
         for layer in self.hidden:
-            x = self.sigmoid(layer(x))
+            x = self.sigmoid(self.noise(layer(x)))
 
         output = self.softmax(self.output(x))
 
