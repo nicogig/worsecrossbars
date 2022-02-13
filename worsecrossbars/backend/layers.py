@@ -4,7 +4,7 @@ A backend module dedicated to the creation of custom synaptic layers for TensorF
 import numpy as np
 import torch
 import torch.nn as nn
-from backend import mapping
+from worsecrossbars.backend import mapping
 from torch.nn.parameter import Parameter
 
 
@@ -122,9 +122,9 @@ class MemristiveLinear(nn.Module):
     def forward(self, x):
         """"""
 
-        inputs = torch.cat([x, torch.ones([x.size[0], 1])], 1)
+        inputs = torch.cat([x, torch.ones([x.size()[0], 1])], 1)
 
         # Calculating layers outputs
-        self.out = self.memristive_outputs(inputs, self.combined_weights())
+        self.out = self.memristive_outputs(inputs, self.combine_weights())
 
         return self.out
