@@ -98,14 +98,14 @@ class MemristiveLinear(nn.Module):
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None
-        for nonideality in self.config.nonidealities:
+        for nonideality in self.nonidealities:
             if not nonideality.is_linearity_preserving:
                 currents, individual_currents = nonideality.calc_currents(voltages, conductances)
 
         # If no linearity-non-preserving nonideality is present, calculate output currents in an
         # ideal fashion
         if currents is None or individual_currents is None:
-            if self.is_training:
+            if self.training:
                 currents = torch.tensordot(voltages, conductances, dims=1)
             else:
                 individual_currents = torch.unsqueeze(voltages, dim=-1) * torch.unsqueeze(

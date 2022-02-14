@@ -194,7 +194,7 @@ class MemristiveMLP(nn.Module):
                 self.optimiser.zero_grad()
 
                 output = self(data)
-                loss = self.loss(output, label, reduction="sum")
+                loss = self.loss(output, label)
 
                 loss.backward()
                 self.optimiser.step()
@@ -213,7 +213,7 @@ class MemristiveMLP(nn.Module):
 
                     output = self(data)
 
-                    validation_loss += self.loss(output, label, reduction="sum").item()
+                    validation_loss += self.loss(output, label).item()
 
             training_losses.append(training_loss / len(dataloaders[0].dataset))
             validation_losses.append(validation_loss / len(dataloaders[1].dataset))
@@ -231,7 +231,7 @@ class MemristiveMLP(nn.Module):
 
                 output = self(data)
 
-                test_loss += self.loss(output, label, reduction="sum").item()
+                test_loss += self.loss(output, label).item()
                 prediction = output.data.max(1, keepdim=True)[1]
 
                 correct += prediction.eq(label.data.view_as(prediction)).sum().item()

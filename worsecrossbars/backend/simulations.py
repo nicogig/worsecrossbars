@@ -10,11 +10,11 @@ if __name__ == "__main__":
 
     dataloaders = mnist_dataloaders()
 
-    nonideality = StuckAtValue(0, 0.5, "STUCKZERO")
-
     G_off = 0.0009971787221729755
     G_on = 0.003513530595228076
     k_V = 0.5
+
+    nonideality = StuckAtValue(0, 0.5, "STUCKZERO")
 
     model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V)
 
