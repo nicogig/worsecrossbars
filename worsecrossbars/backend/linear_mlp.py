@@ -12,11 +12,10 @@ from torch.optim import RMSprop
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 
-from worsecrossbars.backend.layers import MemristiveLinear
 from worsecrossbars.backend.layers import GaussianNoise
 
 
-class MemristiveMLP(nn.Module):
+class LinearMLP(nn.Module):
     """This class implements a PyTorch model set up to be trained to recognise digits from the
     MNIST dataset (784 input neurons, 10 softmax output neurons).
 
@@ -51,11 +50,7 @@ class MemristiveMLP(nn.Module):
     def __init__(
         self,
         number_hidden_layers: int,
-        G_off: float,
-        G_on: float,
-        k_V: float,
         hidden_layer_sizes: list = None,
-        nonidealities: list = [],
         noise_sd: float = 0.0,
         device: torch.device = None,
     ) -> None:
@@ -103,28 +98,13 @@ class MemristiveMLP(nn.Module):
 
         # Hidden layers
         self.hidden = nn.ModuleList()
-        self.hidden.append(
-            MemristiveLinear(
-                784, hidden_layer_sizes[0], G_off, G_on, k_V, nonidealities=nonidealities
-            )
-        )
+        self.hidden.append(nn.Linear(784, hidden_layer_sizes[0]))
 
         for index in range(number_hidden_layers - 1):
-            self.hidden.append(
-                MemristiveLinear(
-                    hidden_layer_sizes[index],
-                    hidden_layer_sizes[index + 1],
-                    G_off,
-                    G_on,
-                    k_V,
-                    nonidealities=nonidealities,
-                )
-            )
+            self.hidden.append(nn.Linear(hidden_layer_sizes[index], hidden_layer_sizes[index + 1]))
 
         # Output layer
-        self.output = MemristiveLinear(
-            hidden_layer_sizes[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities
-        )
+        self.output = nn.Linear(hidden_layer_sizes[-1], 10)
 
     def forward(self, x):
         """"""

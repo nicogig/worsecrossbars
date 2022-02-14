@@ -4,6 +4,7 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 
 from worsecrossbars.backend.nonidealities import *
 from worsecrossbars.backend.memristive_mlp import MemristiveMLP
+from worsecrossbars.backend.linear_mlp import LinearMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
 
 if __name__ == "__main__":
@@ -16,7 +17,8 @@ if __name__ == "__main__":
 
     nonideality = StuckAtValue(0, 0.5, "STUCKZERO")
 
-    model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V)
+    # model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V)
+    model = LinearMLP(2)
 
     model.compile("rmsprop")
     weights, training_losses, validation_losses, test_loss, test_accuracy = model.fit(
