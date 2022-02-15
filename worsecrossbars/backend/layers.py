@@ -41,7 +41,7 @@ class MemristiveLinear(nn.Module):
     """This class ..."""
 
     def __init__(
-        self, neurons_in: int, neurons_out: int, G_off: float, G_on: float, k_V: float, **kwargs
+        self, neurons_in: int, neurons_out: int, G_off: float, G_on: float, k_V: float, device: torch.device, **kwargs
     ) -> None:
 
         super().__init__()
@@ -52,6 +52,7 @@ class MemristiveLinear(nn.Module):
         self.G_off = G_off
         self.G_on = G_on
         self.k_V = k_V
+        self.device = device
 
         # Unpacking kwargs
         self.nonidealities = kwargs.get("nonidealities", [])
@@ -68,17 +69,17 @@ class MemristiveLinear(nn.Module):
         # Initialising weights according to a normal distribution with mean 0 and standard deviation
         # equal to 1 / np.sqrt(self.neurons_in)
         self.w = Parameter(
-            torch.normal(0.0, 1 / np.sqrt(self.neurons_in), (self.neurons_in, self.neurons_out))
+            torch.normal(0.0, 1 / np.sqrt(self.neurons_in), (self.neurons_in, self.neurons_out)).to(self.device)
         )
 
         # Initialising layer biases to zero
-        self.b = Parameter(torch.zeros(self.neurons_out))
+        self.b = Parameter(torch.zeros(self.neurons_out).to(self.device))
 
     def combine_weights(self):
         """"""
 
         bias = torch.unsqueeze(self.b, dim=0)
-        combined_weights = torch.cat([self.w, bias], 0)
+        combined_weights = torch.cat([self.w, bias], 0).to(self.device)
         return combined_weights
 
     def memristive_outputs(self, x, weights):
@@ -107,12 +108,12 @@ class MemristiveLinear(nn.Module):
         # ideal fashion
         if currents is None or individual_currents is None:
             if self.training:
-                currents = torch.tensordot(voltages, conductances, dims=1)
+                currents = torch.tensordot(voltages, conductances, dims=1).to(self.device)
             else:
-                individual_currents = torch.unsqueeze(voltages, dim=-1) * torch.unsqueeze(
+                individual_currents = torch.unsqueeze(voltages, dim=-1).to(self.device) * torch.unsqueeze(
                     conductances, dim=0
-                )
-                currents = torch.sum(individual_currents, dim=1)
+                ).to(self.device)
+                currents = torch.sum(individual_currents, dim=1).to(self.device)
 
         total_currents = currents[:, 0::2] - currents[:, 1::2]
         k_cond = (self.G_on - self.G_off) / max_weight
@@ -123,7 +124,7 @@ class MemristiveLinear(nn.Module):
     def forward(self, x):
         """"""
 
-        inputs = torch.cat([x, torch.ones([x.size()[0], 1])], 1)
+        inputs = torch.cat([x, torch.ones([x.size()[0], 1]).to(self.device)], 1).to(self.device)
 
         # Calculating layers outputs
         self.out = self.memristive_outputs(inputs, self.combine_weights())

@@ -25,7 +25,7 @@ def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtV
 
     for _ in range(simulations):
 
-        model = MemristiveMLP(number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality])
+        model = MemristiveMLP(number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality], device=device)
         model.compile("rmsprop")
         *_, test_accuracy = model.fit(dataloaders, epochs)
 
@@ -36,7 +36,7 @@ def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtV
     return average_accuracy
 
 
-def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, **kwargs):
+def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, device: torch.device, **kwargs):
 
     # Unpacking keyword arguments
     percentages = kwargs.get("percentages", np.arange(0, 1.01, 0.01).round(2))
@@ -86,6 +86,8 @@ if __name__ == "__main__":
     if device.type == 'cuda':
         torch.cuda.device(device)
 
+    print(f"Running on {device.type}")
+
     teams = MSTeamsNotifier(read_webhook())
 
     dataloaders = mnist_dataloaders()
@@ -95,7 +97,7 @@ if __name__ == "__main__":
     k_V = 0.5
 
     teams.send_message("Started Simulation", color="ffca33")
-    accuracies = stuck_simulation(0, G_off, G_on, k_V, dataloaders=dataloaders)
+    accuracies = stuck_simulation(0, G_off, G_on, k_V, device, dataloaders=dataloaders)
     teams.send_message("Ended Simulation", color="ffca33")
 
     with open("accuracies.json", "w", encoding="utf-8") as f:

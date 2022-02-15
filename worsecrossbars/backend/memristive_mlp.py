@@ -105,7 +105,7 @@ class MemristiveMLP(nn.Module):
         self.hidden = nn.ModuleList()
         self.hidden.append(
             MemristiveLinear(
-                784, hidden_layer_sizes[0], G_off, G_on, k_V, nonidealities=nonidealities
+                784, hidden_layer_sizes[0], G_off, G_on, k_V, self.device, nonidealities=nonidealities
             )
         )
 
@@ -117,13 +117,14 @@ class MemristiveMLP(nn.Module):
                     G_off,
                     G_on,
                     k_V,
+                    self.device,
                     nonidealities=nonidealities,
                 )
             )
 
         # Output layer
         self.output = MemristiveLinear(
-            hidden_layer_sizes[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities
+            hidden_layer_sizes[-1], 10, G_off, G_on, k_V, self.device, nonidealities=nonidealities
         )
 
     def forward(self, x):
