@@ -34,9 +34,7 @@ def weights_to_conductances(
 
         # Map according to lowest possible conductance
         cond_pos = torch.maximum(effective_cond, torch.zeros(effective_cond.size())) + G_off
-        cond_neg = -torch.maximum(effective_cond, torch.zeros(effective_cond.size())) + G_off
-
-        # PRETTY SURE THE ABOVE SHOULD BE TENSORS OF ZEROS
+        cond_neg = torch.maximum(-effective_cond, torch.zeros(effective_cond.size())) + G_off
 
     elif mapping_style == "average":
 
