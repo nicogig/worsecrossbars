@@ -27,7 +27,7 @@ class GaussianNoise(nn.Module):
         super().__init__()
         self.sigma = sigma
         self.is_relative_detach = is_relative_detach
-        self.noise = torch.tensor(0, dtype=torch.float).to(device)
+        self.noise = torch.tensor(0, dtype=torch.float, device=device)
 
     def forward(self, x):
         if self.training and self.sigma != 0:
@@ -82,7 +82,7 @@ class MemristiveLinear(nn.Module):
         )
 
         # Initialising layer biases to zero
-        self.b = Parameter(torch.zeros(self.neurons_out).to(self.device))
+        self.b = Parameter(torch.zeros(self.neurons_out, device=self.device))
 
     def combine_weights(self):
         """"""
@@ -133,7 +133,7 @@ class MemristiveLinear(nn.Module):
     def forward(self, x):
         """"""
 
-        inputs = torch.cat([x, torch.ones([x.size()[0], 1]).to(self.device)], 1).to(self.device)
+        inputs = torch.cat([x, torch.ones([x.size()[0], 1], device=self.device)], 1).to(self.device)
 
         # Calculating layers outputs
         self.out = self.memristive_outputs(inputs, self.combine_weights())
