@@ -13,7 +13,9 @@ from worsecrossbars.backend.memristive_mlp import MemristiveMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
 
 
-def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtValue, device: torch.device, **kwargs):
+def _train_evaluate(
+    G_off: float, G_on: float, k_V: float, nonideality: StuckAtValue, device: torch.device, **kwargs
+):
 
     # Unpacking keyword arguments
     number_hidden_layers = kwargs.get("number_hidden_layers", 2)
@@ -25,7 +27,9 @@ def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtV
 
     for _ in range(simulations):
 
-        model = MemristiveMLP(number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality], device=device)
+        model = MemristiveMLP(
+            number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality], device=device
+        )
         model.compile("rmsprop")
         *_, test_accuracy = model.fit(dataloaders, epochs)
 
@@ -36,7 +40,9 @@ def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtV
     return average_accuracy
 
 
-def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, device: torch.device, **kwargs):
+def stuck_simulation(
+    value: float, G_off: float, G_on: float, k_V: float, device: torch.device, **kwargs
+):
 
     # Unpacking keyword arguments
     percentages = kwargs.get("percentages", np.arange(0, 1.01, 0.01).round(2))
@@ -83,8 +89,8 @@ if __name__ == "__main__":
     n_avg 2.132072652112917
     n_std 0.09531988936898476
     """
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if device.type == 'cuda':
+    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    if device.type == "cuda":
         torch.cuda.device(device)
 
     print(f"Running on {device.type}")
