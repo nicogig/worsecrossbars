@@ -105,7 +105,13 @@ class MemristiveMLP(nn.Module):
         self.hidden = nn.ModuleList()
         self.hidden.append(
             MemristiveLinear(
-                784, hidden_layer_sizes[0], G_off, G_on, k_V, self.device, nonidealities=nonidealities
+                784,
+                hidden_layer_sizes[0],
+                G_off,
+                G_on,
+                k_V,
+                self.device,
+                nonidealities=nonidealities,
             )
         )
 
@@ -140,6 +146,12 @@ class MemristiveMLP(nn.Module):
 
         return output
 
+    @staticmethod
+    def _init_weights(layer):
+        if isinstance(layer, MemristiveLinear):
+            torch.nn.init.normal_(layer.weight, std=0.05)
+            layer.bias.data.fill_(0.0)
+
     def compile(self, optimiser: str) -> None:
         """"""
 
@@ -155,6 +167,9 @@ class MemristiveMLP(nn.Module):
             self.optimiser = SGD(self.parameters())
         else:
             self.optimiser = RMSprop(self.parameters())
+
+        # Initialising weights
+        self.apply(MemristiveMLP._init_weights)
 
         # Send model to device
         self.to(self.device)

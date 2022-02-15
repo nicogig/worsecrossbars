@@ -28,7 +28,9 @@ class StuckAtValue:
         """
 
         # Creating a mask of bools to alter a given percentage of conductance values
-        mask = torch.rand(conductances.shape, dtype=torch.float32).to(self.device) < self.probability
+        mask = (
+            torch.rand(conductances.shape, dtype=torch.float32).to(self.device) < self.probability
+        )
         altered_conductances = torch.where(
             mask, torch.tensor(self.value, dtype=conductances.dtype).to(self.device), conductances
         )

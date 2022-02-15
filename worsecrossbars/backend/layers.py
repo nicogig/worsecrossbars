@@ -41,7 +41,14 @@ class MemristiveLinear(nn.Module):
     """This class ..."""
 
     def __init__(
-        self, neurons_in: int, neurons_out: int, G_off: float, G_on: float, k_V: float, device: torch.device, **kwargs
+        self,
+        neurons_in: int,
+        neurons_out: int,
+        G_off: float,
+        G_on: float,
+        k_V: float,
+        device: torch.device,
+        **kwargs
     ) -> None:
 
         super().__init__()
@@ -69,7 +76,9 @@ class MemristiveLinear(nn.Module):
         # Initialising weights according to a normal distribution with mean 0 and standard deviation
         # equal to 1 / np.sqrt(self.neurons_in)
         self.w = Parameter(
-            torch.normal(0.0, 1 / np.sqrt(self.neurons_in), (self.neurons_in, self.neurons_out)).to(self.device)
+            torch.normal(0.0, 1 / np.sqrt(self.neurons_in), (self.neurons_in, self.neurons_out)).to(
+                self.device
+            )
         )
 
         # Initialising layer biases to zero
@@ -110,9 +119,9 @@ class MemristiveLinear(nn.Module):
             if self.training:
                 currents = torch.tensordot(voltages, conductances, dims=1).to(self.device)
             else:
-                individual_currents = torch.unsqueeze(voltages, dim=-1).to(self.device) * torch.unsqueeze(
-                    conductances, dim=0
-                ).to(self.device)
+                individual_currents = torch.unsqueeze(voltages, dim=-1).to(
+                    self.device
+                ) * torch.unsqueeze(conductances, dim=0).to(self.device)
                 currents = torch.sum(individual_currents, dim=1).to(self.device)
 
         total_currents = currents[:, 0::2] - currents[:, 1::2]
