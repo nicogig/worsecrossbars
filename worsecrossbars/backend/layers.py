@@ -4,8 +4,9 @@ A backend module dedicated to the creation of custom synaptic layers for TensorF
 import numpy as np
 import torch
 import torch.nn as nn
-from worsecrossbars.backend import mapping
 from torch.nn.parameter import Parameter
+
+from worsecrossbars.backend import mapping
 
 
 class GaussianNoise(nn.Module):
@@ -26,7 +27,7 @@ class GaussianNoise(nn.Module):
         super().__init__()
         self.sigma = sigma
         self.is_relative_detach = is_relative_detach
-        self.noise = torch.tensor(0).to(device)
+        self.noise = torch.tensor(0, dtype=torch.float).to(device)
 
     def forward(self, x):
         if self.training and self.sigma != 0:
