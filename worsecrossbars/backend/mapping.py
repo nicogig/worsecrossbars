@@ -8,6 +8,7 @@ def weights_to_conductances(
     weights: torch.Tensor,
     G_off: float,
     G_on: float,
+    device: torch.device,
     mapping_style: str = "lowest",
 ) -> torch.Tensor:
     """Map PyTorch weights onto conductances.
@@ -33,8 +34,8 @@ def weights_to_conductances(
     if mapping_style == "lowest":
 
         # Map according to lowest possible conductance
-        cond_pos = torch.maximum(effective_cond, torch.zeros(effective_cond.size())) + G_off
-        cond_neg = torch.maximum(-effective_cond, torch.zeros(effective_cond.size())) + G_off
+        cond_pos = torch.maximum(effective_cond, torch.zeros(effective_cond.size()).to(device)) + G_off
+        cond_neg = torch.maximum(-effective_cond, torch.zeros(effective_cond.size()).to(device)) + G_off
 
     elif mapping_style == "average":
 
@@ -49,6 +50,6 @@ def weights_to_conductances(
     conductance_layer = torch.reshape(
         torch.cat((cond_pos[..., None], cond_neg[..., None]), dim=-1),
         [cond_pos.size(dim=0), -1],
-    )
+    ).to(device)
 
     return conductance_layer, maximum_weight

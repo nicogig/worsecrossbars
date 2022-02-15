@@ -90,7 +90,7 @@ class MemristiveLinear(nn.Module):
 
         # Mapping network weights to conductances
         conductances, max_weight = mapping.weights_to_conductances(
-            weights, self.G_off, self.G_on, self.mapping_rule
+            weights, self.G_off, self.G_on, self.device, self.mapping_rule
         )
 
         # Applying linearity-preserving nonidealities
