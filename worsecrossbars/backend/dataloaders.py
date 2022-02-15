@@ -25,7 +25,7 @@ def mnist_dataloaders(**kwargs):
     )
     shuffle = kwargs.get("shuffle", True)
 
-    num_workers = kwargs.get("num_workers", 1)
+    num_workers = kwargs.get("num_workers", 4)
     pin_memory = kwargs.get("pin_memory", True)
 
     # Validating arguments
@@ -77,7 +77,7 @@ def mnist_dataloaders(**kwargs):
     validation_loader = DataLoader(
         validation_dataset,
         batch_size=batch_size,
-        shuffle=shuffle,
+        shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
     )
@@ -85,7 +85,7 @@ def mnist_dataloaders(**kwargs):
     test_loader = DataLoader(
         test_dataset,
         batch_size=batch_size,
-        shuffle=shuffle,
+        shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
     )
