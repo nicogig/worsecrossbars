@@ -11,10 +11,11 @@ import torch.nn as nn
 class StuckAtValue:
     """This class ..."""
 
-    def __init__(self, value: float, probability: float) -> None:
+    def __init__(self, value: float, probability: float, device: torch.device) -> None:
         self.value = value
         self.probability = probability
         self.is_linearity_preserving = True
+        self.device = device
 
     def alter_conductances(self, conductances: torch.Tensor) -> torch.Tensor:
         """A method to alter conductances stored in a PyTorch Tensor.
@@ -27,9 +28,9 @@ class StuckAtValue:
         """
 
         # Creating a mask of bools to alter a given percentage of conductance values
-        mask = torch.rand(conductances.shape, dtype=torch.float32) < self.probability
+        mask = torch.rand(conductances.shape, dtype=torch.float32).to(self.device) < self.probability
         altered_conductances = torch.where(
-            mask, torch.tensor(self.value, dtype=conductances.dtype), conductances
+            mask, torch.tensor(self.value, dtype=conductances.dtype).to(self.device), conductances
         )
 
         return altered_conductances

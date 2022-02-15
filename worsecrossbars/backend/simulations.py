@@ -13,7 +13,7 @@ from worsecrossbars.backend.memristive_mlp import MemristiveMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
 
 
-def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtValue, **kwargs):
+def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtValue, device: torch.device, **kwargs):
 
     # Unpacking keyword arguments
     number_hidden_layers = kwargs.get("number_hidden_layers", 2)
@@ -51,12 +51,13 @@ def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, device
     # TODO
     for percentage in percentages:
         print(percentage)
-        nonideality = StuckAtValue(value, percentage)
+        nonideality = StuckAtValue(value, percentage, device)
         accuracy = _train_evaluate(
             G_off,
             G_on,
             k_V,
             nonideality,
+            device,
             number_hidden_layers=number_hidden_layers,
             epochs=epochs,
             simulations=simulations,
