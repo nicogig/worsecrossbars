@@ -25,8 +25,8 @@ def _train_evaluate(
 
     average_accuracy = 0
 
-    for _ in range(simulations):
-
+    for idx in range(simulations):
+        print(idx)
         model = MemristiveMLP(
             number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality], device=device
         )
