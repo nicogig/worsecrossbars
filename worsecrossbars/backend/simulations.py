@@ -4,7 +4,10 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 import json
 
 import numpy as np
+import torch
 
+from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.memristive_mlp import MemristiveMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
@@ -47,7 +50,7 @@ def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, **kwar
     # Maybe this could be done in parallel?
     # TODO
     for percentage in percentages:
-
+        print(percentage)
         nonideality = StuckAtValue(value, percentage)
         accuracy = _train_evaluate(
             G_off,
@@ -79,6 +82,11 @@ if __name__ == "__main__":
     n_avg 2.132072652112917
     n_std 0.09531988936898476
     """
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device.type == 'cuda':
+        torch.cuda.device(device)
+
+    teams = MSTeamsNotifier(read_webhook())
 
     dataloaders = mnist_dataloaders()
 
@@ -86,7 +94,9 @@ if __name__ == "__main__":
     G_on = 0.003513530595228076
     k_V = 0.5
 
+    teams.send_message("Started Simulation", color="ffca33")
     accuracies = stuck_simulation(0, G_off, G_on, k_V, dataloaders=dataloaders)
+    teams.send_message("Ended Simulation", color="ffca33")
 
     with open("accuracies.json", "w", encoding="utf-8") as f:
         json.dump(accuracies, f, ensure_ascii=False, indent=4)
