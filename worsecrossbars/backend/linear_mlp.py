@@ -61,7 +61,7 @@ class LinearMLP(nn.Module):
         self.optimiser: Optimizer = None
 
         # Set up loss function
-        self.loss = CrossEntropyLoss()
+        self.loss = CrossEntropyLoss(reduction="sum")
 
         default_neurons = {
             1: [112],

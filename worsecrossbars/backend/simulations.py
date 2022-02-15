@@ -18,7 +18,7 @@ if __name__ == "__main__":
     nonideality = StuckAtValue(0, 0.5, "STUCKZERO")
 
     # model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V)
-    model = LinearMLP(2)
+    model = LinearMLP(2, noise_sd=0.5)
 
     model.compile("rmsprop")
     weights, training_losses, validation_losses, test_loss, test_accuracy = model.fit(
