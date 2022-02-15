@@ -25,8 +25,7 @@ def mnist_dataloaders(**kwargs):
     )
     shuffle = kwargs.get("shuffle", True)
 
-    # If using CUDA, num_workers should be set to 1 and pin_memory to True.
-    num_workers = kwargs.get("num_workers", 1)
+    num_workers = kwargs.get("num_workers", 4)
     pin_memory = kwargs.get("pin_memory", True)
 
     # Validating arguments
