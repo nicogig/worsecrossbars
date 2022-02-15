@@ -91,7 +91,7 @@ class IVNonlinear:
 
         log_gammas = torch.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
         currents = torch.sum(individual_currents, dim=1)
 
         return currents, individual_currents

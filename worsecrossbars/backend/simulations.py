@@ -4,7 +4,6 @@ A backend module used to simulate the effect of faulty devices on memristive ANN
 
 from worsecrossbars.backend.nonidealities import *
 from worsecrossbars.backend.memristive_mlp import MemristiveMLP
-from worsecrossbars.backend.linear_mlp import LinearMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
 
 if __name__ == "__main__":
@@ -15,20 +14,25 @@ if __name__ == "__main__":
     G_on = 0.003513530595228076
     k_V = 0.5
 
-    nonideality = StuckAtValue(0, 0.5, "STUCKZERO")
+    nonideality = StuckAtValue(0, 0.25, "STUCKZERO")
 
-    model1 = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V, nonidealities=[nonideality])
-    model2 = LinearMLP(2, noise_sd=0.5)
+    # 50% stuck at zero yields 66% accuracy over 10 runs.
+    # 25% stuck at zero yields 88% accuracy over 10 runs.
 
-    model1.compile("rmsprop")
-    weights, training_losses, validation_losses, test_loss, test_accuracy = model1.fit(
-        dataloaders, 10
-    )
+    accuracies = 0
 
-    print(training_losses)
-    print(validation_losses)
-    print(test_loss)
-    print(test_accuracy)
+    for _ in range(10):
+
+        model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V, nonidealities=[nonideality])
+
+        model.compile("rmsprop")
+        weights, training_losses, validation_losses, test_loss, test_accuracy = model.fit(
+            dataloaders, 10
+        )
+
+        accuracies += test_accuracy
+
+    print(accuracies / 10)
 
 """
 High Nonlinearity.
