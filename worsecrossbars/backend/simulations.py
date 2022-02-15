@@ -1,12 +1,84 @@
 """simulations:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
+import json
 
-from worsecrossbars.backend.nonidealities import *
+import numpy as np
+
+from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.memristive_mlp import MemristiveMLP
 from worsecrossbars.backend.dataloaders import mnist_dataloaders
 
+
+def _train_evaluate(G_off: float, G_on: float, k_V: float, nonideality: StuckAtValue, **kwargs):
+
+    # Unpacking keyword arguments
+    number_hidden_layers = kwargs.get("number_hidden_layers", 2)
+    epochs = kwargs.get("epochs", 10)
+    simulations = kwargs.get("simulations", 100)
+    dataloaders = kwargs.get("dataloaders", mnist_dataloaders())
+
+    average_accuracy = 0
+
+    for _ in range(simulations):
+
+        model = MemristiveMLP(number_hidden_layers, G_off, G_on, k_V, nonidealities=[nonideality])
+        model.compile("rmsprop")
+        *_, test_accuracy = model.fit(dataloaders, epochs)
+
+        average_accuracy += test_accuracy
+
+    average_accuracy /= simulations
+
+    return average_accuracy
+
+
+def stuck_simulation(value: float, G_off: float, G_on: float, k_V: float, **kwargs):
+
+    # Unpacking keyword arguments
+    percentages = kwargs.get("percentages", np.arange(0, 1.01, 0.01).round(2))
+    number_hidden_layers = kwargs.get("number_hidden_layers", 2)
+    epochs = kwargs.get("epochs", 10)
+    simulations = kwargs.get("simulations", 100)
+    dataloaders = kwargs.get("dataloaders", mnist_dataloaders())
+
+    accuracies = []
+
+    # Maybe this could be done in parallel?
+    # TODO
+    for percentage in percentages:
+
+        nonideality = StuckAtValue(value, percentage)
+        accuracy = _train_evaluate(
+            G_off,
+            G_on,
+            k_V,
+            nonideality,
+            number_hidden_layers=number_hidden_layers,
+            epochs=epochs,
+            simulations=simulations,
+            dataloaders=dataloaders,
+        )
+
+        accuracies.append(accuracy)
+
+    return accuracies
+
+
 if __name__ == "__main__":
+
+    """
+    High Nonlinearity.
+    G_off 7.723066346443375e-07
+    G_on 2.730684400376049e-06
+    n_avg 2.98889722498956
+    n_std 0.36889602261470894
+    Low Nonlinearity.
+    G_off 0.0009971787221729755
+    G_on 0.003513530595228076
+    n_avg 2.132072652112917
+    n_std 0.09531988936898476
+    """
 
     dataloaders = mnist_dataloaders()
 
@@ -14,35 +86,7 @@ if __name__ == "__main__":
     G_on = 0.003513530595228076
     k_V = 0.5
 
-    nonideality = StuckAtValue(0, 0.25, "STUCKZERO")
+    accuracies = stuck_simulation(0, G_off, G_on, k_V, dataloaders=dataloaders)
 
-    # 50% stuck at zero yields 66% accuracy over 10 runs.
-    # 25% stuck at zero yields 88% accuracy over 10 runs.
-
-    accuracies = 0
-
-    for _ in range(10):
-
-        model = MemristiveMLP(2, G_off=G_off, G_on=G_on, k_V=k_V, nonidealities=[nonideality])
-
-        model.compile("rmsprop")
-        weights, training_losses, validation_losses, test_loss, test_accuracy = model.fit(
-            dataloaders, 10
-        )
-
-        accuracies += test_accuracy
-
-    print(accuracies / 10)
-
-"""
-High Nonlinearity.
-G_off 7.723066346443375e-07
-G_on 2.730684400376049e-06
-n_avg 2.98889722498956
-n_std 0.36889602261470894
-Low Nonlinearity.
-G_off 0.0009971787221729755
-G_on 0.003513530595228076
-n_avg 2.132072652112917
-n_std 0.09531988936898476
-"""
+    with open("accuracies.json", "w", encoding="utf-8") as f:
+        json.dump(accuracies, f, ensure_ascii=False, indent=4)

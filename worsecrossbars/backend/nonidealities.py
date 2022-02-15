@@ -11,10 +11,9 @@ import torch.nn as nn
 class StuckAtValue:
     """This class ..."""
 
-    def __init__(self, value: float, probability: float, label: str) -> None:
+    def __init__(self, value: float, probability: float) -> None:
         self.value = value
         self.probability = probability
-        self.label = f"{label}: {value:.2g}, {probability:.2g}"
         self.is_linearity_preserving = True
 
     def alter_conductances(self, conductances: torch.Tensor) -> torch.Tensor:
@@ -53,11 +52,10 @@ class D2DVariability:
 class IVNonlinear:
     """This class ..."""
 
-    def __init__(self, V_ref: float, avg_gamma: float, std_gamma: float, label: str) -> None:
+    def __init__(self, V_ref: float, avg_gamma: float, std_gamma: float) -> None:
         self.V_ref = V_ref
         self.avg_gamma = avg_gamma
         self.std_gamma = std_gamma
-        self.label = f"{label}: {avg_gamma:.2g}, {std_gamma:.2g}"
         self.k_V = 2 * self.V_ref
         self.is_linearity_preserving = False
 
