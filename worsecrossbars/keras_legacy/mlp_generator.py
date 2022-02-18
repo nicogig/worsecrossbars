@@ -8,10 +8,21 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import GaussianNoise
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Softmax
+from tensorflow.keras.layers import Flatten
 
+from worsecrossbars.keras_legacy.layers import MemristiveFullyConnected
+
+import numpy as np
+from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+from worsecrossbars.utilities.io_operations import read_webhook
 
 def mnist_mlp(
     num_hidden_layers: int,
+    G_off: float,
+    G_on: float,
+    k_V: float,
+    nonidealities: list = [],
     neurons: List[int] = None,
     model_name: str = "",
     noise_variance: float = 0.0,
@@ -71,20 +82,44 @@ def mnist_mlp(
     model = Sequential(name=model_name)
 
     # Creating first hidden layer
-    model.add(Dense(neurons[0], input_shape=(784,), name=f"{model_name}_L1"))
-    if noise_variance:
-        model.add(GaussianNoise(noise_variance))
+    #model.add(Dense(neurons[0], input_shape=(784,), name=f"{model_name}_L1"))
+    model.add(MemristiveFullyConnected(
+        784,
+        25,
+        G_off,
+        G_on,
+        k_V,
+        nonidealities=nonidealities
+    ))
+    #if noise_variance:
+    #    model.add(GaussianNoise(noise_variance))
     model.add(Activation("sigmoid"))
 
     # Creating other hidden layers
-    for layer_index, neuron in enumerate(neurons[1:]):
+    #for layer_index, neuron in enumerate(neurons[1:]):
 
-        model.add(Dense(neuron, name=f"{model_name}_L{layer_index+2}"))
-        if noise_variance:
-            model.add(GaussianNoise(noise_variance))
-        model.add(Activation("sigmoid"))
+    #    model.add(MemristiveFullyConnected(
+    #        neurons[layer_index],
+    #        neurons[layer_index+1],
+    #        G_off,
+    #        G_on,
+    #        k_V,
+    #        nonidealities=nonidealities
+    #    ))
+    #    if noise_variance:
+    #        model.add(GaussianNoise(noise_variance))
+    #    model.add(Activation("sigmoid"))
 
     # Creating output layer
-    model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
+    model.add(MemristiveFullyConnected(
+        25,
+        10,
+        G_off,
+        G_on,
+        k_V,
+        nonidealities = nonidealities
+    ))
+    model.add(Activation("softmax"))
+    #model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
 
     return model

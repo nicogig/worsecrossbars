@@ -34,10 +34,10 @@ def weights_to_conductances(
 
         # Map according to lowest possible conductance
         cond_pos = (
-            tf.math.maximum(effective_cond, tf.zeros(effective_cond.shape)) + G_off
+            tf.math.maximum(effective_cond, 0.0) + G_off
         )
         cond_neg = (
-            tf.math.maximum(-effective_cond, tf.zeros(effective_cond.shape)) + G_off
+            -tf.math.maximum(effective_cond, 0.0) + G_off
         )
 
     elif mapping_style == "average":
@@ -52,7 +52,7 @@ def weights_to_conductances(
 
     conductance_layer = tf.reshape(
         tf.concat((cond_pos[..., tf.newaxis], cond_neg[..., tf.newaxis]), axis=-1),
-        [effective_cond.shape[0], -1],
+        [tf.shape(cond_pos)[0], -1],
     )
 
     return conductance_layer, maximum_weight

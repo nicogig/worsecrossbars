@@ -41,7 +41,7 @@ class MemristiveFullyConnected (layers.Layer):
 
         self.w = self.add_weight(
             shape = (self.neurons_in, self.neurons_out),
-            initializer = tf.keras.initializers.RandomNormal(mean = 0.0, stddev = np.sqrt(self.neurons_in)),
+            initializer = tf.keras.initializers.RandomNormal(mean = 0.0, stddev = (1/np.sqrt(self.neurons_in))),
             name = "weights",
             trainable = True
         )
@@ -55,7 +55,10 @@ class MemristiveFullyConnected (layers.Layer):
 
     def call(self, x, mask=None):
 
-        inputs = tf.concat([x, tf.ones([x.shape[0], 1])], 1)
+        if not tf.keras.backend.learning_phase():
+            return tf.tensordot(x, self.w, axes=1) + self.b
+
+        inputs = tf.concat([x, tf.ones([tf.shape(x)[0], 1])], 1)
 
         # Calculating layers outputs
         self.out = self.memristive_outputs(inputs, self.combine_weights())
@@ -98,7 +101,7 @@ class MemristiveFullyConnected (layers.Layer):
                 currents = tf.tensordot(voltages, conductances, 1)
             else:
                 individual_currents = tf.expand_dims(voltages, -1) * tf.expand_dims(conductances, 0)
-                currents = tf.math.expand_sum(individual_currents, 1)
+                currents = tf.math.reduce_sum(individual_currents, 1)
 
         total_currents = currents[:, 0::2] - currents[:, 1::2]
         k_cond = (self.G_on - self.G_off) / max_weight

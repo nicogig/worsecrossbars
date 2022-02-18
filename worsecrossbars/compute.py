@@ -52,6 +52,12 @@ def stop_handler(signum, _):
 def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
+    memristor_parameters = {
+        "G_off" : 0.0009971787221729755,
+        "G_on" : 0.003513530595228076,
+        "k_V" : 0.5
+    }
+
     number_hidden_layers = simulation_parameters["number_hidden_layers"]
     fault_type = simulation_parameters["fault_type"]
     noise_variance = simulation_parameters["noise_variance"]
@@ -68,7 +74,7 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     percentages = np.arange(0, 1.01, 0.01).round(2)
 
     weights_list, histories_list = train_models(
-        mnist_dataset, simulation_parameters, epochs=10, batch_size=100
+        mnist_dataset, simulation_parameters, memristor_parameters, epochs=10, batch_size=100
     )
 
     # Computing training and validation loss and accuracy by averaging over all the models trained

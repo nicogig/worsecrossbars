@@ -85,6 +85,7 @@ def fault_simulation(
 def train_models(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
+    memristor_parameters: dict,
     epochs: int,
     batch_size: int,
 ) -> Tuple[List[List[ndarray]], List[History]]:

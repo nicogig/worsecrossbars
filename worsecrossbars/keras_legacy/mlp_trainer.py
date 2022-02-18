@@ -9,7 +9,7 @@ from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
-
+import tensorflow as tf
 
 def create_datasets(
     training_validation_ratio: float,
@@ -93,17 +93,23 @@ def train_mlp(
     if not isinstance(batch_size, int) or batch_size < 1:
         raise ValueError('"batch_size" argument should be an integer greater than 1.')
 
-    model.compile(optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"])
+    model.compile(
+        optimizer=tf.keras.optimizers.SGD(),
+        loss='categorical_crossentropy',
+        metrics=["accuracy"]
+        )
 
     # Training with validation test
+    tf.keras.backend.set_learning_phase(1)
     mlp_history = model.fit(
         dataset[0][2],
         dataset[0][3],
         epochs=epochs,
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
-        verbose=0,
     )
+    tf.keras.backend.set_learning_phase(0)
+
     mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 
     # Extracting network weights
