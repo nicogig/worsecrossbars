@@ -33,12 +33,8 @@ def weights_to_conductances(
     if mapping_style == "lowest":
 
         # Map according to lowest possible conductance
-        cond_pos = (
-            tf.math.maximum(effective_cond, 0.0) + G_off
-        )
-        cond_neg = (
-            -tf.math.maximum(effective_cond, 0.0) + G_off
-        )
+        cond_pos = tf.math.maximum(effective_cond, 0.0) + G_off
+        cond_neg = -tf.math.maximum(effective_cond, 0.0) + G_off
 
     elif mapping_style == "average":
 

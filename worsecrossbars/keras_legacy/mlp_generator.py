@@ -10,6 +10,7 @@ from tensorflow.keras.layers import GaussianNoise
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Softmax
 from tensorflow.keras.layers import Flatten
+import tensorflow as tf
 
 from worsecrossbars.keras_legacy.layers import MemristiveFullyConnected
 
@@ -92,7 +93,7 @@ def mnist_mlp(
         nonidealities=nonidealities
     ))
     #if noise_variance:
-    #    model.add(GaussianNoise(noise_variance))
+    # model.add(GaussianNoise(noise_variance))
     model.add(Activation("sigmoid"))
 
     # Creating other hidden layers
@@ -121,5 +122,9 @@ def mnist_mlp(
     ))
     model.add(Activation("softmax"))
     #model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
-
+    model.compile(
+        optimizer=tf.keras.optimizers.SGD(),
+        loss='categorical_crossentropy',
+        metrics=["accuracy"]
+        )
     return model

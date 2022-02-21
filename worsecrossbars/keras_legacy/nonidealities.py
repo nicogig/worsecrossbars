@@ -24,7 +24,7 @@ class StuckAtValue:
 
         # Creating a mask of bools to alter a given percentage of conductance values
         mask = (
-            tf.random.uniform(conductances.shape, dtype=tf.dtypes.float64) < self.probability
+            tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
         )
         altered_conductances = tf.where(
             mask, self.value, conductances

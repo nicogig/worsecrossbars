@@ -93,12 +93,6 @@ def train_mlp(
     if not isinstance(batch_size, int) or batch_size < 1:
         raise ValueError('"batch_size" argument should be an integer greater than 1.')
 
-    model.compile(
-        optimizer=tf.keras.optimizers.SGD(),
-        loss='categorical_crossentropy',
-        metrics=["accuracy"]
-        )
-
     # Training with validation test
     tf.keras.backend.set_learning_phase(1)
     mlp_history = model.fit(
