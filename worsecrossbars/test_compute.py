@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 non_ideal
             )
 
-            mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, model, 1000, 100)
+            mlp_weights, mlp_history, *_ = train_mlp(mnist_dataset, model, 20, 100)
             
             accuracies.append(
                 model.evaluate(mnist_dataset[1][0], mnist_dataset[1][1])[1]

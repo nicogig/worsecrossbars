@@ -83,7 +83,7 @@ def mnist_mlp(
     model = Sequential(name=model_name)
 
     # Creating first hidden layer
-    #model.add(Dense(neurons[0], input_shape=(784,), name=f"{model_name}_L1"))
+    # model.add(Dense(neurons[0], input_shape=(784,), name=f"{model_name}_L1"))
     model.add(MemristiveFullyConnected(
         784,
         25,
@@ -92,24 +92,27 @@ def mnist_mlp(
         k_V,
         nonidealities=nonidealities
     ))
+
     #if noise_variance:
     # model.add(GaussianNoise(noise_variance))
     model.add(Activation("sigmoid"))
 
+    """
     # Creating other hidden layers
-    #for layer_index, neuron in enumerate(neurons[1:]):
+    for layer_index, neuron in enumerate(neurons[1:]):
 
-    #    model.add(MemristiveFullyConnected(
-    #        neurons[layer_index],
-    #        neurons[layer_index+1],
-    #        G_off,
-    #        G_on,
-    #        k_V,
-    #        nonidealities=nonidealities
-    #    ))
+        model.add(MemristiveFullyConnected(
+            neurons[layer_index],
+            neurons[layer_index+1],
+            G_off,
+            G_on,
+            k_V,
+            nonidealities=nonidealities
+        ))
     #    if noise_variance:
     #        model.add(GaussianNoise(noise_variance))
-    #    model.add(Activation("sigmoid"))
+        model.add(Activation("sigmoid"))
+    """
 
     # Creating output layer
     model.add(MemristiveFullyConnected(
@@ -121,10 +124,12 @@ def mnist_mlp(
         nonidealities = nonidealities
     ))
     model.add(Activation("softmax"))
-    #model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
+    # model.add(Dense(10, activation="softmax", name=f"{model_name}_OL"))
+    
     model.compile(
         optimizer=tf.keras.optimizers.SGD(),
         loss='categorical_crossentropy',
         metrics=["accuracy"]
         )
+    
     return model

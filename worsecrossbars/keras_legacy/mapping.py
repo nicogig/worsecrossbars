@@ -3,6 +3,18 @@ A backend module used to map memristive conductances to PyTorch synaptic layers,
 """
 import tensorflow as tf
 
+
+def double_weights_to_conductances(weights: tf.Tensor, G_off: float, G_on: float) -> tf.Tensor:
+    
+    maximum_weight = tf.math.reduce_max(tf.math.abs(weights))
+    scaling_fact_weight = (G_on - G_off) / maximum_weight
+    
+    conductance = (scaling_fact_weight * weights) + G_off
+
+    return conductance, maximum_weight
+
+
+
 @tf.function
 def weights_to_conductances(
     weights: tf.Tensor,
@@ -47,7 +59,7 @@ def weights_to_conductances(
         raise ValueError("mapping_style parameter not valid.")
 
     conductance_layer = tf.reshape(
-        tf.concat((cond_pos[..., tf.newaxis], cond_neg[..., tf.newaxis]), axis=-1),
+        tf.concat([cond_pos[..., tf.newaxis], cond_neg[..., tf.newaxis]], axis=-1),
         [tf.shape(cond_pos)[0], -1],
     )
 

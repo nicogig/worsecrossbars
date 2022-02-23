@@ -94,7 +94,7 @@ def train_mlp(
         raise ValueError('"batch_size" argument should be an integer greater than 1.')
 
     # Training with validation test
-    tf.keras.backend.set_learning_phase(1)
+    model.is_training = True
     mlp_history = model.fit(
         dataset[0][2],
         dataset[0][3],
@@ -102,7 +102,7 @@ def train_mlp(
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
     )
-    tf.keras.backend.set_learning_phase(0)
+    model.is_training = False
 
     mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 

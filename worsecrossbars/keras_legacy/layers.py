@@ -13,6 +13,7 @@ class MemristiveFullyConnected (layers.Layer):
         G_off: float,
         G_on: float,
         k_V: float,
+        is_training: bool = False,
         **kwargs
     ) -> None:
 
@@ -22,12 +23,13 @@ class MemristiveFullyConnected (layers.Layer):
         self.G_off = G_off
         self.G_on = G_on
         self.k_V = k_V
+        self.is_training = is_training
 
         # Unpacking kwargs
         self.nonidealities = kwargs.get("nonidealities", [])
         self.regulariser = kwargs.get("regulariser", "L1")
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
-        self.uses_double_weights = kwargs.get("uses_double_weights", False)
+        self.uses_double_weights = kwargs.get("uses_double_weights", True)
 
         super(MemristiveFullyConnected, self).__init__()
 
@@ -39,23 +41,63 @@ class MemristiveFullyConnected (layers.Layer):
     
     def build(self, input_shape):
 
-        self.w = self.add_weight(
-            shape = (self.neurons_in, self.neurons_out),
-            initializer = tf.keras.initializers.RandomNormal(mean = 0.0, stddev = (1/np.sqrt(self.neurons_in))),
-            name = "weights",
-            trainable = True
-        )
+        stdv = 1 / np.sqrt(self.neurons_in)
 
-        self.b = self.add_weight(
-            shape = (self.neurons_out, ),
-            initializer = tf.keras.initializers.Constant(value = 0.0),
-            name = "biases",
-            trainable = True
-        )
+        if self.uses_double_weights:
+            
+            self.w_pos = self.add_weight(
+                shape = (self.neurons_in, self.neurons_out),
+                initializer = tf.keras.initializers.RandomNormal(mean = 0.5, stddev = stdv),
+                name = "weights_pos",
+                trainable = True,
+                constraint = tf.keras.constraints.NonNeg()
+            )
+
+            self.w_neg = self.add_weight(
+                shape = (self.neurons_in, self.neurons_out),
+                initializer = tf.keras.initializers.RandomNormal(mean = 0.5, stddev = stdv),
+                name = "weights_neg",
+                trainable = True,
+                constraint = tf.keras.constraints.NonNeg()
+            )
+
+            self.b_pos = self.add_weight(
+                shape = (self.neurons_out, ),
+                initializer = tf.keras.initializers.Constant(value = 0.5),
+                name = "biases_pos",
+                trainable = True,
+                constraint = tf.keras.constraints.NonNeg()
+            )
+
+            self.b_neg = self.add_weight(
+                shape = (self.neurons_out, ),
+                initializer = tf.keras.initializers.Constant(value = 0.5),
+                name = "biases_neg",
+                trainable = True,
+                constraint = tf.keras.constraints.NonNeg()
+            )
+
+        else:
+
+            self.w = self.add_weight(
+                shape = (self.neurons_in, self.neurons_out),
+                initializer = tf.keras.initializers.RandomNormal(mean = 0.0, stddev = stdv),
+                name = "weights",
+                trainable = True
+            )
+
+            self.b = self.add_weight(
+                shape = (self.neurons_out, ),
+                initializer = tf.keras.initializers.Constant(value = 0.0),
+                name = "biases",
+                trainable = True
+            )
+
+        self.built = True
 
     def call(self, x, mask=None):
 
-        if not tf.keras.backend.learning_phase():
+        if not self.uses_double_weights and self.nonidealities == []:
             return tf.tensordot(x, self.w, axes=1) + self.b
 
         inputs = tf.concat([x, tf.ones([tf.shape(x)[0], 1])], 1)
@@ -68,8 +110,29 @@ class MemristiveFullyConnected (layers.Layer):
     def combine_weights(self):
         """"""
 
-        bias = tf.expand_dims(self.b, 0)
-        combined_weights = tf.concat([self.w, bias], 0)
+        if self.uses_double_weights:
+            
+            pos_biases = tf.expand_dims(self.b_pos, 0)
+            neg_biases = tf.expand_dims(self.b_neg, 0)
+
+            comb_pos = tf.concat([self.w_pos, pos_biases], 0)
+            comb_neg = tf.concat([self.w_neg, neg_biases], 0)
+
+            combined_weights = tf.reshape(
+                tf.concat(
+                    [
+                        comb_pos[..., tf.newaxis],
+                        comb_neg[..., tf.newaxis]
+                    ],
+                    -1
+                ),
+                [tf.shape(comb_pos)[0], -1]
+            )
+        else:
+
+            bias = tf.expand_dims(self.b, 0)
+            combined_weights = tf.concat([self.w, bias], 0)
+        
         return combined_weights
 
     def memristive_outputs(self, x, weights):
@@ -79,9 +142,14 @@ class MemristiveFullyConnected (layers.Layer):
         voltages = self.k_V * x
 
         # Mapping network weights to conductances
-        conductances, max_weight = mapping.weights_to_conductances(
-            weights, self.G_off, self.G_on, self.mapping_rule
-        )
+        if self.uses_double_weights:
+            conductances, max_weight = mapping.double_weights_to_conductances(
+                weights, self.G_off, self.G_on
+            )
+        else:
+            conductances, max_weight = mapping.weights_to_conductances(
+                weights, self.G_off, self.G_on, self.mapping_rule
+            )
 
         # Applying linearity-preserving nonidealities
         for nonideality in self.nonidealities:
@@ -97,7 +165,7 @@ class MemristiveFullyConnected (layers.Layer):
         # If no linearity-non-preserving nonideality is present, calculate output currents in an
         # ideal fashion
         if currents is None or individual_currents is None:
-            if tf.keras.backend.learning_phase():
+            if self.is_training:
                 currents = tf.tensordot(voltages, conductances, 1)
             else:
                 individual_currents = tf.expand_dims(voltages, -1) * tf.expand_dims(conductances, 0)
