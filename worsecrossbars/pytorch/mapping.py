@@ -1,27 +1,16 @@
 """mapping:
 A backend module used to map memristive conductances to PyTorch synaptic layers, and vice versa.
 """
-import tensorflow as tf
+import torch
 
 
-def double_weights_to_conductances(weights: tf.Tensor, G_off: float, G_on: float) -> tf.Tensor:
-    
-    maximum_weight = tf.math.reduce_max(tf.math.abs(weights))
-    scaling_fact_weight = (G_on - G_off) / maximum_weight
-    
-    conductance = (scaling_fact_weight * weights) + G_off
-
-    return conductance, maximum_weight
-
-
-
-@tf.function
 def weights_to_conductances(
-    weights: tf.Tensor,
+    weights: torch.Tensor,
     G_off: float,
     G_on: float,
+    device: torch.device,
     mapping_style: str = "lowest",
-) -> tf.Tensor:
+) -> torch.Tensor:
     """Map PyTorch weights onto conductances.
 
     Args:
@@ -38,15 +27,19 @@ def weights_to_conductances(
         maximum_weight: The max weight in the original weights layer.
     """
 
-    maximum_weight = tf.math.reduce_max(tf.math.abs(weights))
+    maximum_weight = torch.max(torch.abs(weights))
     scaling_fact_weight = (G_on - G_off) / maximum_weight
     effective_cond = scaling_fact_weight * weights
 
     if mapping_style == "lowest":
 
         # Map according to lowest possible conductance
-        cond_pos = tf.math.maximum(effective_cond, 0.0) + G_off
-        cond_neg = -tf.math.maximum(effective_cond, 0.0) + G_off
+        cond_pos = (
+            torch.maximum(effective_cond, torch.zeros(effective_cond.size(), device=device)) + G_off
+        )
+        cond_neg = (
+            torch.maximum(-effective_cond, torch.zeros(effective_cond.size(), device=device)) + G_off
+        )
 
     elif mapping_style == "average":
 
@@ -58,9 +51,9 @@ def weights_to_conductances(
 
         raise ValueError("mapping_style parameter not valid.")
 
-    conductance_layer = tf.reshape(
-        tf.concat([cond_pos[..., tf.newaxis], cond_neg[..., tf.newaxis]], axis=-1),
-        [tf.shape(cond_pos)[0], -1],
-    )
+    conductance_layer = torch.reshape(
+        torch.cat((cond_pos[..., None], cond_neg[..., None]), dim=-1),
+        [cond_pos.size(dim=0), -1],
+    ).to(device)
 
     return conductance_layer, maximum_weight

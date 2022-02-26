@@ -1,20 +1,21 @@
-"""lightning_mlp:
+"""memristive_mlp:
 A backend module used to create a PyTorch model for a densely connected MLP with a given topology.
 """
+from typing import Tuple
+
 import torch
 from torch import nn
 from torch.nn.modules.loss import CrossEntropyLoss
-from torch.nn.functional import cross_entropy
 from torch.optim import Adam
+from torch.optim import Optimizer
+from torch.optim import RMSprop
+from torch.optim import SGD
+from torch.utils.data import DataLoader
 
-from pytorch_lightning.core.lightning import LightningModule
-from pytorch_lightning import Trainer
-
-from worsecrossbars.backend.layers import GaussianNoise
-from worsecrossbars.backend.dataloaders import mnist_dataloaders
+from worsecrossbars.pytorch.layers import GaussianNoise
 
 
-class LinearMLP(LightningModule):
+class LinearMLP(nn.Module):
     """This class implements a PyTorch model set up to be trained to recognise digits from the
     MNIST dataset (784 input neurons, 10 softmax output neurons).
 
@@ -56,12 +57,24 @@ class LinearMLP(LightningModule):
 
         super().__init__()
 
+        # Define optimiser
+        self.optimiser: Optimizer = None
+
+        # Set up loss function
+        self.loss = CrossEntropyLoss(reduction="sum")
+
         default_neurons = {
             1: [112],
             2: [100, 100],
             3: [90, 95, 95],
             4: [85, 85, 85, 85],
         }
+
+        # Setting up device
+        if device:
+            self.device = device
+        else:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Setting default argument values
         if hidden_layer_sizes is None:
@@ -106,45 +119,106 @@ class LinearMLP(LightningModule):
 
         return output
 
-    def training_step(self, batch, batch_idx):
+    def compile(self, optimiser: str) -> None:
+        """"""
 
-        data, label = batch
-        output = self(data)
-        loss = cross_entropy(output, label, reduction="sum")
-        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        if not isinstance(optimiser, str) or optimiser.lower() not in ["rmsprop", "adam", "sgd"]:
+            raise ValueError(
+                '"optimiser_class" argument should be either "rmsprop", "adam" ' + 'or "sgd".'
+            )
 
-        return loss
+        # Set up optimiser
+        if optimiser.lower() == "adam":
+            self.optimiser = Adam(self.parameters())
+        elif optimiser.lower() == "sgd":
+            self.optimiser = SGD(self.parameters())
+        else:
+            self.optimiser = RMSprop(self.parameters())
 
-    def validation_step(self, batch, batch_idx):
+        # Send model to device
+        self.to(self.device)
 
-        data, label = batch
-        output = self(data)
-        loss = cross_entropy(output, label, reduction="sum")
-        self.log("val_loss", loss)
+    def fit(self, dataloaders: Tuple[DataLoader, DataLoader, DataLoader], epochs: int):
+        """This function trains the Pytorch model on the dataset provided to it.
 
-    def test_step(self, batch, batch_idx):
+        Args:
+          dataloaders: Tuple containing training, validation and testing dataloaders, as provided by
+            the appropriate function in dataloaders.py.
+          epochs: Positive integer, number of epochs used in training.
 
-        data, label = batch
-        output = self(data)
-        loss = cross_entropy(output, label, reduction="sum")
-        self.log("test_loss", loss)
+        Returns:
+          weights:
+          training_losses:
+          validation_losses:
+          test_loss:
+          test_accuracy:
+        """
 
-    def configure_optimizers(self):
-        return Adam(self.parameters(), lr=1e-3)
+        # Results lists
+        training_losses = []
+        validation_losses = []
 
+        # Training, validation and testing
+        for _ in range(1, epochs + 1):
 
-if __name__ == "__main__":
+            # Training step
+            training_loss = 0.0
+            self.train()
 
-    train_data, val_data, test_data = mnist_dataloaders(num_workers=10, pin_memory=False)
+            for data, label in dataloaders[0]:
 
-    model = LinearMLP(2)
+                data, label = data.to(self.device), label.to(self.device)
 
-    # Training on CPU, for GPU pass gpus=num_gpus to the Trainer class
-    trainer = Trainer(max_epochs=10)
-    trainer.fit(model, train_dataloaders=train_data, val_dataloaders=val_data)
+                self.optimiser.zero_grad()
 
-    result = trainer.test(dataloaders=test_data)
-    print(result)
+                output = self(data)
+                loss = self.loss(output, label)
 
-    # Add logging?
-    # Add argument parsing?
+                loss.backward()
+                self.optimiser.step()
+
+                training_loss += loss.item()
+
+            # Validation step
+            validation_loss = 0.0
+            self.eval()
+
+            with torch.no_grad():
+
+                for data, label in dataloaders[1]:
+
+                    data, label = data.to(self.device), label.to(self.device)
+
+                    output = self(data)
+
+                    validation_loss += self.loss(output, label).item()
+
+            training_losses.append(training_loss / len(dataloaders[0].dataset))
+            validation_losses.append(validation_loss / len(dataloaders[1].dataset))
+
+        # Testing
+        test_loss = 0.0
+        correct = 0.0
+        self.eval()
+
+        with torch.no_grad():
+
+            for data, label in dataloaders[2]:
+
+                data, label = data.to(self.device), label.to(self.device)
+
+                output = self(data)
+
+                test_loss += self.loss(output, label).item()
+                prediction = output.data.max(1, keepdim=True)[1]
+
+                correct += prediction.eq(label.data.view_as(prediction)).sum().item()
+
+        test_loss /= len(dataloaders[2].dataset)
+        test_accuracy = 100.0 * correct / len(dataloaders[2].dataset)
+
+        weights = []
+        for layer_weights in self.parameters():
+            weights.append(layer_weights)
+
+        return weights, training_losses, validation_losses, test_loss, test_accuracy

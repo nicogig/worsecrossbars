@@ -12,8 +12,8 @@ from torch.optim import RMSprop
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 
-from worsecrossbars.backend.layers import MemristiveLinear
-from worsecrossbars.backend.layers import GaussianNoise
+from worsecrossbars.pytorch.layers import MemristiveLinear
+from worsecrossbars.pytorch.layers import GaussianNoise
 
 
 class MemristiveMLP(nn.Module):

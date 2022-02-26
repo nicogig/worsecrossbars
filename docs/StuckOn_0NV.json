@@ -1,0 +1,69 @@
+{
+    "simulations": [
+        {
+            "G_off": 7.723066346443375e-07,
+            "G_on": 2.730684400376049e-06,
+            "k_V": 0.5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion": 0.015,
+            "number_hidden_layers": 1,
+            "nonidealities": [
+                "StuckOn"
+            ],
+            "noise_variance": 0,
+            "number_simulations": 30
+        },
+        {
+            "G_off": 7.723066346443375e-07,
+            "G_on": 2.730684400376049e-06,
+            "k_V": 0.5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion": 0.015,
+            "number_hidden_layers": 2,
+            "nonidealities": [
+                "StuckOn"
+            ],
+            "noise_variance": 0,
+            "number_simulations": 30
+        },
+        {
+            "G_off": 7.723066346443375e-07,
+            "G_on": 2.730684400376049e-06,
+            "k_V": 0.5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion": 0.015,
+            "number_hidden_layers": 3,
+            "nonidealities": [
+                "StuckOn"
+            ],
+            "noise_variance": 0,
+            "number_simulations": 30
+        },
+        {
+            "G_off": 7.723066346443375e-07,
+            "G_on": 2.730684400376049e-06,
+            "k_V": 0.5,
+            "number_conductance_levels": 10,
+            "excluded_weights_proportion": 0.015,
+            "number_hidden_layers": 4,
+            "nonidealities": [
+                "StuckOn"
+            ],
+            "noise_variance": 0,
+            "number_simulations": 30
+        }
+    ],
+    "accuracy_plots_parameters": [
+        {
+            "plots_data": [
+                "StuckOn_1_0",
+                "StuckOn_2_0",
+                "StuckOn_3_0",
+                "StuckOn_4_0"
+            ],
+            "xlabel": "Percentage of devices stuck at G_on",
+            "title": "",
+            "filename": "accuracies_StuckOn_ALL_0"
+        }
+    ]
+}

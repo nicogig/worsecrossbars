@@ -2,22 +2,17 @@
 A backend module used to simulate various memristive nonidealities.
 """
 from typing import Tuple
-
-import numpy as np
-import torch
-import torch.nn as nn
-
+import tensorflow as tf
 
 class StuckAtValue:
     """This class ..."""
 
-    def __init__(self, value: float, probability: float, device: torch.device) -> None:
+    def __init__(self, value: float, probability: float) -> None:
         self.value = value
         self.probability = probability
         self.is_linearity_preserving = True
-        self.device = device
 
-    def alter_conductances(self, conductances: torch.Tensor) -> torch.Tensor:
+    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
         """A method to alter conductances stored in a PyTorch Tensor.
 
         Args:
@@ -29,10 +24,10 @@ class StuckAtValue:
 
         # Creating a mask of bools to alter a given percentage of conductance values
         mask = (
-            torch.rand(conductances.shape, dtype=torch.float32, device=self.device) < self.probability
+            tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
         )
-        altered_conductances = torch.where(
-            mask, torch.tensor(self.value, dtype=conductances.dtype, device=self.device), conductances
+        altered_conductances = tf.where(
+            mask, self.value, conductances
         )
 
         return altered_conductances
@@ -63,8 +58,8 @@ class IVNonlinear:
         self.is_linearity_preserving = False
 
     def calc_currents(
-        self, voltages: torch.Tensor, conductances: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, voltages: tf.Tensor, conductances: tf.Tensor
+    ) -> Tuple[tf.Tensor, tf.Tensor]:
         """This function implements Equation 9 from "Nonideality-Aware Training for Accurate and
         Robust Low-Power Memristive Neural Networks" in order to compute output currents in a MCBA
         affected by IV nonlinearities. The lowest possible value assigned to nonlinearity parameter
@@ -82,17 +77,17 @@ class IVNonlinear:
         # Generating a truncated normal distribution (with a low value of 2) describing the possible
         # values taken on by the nonlinearity parameter gamma, which we shall sample from in order
         # to assign a nonlinearity parameter to each memristor in the crossbar array.
-        gammas = nn.init.trunc_normal_(
-            torch.zeros(conductances.shape), self.avg_gamma, self.std_gamma, 2.0, np.inf
+        gammas = tf.random.truncated_normal(
+            conductances.shape, self.avg_gamma, self.std_gamma
         )
 
-        voltage_signs = torch.unsqueeze(torch.sign(voltages), -1)
-        ohmic_currents = voltage_signs * self.V_ref * torch.unsqueeze(conductances, 0)
-        v_v_ref_ratio = torch.unsqueeze(torch.abs(voltages) / self.V_ref, -1)
+        voltage_signs = tf.expand_dims(tf.sign(voltages), -1)
+        ohmic_currents = voltage_signs * self.V_ref * tf.expand_dims(conductances, 0)
+        v_v_ref_ratio = tf.expand_dims(tf.abs(voltages) / self.V_ref, -1)
 
-        log_gammas = torch.log2(gammas)
+        log_gammas = tf.experimental.numpy.log2(gammas)
 
         individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
-        currents = torch.sum(individual_currents, dim=1)
+        currents = tf.math.reduce_sum(individual_currents, axis=1)
 
         return currents, individual_currents

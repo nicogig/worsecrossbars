@@ -3,6 +3,8 @@ from tensorflow.keras.constraints import Constraint
 
 
 class DiscreteWeights(Constraint):
+    """This class ..."""
+
     def __init__(self, conductance_levels, non_neg=True) -> None:
 
         self.conductance_levels = conductance_levels

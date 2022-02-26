@@ -9,9 +9,9 @@ from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
-import tensorflow as tf
 
-from worsecrossbars.keras_legacy import weights_manipulation
+from worsecrossbars.backend import weights_manipulation
+
 
 def create_datasets(
     training_validation_ratio: float,
@@ -67,7 +67,7 @@ def train_mlp(
     epochs: int,
     batch_size: int,
     **kwargs
-) -> Tuple[List[ndarray], History, float, float]:
+) -> Tuple[List[ndarray], History]:
     """This function trains a given Keras model on the dataset provided to it.
 
     Args:
@@ -76,19 +76,28 @@ def train_mlp(
       model: Keras model which is to be trained
       epochs: Positive integer, number of epochs used in training.
       batch_size: Positive integer, number of batches used in training.
+      **kwargs: Valid keyword arguments are listed below
+        - discretise: Boolean, specifies whether the network weights should be discrete or not.
+        - hrs_lrs_ratio:
+        - number_conductance_levels:
+        - excluded_weights_proportion:
 
     Returns:
       mlp_weights: List containing the parameters associated with each layer of the ANN.
         mlp_weights[0] comprises the weights related to the synapses between layer 1 and layer 2,
         mlp_weights[1] contains the bias terms for the neurons in layer 2, and so forth.
-
       mlp_history: Keras history object, containing information regarding network performance at
         different epochs.
-
-      mlp_test_loss: Final test loss
-
-      mlp_test_acc: Final test accuracy
     """
+
+    # kwargs unpacking
+    discretise = kwargs.get("discretise", True)
+    hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
+    number_conductance_levels = kwargs.get("number_conductance_levels", 10)
+    excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)
+
+    if not isinstance(model, Model):
+        raise ValueError('"model" argument should be a Keras model object.')
 
     if not isinstance(epochs, int) or epochs < 1:
         raise ValueError('"epochs" argument should be an integer greater than 1.')
@@ -96,7 +105,24 @@ def train_mlp(
     if not isinstance(batch_size, int) or batch_size < 1:
         raise ValueError('"batch_size" argument should be an integer greater than 1.')
 
-    # Training with validation test
+    if not isinstance(discretise, bool):
+        raise ValueError('"discretise" argument should be a boolean.')
+
+    if not isinstance(hrs_lrs_ratio, float):
+        raise ValueError('"hrs_lrs_ratio" argument should be int/float.')
+
+    if not isinstance(number_conductance_levels, int):
+        raise ValueError('"number_conductance_levels" argument should be an integer.')
+
+    if (
+        not isinstance(excluded_weights_proportion, float)
+        and not 0 <= excluded_weights_proportion <= 1
+    ):
+        raise ValueError(
+            '"excluded_weights_proportion" argument should be a float value between 0 and 1.'
+        )
+
+    # Training with validation
     model.is_training = True
     mlp_history = model.fit(
         dataset[0][2],
@@ -107,21 +133,18 @@ def train_mlp(
     )
     model.is_training = False
 
-    mlp_test_loss, mlp_test_acc = model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
-
     # Extracting network weights
     mlp_weights = model.get_weights()
 
-    if kwargs.get("discretise", True):
-      model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
-      return mlp_weights, mlp_history, mlp_test_loss, mlp_test_acc
+    # If discrete weights are being used, the the bucketize_weights_layer function is employed.
+    if discretise:
 
-    for count, weights in enumerate(mlp_weights):
-      if count % 2 == 0:
-        mlp_weights[count] = weights_manipulation.bucketize_weights_layer(weights, 5, 10, 0.015)
-    
-    model.set_weights(mlp_weights)
-    
-    model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
+        for count, weights in enumerate(mlp_weights):
+            if count % 2 == 0:
+                mlp_weights[count] = weights_manipulation.bucketize_weights_layer(
+                    weights, hrs_lrs_ratio, number_conductance_levels, excluded_weights_proportion
+                )
 
-    return mlp_weights, mlp_history, mlp_test_loss, mlp_test_acc
+        model.set_weights(mlp_weights)
+
+    return mlp_weights, mlp_history
