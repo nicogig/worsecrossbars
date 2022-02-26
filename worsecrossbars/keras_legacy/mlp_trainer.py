@@ -11,6 +11,8 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 import tensorflow as tf
 
+from worsecrossbars.keras_legacy import weights_manipulation
+
 def create_datasets(
     training_validation_ratio: float,
 ) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
@@ -64,6 +66,7 @@ def train_mlp(
     model: Model,
     epochs: int,
     batch_size: int,
+    **kwargs
 ) -> Tuple[List[ndarray], History, float, float]:
     """This function trains a given Keras model on the dataset provided to it.
 
@@ -108,5 +111,17 @@ def train_mlp(
 
     # Extracting network weights
     mlp_weights = model.get_weights()
+
+    if kwargs.get("discretise", True):
+      model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
+      return mlp_weights, mlp_history, mlp_test_loss, mlp_test_acc
+
+    for count, weights in enumerate(mlp_weights):
+      if count % 2 == 0:
+        mlp_weights[count] = weights_manipulation.bucketize_weights_layer(weights, 5, 10, 0.015)
+    
+    model.set_weights(mlp_weights)
+    
+    model.evaluate(dataset[1][0], dataset[1][1], verbose=0)
 
     return mlp_weights, mlp_history, mlp_test_loss, mlp_test_acc

@@ -5,8 +5,34 @@ import copy
 from typing import List
 from typing import Tuple
 
+import tensorflow as tf
+
 import numpy as np
 from numpy import ndarray
+
+def bucketize_weights_layer(
+    w: tf.Tensor,
+    hrs_lrs_ratio: float,
+    number_of_levels: int,
+    excluded_weights_proportion: float
+    ):
+
+    sorted_weights = -tf.sort(-tf.reshape(w, [-1]))
+    max_index = int(excluded_weights_proportion * tf.shape(sorted_weights)[0].numpy())
+    w_max = sorted_weights[max_index]
+    w_min = w_max / hrs_lrs_ratio
+
+    cond_levels = np.linspace(w_min.numpy(), w_max.numpy(), number_of_levels, dtype=float).tolist()
+    indices = tf.raw_ops.Bucketize(input=w, boundaries=cond_levels)
+
+    discretised_w = copy.deepcopy(w)
+    mask = indices > len(cond_levels) - 1
+    indices = tf.where(mask, len(cond_levels) - 1, indices)
+
+    for index, cond_level in enumerate(cond_levels):
+        discretised_w = tf.where(tf.equal(indices, index), cond_level, w)
+
+    return discretised_w
 
 
 def choose_extremes(

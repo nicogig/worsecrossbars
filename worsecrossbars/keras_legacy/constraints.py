@@ -22,6 +22,7 @@ class DiscreteWeights(Constraint):
             w = tf.where(tf.equal(indices, index), cond_level, w)
 
         if self.non_neg:
+            print(w)
             return w * tf.cast(tf.math.greater_equal(w, 0.0), w.dtype)
         else:
             return w

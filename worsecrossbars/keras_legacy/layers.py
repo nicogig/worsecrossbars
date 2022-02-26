@@ -3,6 +3,8 @@ from tensorflow.keras import layers
 import numpy as np
 
 from worsecrossbars.keras_legacy import mapping
+from worsecrossbars.keras_legacy import constraints
+from worsecrossbars.keras_legacy import weights_manipulation
 
 class MemristiveFullyConnected (layers.Layer):
 
@@ -150,6 +152,15 @@ class MemristiveFullyConnected (layers.Layer):
             conductances, max_weight = mapping.weights_to_conductances(
                 weights, self.G_off, self.G_on, self.mapping_rule
             )
+
+
+        # Either this is not working correctly
+        # or it is extremely detrimental to the network.
+        # Maybe bucketization should not be something the network is aware of? (i.e. do on device)
+
+        #cond_levels = weights_manipulation.gen_conductance_level(self.G_off, self.G_on, 100, 1000)
+        #conductances = weights_manipulation.bucketize_weights(conductances, cond_levels)
+
 
         # Applying linearity-preserving nonidealities
         for nonideality in self.nonidealities:
