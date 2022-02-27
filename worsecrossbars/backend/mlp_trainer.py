@@ -146,31 +146,35 @@ def train_mlp(
                 if layer.uses_double_weights:
 
                     discrete_w_pos = weights_manipulation.bucketize_weights_layer(
-                        layer.w_pos,
+                        layer.w_pos.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
                     discrete_w_neg = weights_manipulation.bucketize_weights_layer(
-                        layer.w_neg,
+                        layer.w_neg.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
 
-                    layer.w_pos = discrete_w_pos
-                    layer.w_neg = discrete_w_neg
+                    print(f"Original : {layer.w_pos.read_value()}")
+
+                    layer.w_pos.assign(discrete_w_pos)
+                    layer.w_neg.assign(discrete_w_neg)
+
+                    print(f"Altered : {layer.w_pos.read_value()}")
 
                 else:
 
                     discrete_w = weights_manipulation.bucketize_weights_layer(
-                        layer.w,
+                        layer.w.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
 
-                    layer.w = discrete_w
+                    layer.w.assign(discrete_w)
 
         # for count, weights in enumerate(mlp_weights):
         #     if count % 2 == 0:
