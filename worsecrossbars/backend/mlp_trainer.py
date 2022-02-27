@@ -3,10 +3,8 @@ A backend module used to create the MNIST dataset and train a Keras model on it.
 """
 from typing import List
 from typing import Tuple
-import sys
 
 from numpy import ndarray
-import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
@@ -145,29 +143,23 @@ def train_mlp(
 
                 if layer.uses_double_weights:
 
-                    # print(layer.w_neg)
-
                     discrete_w_pos = weights_manipulation.bucketize_weights_layer(
                         layer.w_pos.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
+                    print(discrete_w_pos)
                     discrete_w_neg = weights_manipulation.bucketize_weights_layer(
                         layer.w_neg.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
-
-                    # print(discrete_w_neg)
+                    print(discrete_w_neg)
 
                     layer.w_pos.assign(discrete_w_pos)
                     layer.w_neg.assign(discrete_w_neg)
-
-                    # print(layer.w_neg)
-
-                    sys.exit()
 
                 else:
 
@@ -179,14 +171,6 @@ def train_mlp(
                     )
 
                     layer.w.assign(discrete_w)
-
-        # for count, weights in enumerate(mlp_weights):
-        #     if count % 2 == 0:
-        #         mlp_weights[count] = weights_manipulation.bucketize_weights_layer(
-        #             weights, hrs_lrs_ratio, number_conductance_levels, excluded_weights_proportion
-        #         )
-
-        # model.set_weights(mlp_weights)
 
     # Extracting network weights
     mlp_weights = model.get_weights()

@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
             print(f"{percentage}% faulty devices, simulation {simulation+1}")
 
-            with tf.device("gpu:0"):
+            with tf.device("cpu:0"):
 
                 model = mnist_mlp(
                     memristive_parameters["G_off"],
