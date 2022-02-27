@@ -3,9 +3,9 @@ A backend module used to create the MNIST dataset and train a Keras model on it.
 """
 from typing import List
 from typing import Tuple
+import sys
 
-import numpy as np
-from numpy import float32, ndarray
+from numpy import ndarray
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
@@ -145,6 +145,8 @@ def train_mlp(
 
                 if layer.uses_double_weights:
 
+                    # print(layer.w_neg)
+
                     discrete_w_pos = weights_manipulation.bucketize_weights_layer(
                         layer.w_pos.read_value(),
                         hrs_lrs_ratio,
@@ -158,10 +160,14 @@ def train_mlp(
                         excluded_weights_proportion,
                     )
 
+                    # print(discrete_w_neg)
 
                     layer.w_pos.assign(discrete_w_pos)
                     layer.w_neg.assign(discrete_w_neg)
 
+                    # print(layer.w_neg)
+
+                    sys.exit()
 
                 else:
 
