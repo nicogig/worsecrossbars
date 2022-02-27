@@ -70,6 +70,7 @@ def mnist_mlp(
         model_name = f"MNIST_MLP_{number_hidden_layers}HL"
 
     if debug:
+        number_hidden_layers = 1
         neurons = [25]
 
     if not isinstance(neurons, list) or len(neurons) != number_hidden_layers:
