@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.nonidealities import StuckAtValue
@@ -44,25 +45,27 @@ if __name__ == "__main__":
 
             print(f"{percentage}% faulty devices, simulation {simulation+1}")
 
-            model = mnist_mlp(
-                memristive_parameters["G_off"],
-                memristive_parameters["G_on"],
-                memristive_parameters["k_V"],
-                nonidealities,
-                number_hidden_layers=number_hidden_layers,
-                noise_variance=noise_variance,
-            )
+            with tf.device("gpu:0"):
 
-            mlp_weights, mlp_history = train_mlp(
-                mnist_dataset,
-                model,
-                epochs,
-                batch_size,
-                discretise=True,
-                hrs_lrs_ratio=hrs_lrs_ratio,
-                number_conductance_levels=number_conductance_levels,
-                excluded_weights_proportion=excluded_weights_proportion,
-            )
+                model = mnist_mlp(
+                    memristive_parameters["G_off"],
+                    memristive_parameters["G_on"],
+                    memristive_parameters["k_V"],
+                    nonidealities,
+                    number_hidden_layers=number_hidden_layers,
+                    noise_variance=noise_variance,
+                )
+
+                mlp_weights, mlp_history = train_mlp(
+                    mnist_dataset,
+                    model,
+                    epochs,
+                    batch_size,
+                    discretise=True,
+                    hrs_lrs_ratio=hrs_lrs_ratio,
+                    number_conductance_levels=number_conductance_levels,
+                    excluded_weights_proportion=excluded_weights_proportion,
+                )
 
             simulation_accuracies[simulation] = model.evaluate(
                 mnist_dataset[1][0], mnist_dataset[1][1]
