@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
             print(f"{percentage}% faulty devices, simulation {simulation+1}")
 
+            # TODO change this to use any device available
             with tf.device("gpu:3"):
 
                 model = mnist_mlp(
