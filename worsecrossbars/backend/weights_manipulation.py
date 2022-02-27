@@ -31,6 +31,6 @@ def bucketize_weights_layer(
     indices = tf.where(mask, len(cond_levels) - 1, indices)
 
     for index, cond_level in enumerate(cond_levels):
-        discretised_w = tf.where(tf.equal(indices, index), cond_level, w)
+        discretised_w = tf.where(tf.equal(indices, index), cond_level, discretised_w)
 
     return discretised_w

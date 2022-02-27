@@ -158,12 +158,10 @@ def train_mlp(
                         excluded_weights_proportion,
                     )
 
-                    print(f"Original : {layer.w_pos.read_value()}")
 
                     layer.w_pos.assign(discrete_w_pos)
                     layer.w_neg.assign(discrete_w_neg)
 
-                    print(f"Altered : {layer.w_pos.read_value()}")
 
                 else:
 
