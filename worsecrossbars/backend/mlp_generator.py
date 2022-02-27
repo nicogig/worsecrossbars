@@ -21,6 +21,7 @@ def mnist_mlp(
     neurons: List[int] = None,
     model_name: str = "",
     noise_variance: float = 0.0,
+    debug: bool = False,
 ) -> Model:
     """This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
@@ -67,6 +68,9 @@ def mnist_mlp(
         neurons = default_neurons[number_hidden_layers]
     if model_name == "":
         model_name = f"MNIST_MLP_{number_hidden_layers}HL"
+
+    if debug:
+        neurons = [25]
 
     if not isinstance(neurons, list) or len(neurons) != number_hidden_layers:
         raise ValueError(

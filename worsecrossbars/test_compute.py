@@ -13,7 +13,7 @@ if __name__ == "__main__":
     # Defining simulation parameters
     percentages = np.arange(0, 1.01, 0.1).round(2)
     number_simulations = 10
-    epochs = 10
+    epochs = 5
     batch_size = 100
 
     number_hidden_layers = 2
@@ -53,6 +53,7 @@ if __name__ == "__main__":
                 nonidealities,
                 number_hidden_layers=number_hidden_layers,
                 noise_variance=noise_variance,
+                debug=True,
             )
 
             mlp_weights, mlp_history = train_mlp(
@@ -60,7 +61,7 @@ if __name__ == "__main__":
                 model,
                 epochs,
                 batch_size,
-                discretise=False,
+                discretise=True,
                 hrs_lrs_ratio=hrs_lrs_ratio,
                 number_conductance_levels=number_conductance_levels,
                 excluded_weights_proportion=excluded_weights_proportion,
