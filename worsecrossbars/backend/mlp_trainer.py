@@ -4,13 +4,16 @@ A backend module used to create the MNIST dataset and train a Keras model on it.
 from typing import List
 from typing import Tuple
 
-from numpy import ndarray
+import numpy as np
+from numpy import float32, ndarray
+import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
 from worsecrossbars.backend import weights_manipulation
+from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 
 def create_datasets(
@@ -133,18 +136,51 @@ def train_mlp(
     )
     model.is_training = False
 
-    # Extracting network weights
-    mlp_weights = model.get_weights()
-
     # If discrete weights are being used, the the bucketize_weights_layer function is employed.
     if discretise:
 
-        for count, weights in enumerate(mlp_weights):
-            if count % 2 == 0:
-                mlp_weights[count] = weights_manipulation.bucketize_weights_layer(
-                    weights, hrs_lrs_ratio, number_conductance_levels, excluded_weights_proportion
-                )
+        for layer in model.layers:
 
-        model.set_weights(mlp_weights)
+            if isinstance(layer, MemristiveFullyConnected):
+
+                if layer.uses_double_weights:
+
+                    discrete_w_pos = weights_manipulation.bucketize_weights_layer(
+                        layer.w_pos,
+                        hrs_lrs_ratio,
+                        number_conductance_levels,
+                        excluded_weights_proportion,
+                    )
+                    discrete_w_neg = weights_manipulation.bucketize_weights_layer(
+                        layer.w_neg,
+                        hrs_lrs_ratio,
+                        number_conductance_levels,
+                        excluded_weights_proportion,
+                    )
+
+                    layer.w_pos = discrete_w_pos
+                    layer.w_neg = discrete_w_neg
+
+                else:
+
+                    discrete_w = weights_manipulation.bucketize_weights_layer(
+                        layer.w,
+                        hrs_lrs_ratio,
+                        number_conductance_levels,
+                        excluded_weights_proportion,
+                    )
+
+                    layer.w = discrete_w
+
+        # for count, weights in enumerate(mlp_weights):
+        #     if count % 2 == 0:
+        #         mlp_weights[count] = weights_manipulation.bucketize_weights_layer(
+        #             weights, hrs_lrs_ratio, number_conductance_levels, excluded_weights_proportion
+        #         )
+
+        # model.set_weights(mlp_weights)
+
+    # Extracting network weights
+    mlp_weights = model.get_weights()
 
     return mlp_weights, mlp_history

@@ -1,5 +1,3 @@
-import sys
-import tensorflow as tf
 import numpy as np
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
@@ -13,7 +11,7 @@ if __name__ == "__main__":
     # Defining simulation parameters
     percentages = np.arange(0, 1.01, 0.1).round(2)
     number_simulations = 10
-    epochs = 5
+    epochs = 2
     batch_size = 100
 
     number_hidden_layers = 2
