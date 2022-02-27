@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import tensorflow as tf
 
@@ -11,8 +13,8 @@ if __name__ == "__main__":
 
     # Defining simulation parameters
     percentages = np.arange(0, 1.01, 0.1).round(2)
-    number_simulations = 10
-    epochs = 2
+    number_simulations = 50
+    epochs = 20
     batch_size = 100
 
     number_hidden_layers = 2
@@ -45,7 +47,7 @@ if __name__ == "__main__":
 
             print(f"{percentage}% faulty devices, simulation {simulation+1}")
 
-            with tf.device("cpu:0"):
+            with tf.device("gpu:3"):
 
                 model = mnist_mlp(
                     memristive_parameters["G_off"],
@@ -71,8 +73,10 @@ if __name__ == "__main__":
                 mnist_dataset[1][0], mnist_dataset[1][1]
             )[1]
 
-            print(simulation_accuracies)
-
         accuracies[index] = simulation_accuracies.mean()
 
-    print(accuracies)
+    # TODO
+    # Add something to do with mlp_history to plot training/validation curves.
+
+    with open("output.json", "w") as f:
+        json.dump(accuracies.tolist(), f)

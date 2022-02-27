@@ -7,8 +7,6 @@ import tensorflow as tf
 
 import numpy as np
 
-import json
-
 
 def bucketize_weights_layer(
     w: tf.Tensor,
@@ -39,7 +37,6 @@ def bucketize_weights_layer(
     ).tolist()
 
     indices = tf.raw_ops.Bucketize(input=w, boundaries=cond_levels)
-
 
     discretised_w = copy.deepcopy(w)
     mask = indices > len(cond_levels) - 1
