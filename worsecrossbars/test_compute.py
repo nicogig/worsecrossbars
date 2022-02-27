@@ -53,7 +53,6 @@ if __name__ == "__main__":
                 nonidealities,
                 number_hidden_layers=number_hidden_layers,
                 noise_variance=noise_variance,
-                debug=True,
             )
 
             mlp_weights, mlp_history = train_mlp(
