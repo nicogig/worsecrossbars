@@ -6,8 +6,8 @@ import json
 import numpy as np
 import torch
 
-from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.utilities.io_operations import read_webhook
+# from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+# from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.pytorch.nonidealities import StuckAtValue
 from worsecrossbars.pytorch.memristive_mlp import MemristiveMLP
 from worsecrossbars.pytorch.dataloaders import mnist_dataloaders
@@ -45,10 +45,10 @@ def stuck_simulation(
 ):
 
     # Unpacking keyword arguments
-    percentages = kwargs.get("percentages", np.arange(0, 1.01, 0.01).round(2))
+    percentages = kwargs.get("percentages", np.arange(0, 1.01, 0.05).round(2))
     number_hidden_layers = kwargs.get("number_hidden_layers", 2)
     epochs = kwargs.get("epochs", 10)
-    simulations = kwargs.get("simulations", 100)
+    simulations = kwargs.get("simulations", 1)
     dataloaders = kwargs.get("dataloaders", mnist_dataloaders())
 
     accuracies = []
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     print(f"Running on {device.type}")
 
-    teams = MSTeamsNotifier(read_webhook())
+    # teams = MSTeamsNotifier(read_webhook())
 
     dataloaders = mnist_dataloaders()
 
@@ -103,9 +103,9 @@ if __name__ == "__main__":
     G_on = 0.003513530595228076
     k_V = 0.5
 
-    teams.send_message("Started Simulation", color="ffca33")
+    # teams.send_message("Started Simulation", color="ffca33")
     accuracies = stuck_simulation(0, G_off, G_on, k_V, device, dataloaders=dataloaders)
-    teams.send_message("Ended Simulation", color="ffca33")
+    # teams.send_message("Ended Simulation", color="ffca33")
 
-    with open("accuracies.json", "w", encoding="utf-8") as f:
+    with open("accuracies2.json", "w", encoding="utf-8") as f:
         json.dump(accuracies, f, ensure_ascii=False, indent=4)
