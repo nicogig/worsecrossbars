@@ -149,14 +149,12 @@ def train_mlp(
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
-                    print(discrete_w_pos)
                     discrete_w_neg = weights_manipulation.bucketize_weights_layer(
                         layer.w_neg.read_value(),
                         hrs_lrs_ratio,
                         number_conductance_levels,
                         excluded_weights_proportion,
                     )
-                    print(discrete_w_neg)
 
                     layer.w_pos.assign(discrete_w_pos)
                     layer.w_neg.assign(discrete_w_neg)

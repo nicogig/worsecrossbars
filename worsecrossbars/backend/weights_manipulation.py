@@ -7,6 +7,8 @@ import tensorflow as tf
 
 import numpy as np
 
+import json
+
 
 def bucketize_weights_layer(
     w: tf.Tensor,
@@ -20,7 +22,9 @@ def bucketize_weights_layer(
 
     # Casting to float64 because Tensorflow Metal's sort() function does not work properly with
     # float32 tensors
-    sorted_weights = tf.sort(tf.cast(flattened_weights, tf.float64))
+    flattened_weights = tf.cast(flattened_weights, tf.float64)
+
+    sorted_weights = -tf.sort(-flattened_weights)
 
     # Casting back to float32
     sorted_weights = tf.cast(sorted_weights, tf.float32)
@@ -33,7 +37,9 @@ def bucketize_weights_layer(
     cond_levels = np.linspace(
         w_min.numpy(), w_max.numpy(), number_conductance_levels, dtype=float
     ).tolist()
+
     indices = tf.raw_ops.Bucketize(input=w, boundaries=cond_levels)
+
 
     discretised_w = copy.deepcopy(w)
     mask = indices > len(cond_levels) - 1
