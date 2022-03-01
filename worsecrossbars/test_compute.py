@@ -53,27 +53,27 @@ if __name__ == "__main__":
             print(f"{percentage}% faulty devices, simulation {simulation+1}")
 
             # TODO change this to use any device available
-            with tf.device("gpu:2"):
+            # with tf.device("gpu:2"):
 
-                model = mnist_mlp(
-                    memristive_parameters["G_off"],
-                    memristive_parameters["G_on"],
-                    memristive_parameters["k_V"],
-                    nonidealities,
-                    number_hidden_layers=number_hidden_layers,
-                    noise_variance=noise_variance,
-                )
+            model = mnist_mlp(
+                memristive_parameters["G_off"],
+                memristive_parameters["G_on"],
+                memristive_parameters["k_V"],
+                nonidealities,
+                number_hidden_layers=number_hidden_layers,
+                noise_variance=noise_variance,
+            )
 
-                mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
-                    mnist_dataset,
-                    model,
-                    epochs,
-                    batch_size,
-                    discretise=True,
-                    hrs_lrs_ratio=hrs_lrs_ratio,
-                    number_conductance_levels=number_conductance_levels,
-                    excluded_weights_proportion=excluded_weights_proportion,
-                )
+            mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
+                mnist_dataset,
+                model,
+                epochs,
+                batch_size,
+                discretise=True,
+                hrs_lrs_ratio=hrs_lrs_ratio,
+                number_conductance_levels=number_conductance_levels,
+                excluded_weights_proportion=excluded_weights_proportion,
+            )
 
             simulation_accuracies[simulation] = model.evaluate(
                 mnist_dataset[1][0], mnist_dataset[1][1]
