@@ -38,7 +38,8 @@ def weights_to_conductances(
             torch.maximum(effective_cond, torch.zeros(effective_cond.size(), device=device)) + G_off
         )
         cond_neg = (
-            torch.maximum(-effective_cond, torch.zeros(effective_cond.size(), device=device)) + G_off
+            torch.maximum(-effective_cond, torch.zeros(effective_cond.size(), device=device))
+            + G_off
         )
 
     elif mapping_style == "average":

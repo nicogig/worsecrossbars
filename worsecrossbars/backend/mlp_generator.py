@@ -3,11 +3,11 @@ A backend module used to create a Keras model for a densely connected MLP with a
 """
 from typing import List
 
+import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import GaussianNoise
 from tensorflow.keras.models import Sequential
-import tensorflow as tf
 
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 

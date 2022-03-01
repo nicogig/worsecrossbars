@@ -3,9 +3,8 @@ A backend module used to map ANN weights to real-world resistance levels.
 """
 import copy
 
-import tensorflow as tf
-
 import numpy as np
+import tensorflow as tf
 
 
 def bucketize_weights_layer(

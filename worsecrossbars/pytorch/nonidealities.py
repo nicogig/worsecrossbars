@@ -29,10 +29,13 @@ class StuckAtValue:
 
         # Creating a mask of bools to alter a given percentage of conductance values
         mask = (
-            torch.rand(conductances.shape, dtype=torch.float32, device=self.device) < self.probability
+            torch.rand(conductances.shape, dtype=torch.float32, device=self.device)
+            < self.probability
         )
         altered_conductances = torch.where(
-            mask, torch.tensor(self.value, dtype=conductances.dtype, device=self.device), conductances
+            mask,
+            torch.tensor(self.value, dtype=conductances.dtype, device=self.device),
+            conductances,
         )
 
         return altered_conductances
@@ -92,7 +95,7 @@ class IVNonlinear:
 
         log_gammas = torch.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
         currents = torch.sum(individual_currents, dim=1)
 
         return currents, individual_currents

@@ -1,6 +1,6 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
-import numpy as np
 
 from worsecrossbars.backend import mapping
 
@@ -33,7 +33,7 @@ class MemristiveFullyConnected(layers.Layer):
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
 
-        super(MemristiveFullyConnected, self).__init__()
+        super().__init__()
 
     def get_output_shape_for(self, input_shape):
         return (input_shape[0], self.neurons_out)

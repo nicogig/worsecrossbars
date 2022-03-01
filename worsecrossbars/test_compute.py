@@ -4,9 +4,9 @@ import numpy as np
 import tensorflow as tf
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
-from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.mlp_trainer import create_datasets
 from worsecrossbars.backend.mlp_trainer import train_mlp
+from worsecrossbars.backend.nonidealities import StuckAtValue
 
 
 if __name__ == "__main__":
@@ -50,35 +50,35 @@ if __name__ == "__main__":
 
         for simulation in range(number_simulations):
 
-            print(f"{percentage}% faulty devices, simulation {simulation+1}")
+            print(f"{percentage*100}% faulty devices, simulation {simulation+1}")
 
             # TODO change this to use any device available
-            # with tf.device("gpu:2"):
+            with tf.device("gpu:1"):
 
-            model = mnist_mlp(
-                memristive_parameters["G_off"],
-                memristive_parameters["G_on"],
-                memristive_parameters["k_V"],
-                nonidealities,
-                number_hidden_layers=number_hidden_layers,
-                noise_variance=noise_variance,
-            )
+                model = mnist_mlp(
+                    memristive_parameters["G_off"],
+                    memristive_parameters["G_on"],
+                    memristive_parameters["k_V"],
+                    nonidealities,
+                    number_hidden_layers=number_hidden_layers,
+                    noise_variance=noise_variance,
+                )
 
-            mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
-                mnist_dataset,
-                model,
-                epochs,
-                batch_size,
-                discretise=True,
-                hrs_lrs_ratio=hrs_lrs_ratio,
-                number_conductance_levels=number_conductance_levels,
-                excluded_weights_proportion=excluded_weights_proportion,
-            )
+                mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
+                    mnist_dataset,
+                    model,
+                    epochs,
+                    batch_size,
+                    discretise=True,
+                    hrs_lrs_ratio=hrs_lrs_ratio,
+                    number_conductance_levels=number_conductance_levels,
+                    excluded_weights_proportion=excluded_weights_proportion,
+                )
 
-            simulation_accuracies[simulation] = model.evaluate(
-                mnist_dataset[1][0], mnist_dataset[1][1]
-            )[1]
-            pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
+                simulation_accuracies[simulation] = model.evaluate(
+                    mnist_dataset[1][0], mnist_dataset[1][1]
+                )[1]
+                pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
 
         accuracies[index] = simulation_accuracies.mean()
         pre_discretisation_accuracies[index] = pre_discretisation_simulation_accuracies.mean()

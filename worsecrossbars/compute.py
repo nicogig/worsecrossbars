@@ -53,9 +53,9 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     memristor_parameters = {
-        "G_off" : 0.0009971787221729755,
-        "G_on" : 0.003513530595228076,
-        "k_V" : 0.5
+        "G_off": 0.0009971787221729755,
+        "G_on": 0.003513530595228076,
+        "k_V": 0.5,
     }
 
     number_hidden_layers = simulation_parameters["number_hidden_layers"]

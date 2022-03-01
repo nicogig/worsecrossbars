@@ -6,11 +6,12 @@ import json
 import numpy as np
 import torch
 
+from worsecrossbars.pytorch.dataloaders import mnist_dataloaders
+from worsecrossbars.pytorch.memristive_mlp import MemristiveMLP
+from worsecrossbars.pytorch.nonidealities import StuckAtValue
+
 # from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 # from worsecrossbars.utilities.io_operations import read_webhook
-from worsecrossbars.pytorch.nonidealities import StuckAtValue
-from worsecrossbars.pytorch.memristive_mlp import MemristiveMLP
-from worsecrossbars.pytorch.dataloaders import mnist_dataloaders
 
 
 def _train_evaluate(
