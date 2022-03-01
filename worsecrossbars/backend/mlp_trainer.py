@@ -89,6 +89,7 @@ def train_mlp(
         mlp_weights[1] contains the bias terms for the neurons in layer 2, and so forth.
       mlp_history: Keras history object, containing information regarding network performance at
         different epochs.
+      pre_discretisation_accuracy:
     """
 
     # kwargs unpacking
@@ -134,6 +135,8 @@ def train_mlp(
     )
     model.is_training = False
 
+    pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
+
     # If discrete weights are being used, the the bucketize_weights_layer function is employed.
     if discretise:
 
@@ -173,4 +176,4 @@ def train_mlp(
     # Extracting network weights
     mlp_weights = model.get_weights()
 
-    return mlp_weights, mlp_history
+    return mlp_weights, mlp_history, pre_discretisation_accuracy

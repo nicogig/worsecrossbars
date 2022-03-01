@@ -4,6 +4,7 @@ A backend module used to simulate various memristive nonidealities.
 from typing import Tuple
 import tensorflow as tf
 
+
 class StuckAtValue:
     """This class ..."""
 
@@ -26,9 +27,7 @@ class StuckAtValue:
         mask = (
             tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
         )
-        altered_conductances = tf.where(
-            mask, self.value, conductances
-        )
+        altered_conductances = tf.where(mask, self.value, conductances)
 
         return altered_conductances
 
@@ -77,9 +76,7 @@ class IVNonlinear:
         # Generating a truncated normal distribution (with a low value of 2) describing the possible
         # values taken on by the nonlinearity parameter gamma, which we shall sample from in order
         # to assign a nonlinearity parameter to each memristor in the crossbar array.
-        gammas = tf.random.truncated_normal(
-            conductances.shape, self.avg_gamma, self.std_gamma
-        )
+        gammas = tf.random.truncated_normal(conductances.shape, self.avg_gamma, self.std_gamma)
 
         voltage_signs = tf.expand_dims(tf.sign(voltages), -1)
         ohmic_currents = voltage_signs * self.V_ref * tf.expand_dims(conductances, 0)

@@ -120,7 +120,7 @@ def mnist_mlp(
     model.add(Activation("softmax"))
 
     model.compile(
-        optimizer=tf.keras.optimizers.SGD(), loss="categorical_crossentropy", metrics=["accuracy"]
+        optimizer=tf.keras.optimizers.Adam(), loss="categorical_crossentropy", metrics=["accuracy"]
     )
 
     return model
