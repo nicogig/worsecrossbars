@@ -5,20 +5,18 @@ import argparse
 import gc
 import json
 import logging
+import os
 import platform
 import signal
 import sys
 from multiprocessing import Process
 from pathlib import Path
+from typing import Tuple
 
-import numpy as np
+from numpy import ndarray
 
-from worsecrossbars.backend.mlp_trainer import create_datasets
-from worsecrossbars.backend.simulation import run_simulation
-from worsecrossbars.backend.simulation import train_models
-from worsecrossbars.backend.simulation import training_validation_metrics
-from worsecrossbars.plotting.curves_plotting import accuracy_curves
-from worsecrossbars.plotting.curves_plotting import training_validation_curves
+from worsecrossbars.backend.mlp_trainer import mnist_datasets
+from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.initial_setup import main_setup
 from worsecrossbars.utilities.io_operations import create_output_structure
@@ -27,15 +25,6 @@ from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.utilities.parameter_validator import validate_parameters
-
-# TODO
-#####
-# with open("stuckoff.json", "w") as f:
-#     json.dump(accuracies.tolist(), f)
-
-# with open("stuckoff_pre_discr.json", "w") as f:
-#     json.dump(pre_discretisation_accuracies.tolist(), f)
 
 
 def stop_handler(signum, _):
@@ -57,77 +46,27 @@ def stop_handler(signum, _):
     sys.exit(1)
 
 
-def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
+def worker(
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    simulation_parameters: dict,
+    _output_folder: str,
+    _teams: MSTeamsNotifier = None,
+):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
-    memristor_parameters = {
-        "G_off": 0.0009971787221729755,
-        "G_on": 0.003513530595228076,
-        "k_V": 0.5,
-    }
+    process_id = os.getpid()
 
-    number_hidden_layers = simulation_parameters["number_hidden_layers"]
-    fault_type = simulation_parameters["fault_type"]
-    noise_variance = simulation_parameters["noise_variance"]
-
-    logging.info("Attempting simulation with following parameters: %s", simulation_parameters)
+    logging.info("Attempting simulation with process ID %d.", process_id)
 
     if _teams:
         _teams.send_message(
-            f"Using parameters:\n{simulation_parameters}",
+            f"Process ID: {process_id}\nSimulation parameters:\n{simulation_parameters}",
             title="Started simulation",
             color="ffca33",
         )
 
-    percentages = np.arange(0, 1.01, 0.01).round(2)
-
-    weights_list, histories_list = train_models(
-        mnist_dataset, simulation_parameters, memristor_parameters, epochs=10, batch_size=100
-    )
-
-    # Computing training and validation loss and accuracy by averaging over all the models trained
-    # in the previous step
-    training_validation_data = training_validation_metrics(histories_list)
-
-    logging.info(
-        "[%dHL_%s_%.2fNV] Done training. Computing loss and accuracy.",
-        number_hidden_layers,
-        fault_type,
-        noise_variance,
-    )
-
-    # Saving training/validation data to file
-    with open(
-        str(
-            Path.home().joinpath(
-                "worsecrossbars",
-                "outputs",
-                _output_folder,
-                "training_validation",
-                f"training_validation_{fault_type}_{number_hidden_layers}HL"
-                + f"_{noise_variance}NV.json",
-            )
-        ),
-        "w",
-        encoding="utf-8",
-    ) as file:
-        output_object = {
-            "training_validation_data": [data.tolist() for data in training_validation_data],
-            "fault_type": fault_type,
-            "number_hidden_layers": number_hidden_layers,
-            "noise_variance": noise_variance,
-        }
-        json.dump(output_object, file)
-
-    logging.info(
-        "[%dHL_%s_%.2fNV] Saved training and validation data.",
-        number_hidden_layers,
-        fault_type,
-        noise_variance,
-    )
-
-    # Running a variety of simulations to average out stochastic variance
-    accuracies = run_simulation(weights_list, percentages, mnist_dataset, simulation_parameters)
+    # Running simulations
+    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset)
 
     # Saving accuracies array to file
     with open(
@@ -136,32 +75,24 @@ def worker(mnist_dataset, simulation_parameters, _output_folder, _teams=None):
                 "worsecrossbars",
                 "outputs",
                 _output_folder,
-                "accuracies",
-                f"accuracies_{fault_type}_{number_hidden_layers}HL_{noise_variance}NV.json",
+                f"output_{process_id}.json",
             )
         ),
         "w",
         encoding="utf-8",
     ) as file:
         output_object = {
-            "percentages": percentages.tolist(),
+            "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
             "accuracies": accuracies.tolist(),
-            "fault_type": fault_type,
-            "number_hidden_layers": number_hidden_layers,
-            "noise_variance": noise_variance,
+            "simulation_parameters": simulation_parameters,
         }
         json.dump(output_object, file)
 
-    logging.info(
-        "[%dHL_%s_%.2fNV] Saved accuracy data.",
-        number_hidden_layers,
-        fault_type,
-        noise_variance,
-    )
+    logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
 
     if _teams:
         _teams.send_message(
-            f"Using parameters:\n{simulation_parameters}",
+            f"Process ID: {process_id}",
             title="Finished simulation",
             color="1fd513",
         )
@@ -175,41 +106,20 @@ def main():
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    mnist_dataset = create_datasets(training_validation_ratio=3)
+    dataset = mnist_datasets(training_validation_ratio=3)
 
     for simulation_parameters in json_object["simulations"]:
-        validate_parameters(simulation_parameters)
         if command_line_args.teams is None:
-            process = Process(
-                target=worker, args=[mnist_dataset, simulation_parameters, output_folder]
-            )
+            process = Process(target=worker, args=[dataset, simulation_parameters, output_folder])
         else:
             process = Process(
-                target=worker, args=[mnist_dataset, simulation_parameters, output_folder, teams]
+                target=worker, args=[dataset, simulation_parameters, output_folder, teams]
             )
         process.start()
         pool.append(process)
 
     for process in pool:
         process.join()
-
-    for accuracy_plot_parameters in json_object["accuracy_plots_parameters"]:
-        accuracy_curves(
-            accuracy_plot_parameters["plots_data"],
-            output_folder,
-            xlabel=accuracy_plot_parameters["xlabel"],
-            title=accuracy_plot_parameters["title"],
-            filename=accuracy_plot_parameters["filename"],
-        )
-
-    for tv_plot_parameters in json_object["training_validation_plots_parameters"]:
-        training_validation_curves(
-            tv_plot_parameters["plots_data"],
-            output_folder,
-            title=tv_plot_parameters["title"],
-            filename=tv_plot_parameters["filename"],
-            value_type=tv_plot_parameters["value_type"],
-        )
 
     if command_line_args.dropbox:
         dbx.upload()

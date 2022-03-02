@@ -23,56 +23,39 @@ def validate_json(extracted_json: dict) -> None:
                 "items": {
                     "type": "object",
                     "properties": {
-                        "G_off": {
-                            "type": "number",
-                            "minimum": 0
-                            },
-                        "G_on": {
-                            "type": "number",
-                            "minimum": 0
-                            },
-                        "k_V": {
-                            "type": "number",
-                            "minimum": 0
-                            },
-                        "number_conductance_levels": {
-                            "type": "integer",
-                            "minimum": 1
-                            },
+                        "G_off": {"type": "number", "minimum": 0},
+                        "G_on": {"type": "number", "minimum": 0},
+                        "k_V": {"type": "number", "minimum": 0},
+                        "number_conductance_levels": {"type": "integer", "minimum": 1},
                         "excluded_weights_proportion": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
-                            },
-                        "number_hidden_layers": {
-                            "type": "integer",
-                            "enum": [1, 2, 3, 4]
-                            },
+                            "maximum": 1,
+                        },
+                        "number_hidden_layers": {"type": "integer", "enum": [1, 2, 3, 4]},
                         "nonidealities": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "type": { 
+                                    "type": {
                                         "type": "string",
-                                        "enum": ["StuckAtValue", "StuckDistribution", "D2DVariability", "IVNonlinear"]
-                                        },
+                                        "enum": [
+                                            "StuckAtValue",
+                                            "StuckDistribution",
+                                            "D2DVariability",
+                                            "IVNonlinear",
+                                        ],
+                                    },
                                     "parameters": {
                                         "type": "array",
-                                        "items": {
-                                            "type": ["array", "number"]
-                                        }
-                                    }
-                                }
-                            }},
-                        "noise_variance": {
-                            "type": "number",
-                            "minimum": 0
-                        },
-                        "number_simulations": {
-                            "type": "integer",
-                            "minimum": 1
+                                        "items": {"type": ["array", "number"]},
+                                    },
+                                },
                             },
+                        },
+                        "noise_variance": {"type": "number", "minimum": 0},
+                        "number_simulations": {"type": "integer", "minimum": 1},
                     },
                 },
             },
