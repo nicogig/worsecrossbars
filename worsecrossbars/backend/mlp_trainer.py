@@ -1,5 +1,5 @@
 """mlp_trainer:
-A backend module used to create the MNIST dataset and train a Keras model on it.
+A backend module used to create dataset and train a Keras model on them.
 """
 from typing import List
 from typing import Tuple
@@ -14,7 +14,7 @@ from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 
-def create_datasets(
+def mnist_datasets(
     training_validation_ratio: float,
 ) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
     """This function creates traning and validation datasets based on the MNIST digit database,
@@ -62,6 +62,15 @@ def create_datasets(
     )
 
 
+def cifar_datasets(
+    training_validation_ratio: float,
+) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
+
+    """"""
+
+    pass
+
+
 def train_mlp(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     model: Model,
@@ -73,7 +82,7 @@ def train_mlp(
 
     Args:
       dataset: Tuple of tuples, containing training, validation and testing images and labels, as
-        provided by the create_datasets() function defined above.
+        provided by the dataset functions defined above.
       model: Keras model which is to be trained
       epochs: Positive integer, number of epochs used in training.
       batch_size: Positive integer, number of batches used in training.

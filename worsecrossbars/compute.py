@@ -13,10 +13,10 @@ from pathlib import Path
 
 import numpy as np
 
-from worsecrossbars.keras_legacy.mlp_trainer import create_datasets
-from worsecrossbars.keras_legacy.simulation import run_simulation
-from worsecrossbars.keras_legacy.simulation import train_models
-from worsecrossbars.keras_legacy.simulation import training_validation_metrics
+from worsecrossbars.backend.mlp_trainer import create_datasets
+from worsecrossbars.backend.simulation import run_simulation
+from worsecrossbars.backend.simulation import train_models
+from worsecrossbars.backend.simulation import training_validation_metrics
 from worsecrossbars.plotting.curves_plotting import accuracy_curves
 from worsecrossbars.plotting.curves_plotting import training_validation_curves
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
@@ -28,6 +28,14 @@ from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.utilities.parameter_validator import validate_parameters
+
+# TODO
+#####
+# with open("stuckoff.json", "w") as f:
+#     json.dump(accuracies.tolist(), f)
+
+# with open("stuckoff_pre_discr.json", "w") as f:
+#     json.dump(pre_discretisation_accuracies.tolist(), f)
 
 
 def stop_handler(signum, _):
