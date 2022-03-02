@@ -1,4 +1,4 @@
-[
+{ "simulations": [
     {
         "G_off": 7.723066346443375e-07,
         "G_on": 2.730684400376049e-06,
@@ -71,4 +71,4 @@
         "noise_variance": 0,
         "number_simulations": 15
     }
-]
+]}
