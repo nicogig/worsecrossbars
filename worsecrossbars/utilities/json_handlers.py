@@ -23,38 +23,56 @@ def validate_json(extracted_json: dict) -> None:
                 "items": {
                     "type": "object",
                     "properties": {
-                        "HRS_LRS_ratio": {"type": "integer"},
-                        "number_conductance_levels": {"type": "integer"},
-                        "excluded_weights_proportion": {"type": "number"},
-                        "number_hidden_layers": {"type": "integer"},
-                        "fault_type": {"type": "string"},
-                        "noise_variance": {"type": "number"},
-                        "number_ANNs": {"type": "integer"},
-                        "number_simulations": {"type": "integer"},
-                    },
-                },
-            },
-            "accuracy_plots_parameters": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "plots_data": {"type": "array", "items": {"type": "string"}},
-                        "xlabel": {"type": "string"},
-                        "title": {"type": "string"},
-                        "filename": {"type": "string"},
-                    },
-                },
-            },
-            "training_validation_plots_parameters": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "plots_data": {"type": "array", "items": {"type": "string"}},
-                        "title": {"type": "string"},
-                        "filename": {"type": "string"},
-                        "value_type": {"type": "string"},
+                        "G_off": {
+                            "type": "number",
+                            "minimum": 0
+                            },
+                        "G_on": {
+                            "type": "number",
+                            "minimum": 0
+                            },
+                        "k_V": {
+                            "type": "number",
+                            "minimum": 0
+                            },
+                        "number_conductance_levels": {
+                            "type": "integer",
+                            "minimum": 1
+                            },
+                        "excluded_weights_proportion": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                            },
+                        "number_hidden_layers": {
+                            "type": "integer",
+                            "enum": [1, 2, 3, 4]
+                            },
+                        "nonidealities": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "type": { 
+                                        "type": "string",
+                                        "enum": ["StuckAtValue", "StuckDistribution", "D2DVariability", "IVNonlinear"]
+                                        },
+                                    "parameters": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": ["array", "number"]
+                                        }
+                                    }
+                                }
+                            }},
+                        "noise_variance": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "number_simulations": {
+                            "type": "integer",
+                            "minimum": 1
+                            },
                     },
                 },
             },
