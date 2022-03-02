@@ -1,0 +1,40 @@
+[
+    {
+        "type": "StuckAtValue",
+        "parameters": [
+            1
+        ]
+    },
+    {
+        "type": "StuckDistribution",
+        "parameters": [
+            [
+                1,
+                2,
+                3,
+                4
+            ]
+        ]
+    },
+    {
+        "type": "StuckDistribution",
+        "parameters": [
+            10
+        ]
+    },
+    {
+        "type": "D2DVariability",
+        "parameters": [
+            1,
+            2
+        ]
+    },
+    {
+        "type": "IVNonlinear",
+        "parameters": [
+            1,
+            2,
+            3
+        ]
+    }
+]
