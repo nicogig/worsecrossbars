@@ -5,7 +5,6 @@ from typing import Tuple
 
 import numpy as np
 from numpy import ndarray
-import tensorflow as tf
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -61,7 +60,6 @@ def _simulate(
 def run_simulations(
     simulation_parameters: dict,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
-    filename: str,
 ) -> Tuple[ndarray, ndarray]:
     """This function...
 
@@ -119,9 +117,29 @@ def run_simulations(
             simulation_parameters["nonidealities"].remove(nonideality)
 
         elif nonideality["type"] == "StuckDistribution":
-            raise NotImplementedError
-            # nonidealities.append(StuckDistribution())
-            # simulation_parameters["nonidealities"].remove(nonideality)
+            # If only nonideality["parameters"][0] is a single integer, then this indicates the
+            # number of weights to create between G_off and G_on. Otherwise, if
+            # nonideality["parameters"][0] is a list, this is passed as distrib to
+            # StuckDistribution()
+            if isinstance(nonideality["parameters"][0], list):
+                nonidealities.append(StuckDistribution(distrib=nonideality["parameters"][0]))
+                simulation_parameters["nonidealities"].remove(nonideality)
+            elif isinstance(nonideality["parameters"][0], int):
+                nonidealities.append(
+                    StuckDistribution(
+                        num_of_weights=nonideality["parameters"][0],
+                        G_off=simulation_parameters["G_off"],
+                        G_on=simulation_parameters["G_on"],
+                    )
+                )
+                simulation_parameters["nonidealities"].remove(nonideality)
+            else:
+                raise ValueError(
+                    "StuckDistribution nonideality was not passed the correct parameters."
+                )
+
+        else:
+            raise ValueError(f"Nonideality {nonideality} is not recognised.")
 
     for index, percentage in enumerate(percentages):
 
