@@ -2,7 +2,7 @@
 A backend module used to simulate various memristive nonidealities.
 """
 from typing import Tuple
-
+import copy
 import tensorflow as tf
 
 
@@ -36,8 +36,44 @@ class StuckAtValue:
 class StuckDistribution:
     """This class ..."""
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, probability: float, distrib: list = None, **kwargs) -> None:
+
+        self.probability = probability
+        self.is_linearity_preserving = True
+        if distrib is not None:
+            self.distrib = distrib
+            self.num_of_weights = len(distrib)
+        else:
+            self.num_of_weights = kwargs.get("num_of_weights", None)
+            self.G_on = kwargs.get("G_on", None)
+            self.G_off = kwargs.get("G_off", None)
+            if (
+                self.num_of_weights is None or
+                self.G_off is None or
+                self.G_on is None
+                ):
+                raise ValueError("G_on, G_off, and num_of_weights must be supplied if no distrib is given!")
+            self.distrib = tf.random.uniform([self.num_of_weights], minval=self.G_off, maxval=self.G_on).numpy().tolist()
+
+    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
+        """
+        
+        """
+        mask = (
+            tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
+        )
+        indices = tf.random.uniform(
+            conductances.shape,
+            minval= 0,
+            maxval= self.num_of_weights,
+            dtype=tf.int32
+        )
+        altered_conds = copy.deepcopy(conductances)
+        
+        for index, level in enumerate(self.distrib):
+            altered_conds = tf.where(tf.equal(indices, index), level, altered_conds)
+        
+        return tf.where(mask, altered_conds, conductances)
 
 
 class D2DVariability:
