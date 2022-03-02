@@ -86,9 +86,15 @@ def run_simulations(
             simulation_parameters["nonidealities"].remove(nonideality)
 
         elif nonideality["type"] == "D2DVariability":
-            raise NotImplementedError
-            # nonidealities.append(D2DVariability())
-            # simulation_parameters["nonidealities"].remove(nonideality)
+            nonidealities.append(
+                D2DVariability(
+                    simulation_parameters["G_off"],
+                    simulation_parameters["G_on"],
+                    nonideality["parameters"][0],
+                    nonideality["parameters"][1],
+                )
+            )
+            simulation_parameters["nonidealities"].remove(nonideality)
 
     if not simulation_parameters["nonidealities"]:
 
