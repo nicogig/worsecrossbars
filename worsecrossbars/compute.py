@@ -71,6 +71,7 @@ def worker(
 
     # Running simulations
     with tf.device(tf_device):
+        tf.debugging.set_log_device_placement(True)
         accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, batch_size=_batch_size)
 
     # Saving accuracies array to file
