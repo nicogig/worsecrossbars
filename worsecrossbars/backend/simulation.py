@@ -26,8 +26,9 @@ def _simulate(
     pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
 
     for simulation in range(simulation_parameters["number_simulations"]):
-
-        print(f"Simulation #{simulation+1}, nonidealities: {nonidealities}")
+        
+        nonideality_labels = [nonideality.label() for nonideality in nonidealities]
+        print(f"Simulation #{simulation+1}, nonidealities: {nonideality_labels}")
 
         model = mnist_mlp(
             simulation_parameters["G_off"],

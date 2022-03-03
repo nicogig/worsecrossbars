@@ -16,6 +16,10 @@ class StuckAtValue:
         self.probability = probability
         self.is_linearity_preserving = True
 
+    def label(self) -> str:
+
+        return f"StuckAtValue: value {self.value}, probability {self.probability}"
+
     def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
         """A method to alter conductances stored in a PyTorch Tensor.
 
@@ -58,6 +62,10 @@ class StuckDistribution:
                 .numpy()
                 .tolist()
             )
+
+    def label(self) -> str:
+
+        return f"StuckDistribution: distrib {self.value}, probability {self.probability}"
 
     def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
         """ """
