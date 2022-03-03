@@ -105,6 +105,7 @@ def worker(
 
 def main():
     """Main point of entry for the computing-side of the package."""
+    tf.debugging.set_log_device_placement(True)
 
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
@@ -120,7 +121,7 @@ def main():
         for simulation_parameters in json_object["simulations"]:
             
             next_available_gpu = nvidia.pick_gpu_lowest_memory()
-            tf_gpu = "/GPU:" + str(next_available_gpu)
+            tf_gpu = "/device:GPU:" + str(next_available_gpu)
             print(tf_gpu)
             
             if command_line_args.teams is None:
