@@ -117,7 +117,7 @@ def main():
         #except RuntimeError as err:
         #    print(err)
         
-        mirrored_strategy = tf.distribute.MirroredStrategy(devices=["GPU:1", "GPU:2"])
+        mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/physical_device:GPU:1", "/physical_device:GPU:2"])
         BATCH_SIZE_PER_REPLICA = 100
         BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
 
