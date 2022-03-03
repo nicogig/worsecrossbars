@@ -13,6 +13,7 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple
 
+import tensorflow as tf
 from numpy import ndarray
 
 from worsecrossbars.backend.mlp_trainer import mnist_datasets
@@ -101,25 +102,40 @@ def worker(
 def main():
     """Main point of entry for the computing-side of the package."""
 
-    pool = []
-
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
     dataset = mnist_datasets(training_validation_ratio=3)
 
-    for simulation_parameters in json_object["simulations"]:
-        if command_line_args.teams is None:
-            process = Process(target=worker, args=[dataset, simulation_parameters, output_folder])
-        else:
-            process = Process(
-                target=worker, args=[dataset, simulation_parameters, output_folder, teams]
-            )
-        process.start()
-        pool.append(process)
+    if tf.config.list_physical_devices("GPU"):
+        # Perform a different parallelisation strategy if on GPU
+        # -nicogig
+        mirrored_strategy = tf.distribute.MirroredStrategy()
 
-    for process in pool:
-        process.join()
+        with mirrored_strategy.scope():
+            for simulation_parameters in json_object["simulations"]:
+                if command_line_args.teams is None:
+                    worker(dataset, simulation_parameters, output_folder)
+                else:
+                    worker(dataset, simulation_parameters, output_folder, teams)
+    else:
+
+        pool = []
+
+        for simulation_parameters in json_object["simulations"]:
+            if command_line_args.teams is None:
+                process = Process(
+                    target=worker, args=[dataset, simulation_parameters, output_folder]
+                )
+            else:
+                process = Process(
+                    target=worker, args=[dataset, simulation_parameters, output_folder, teams]
+                )
+            process.start()
+            pool.append(process)
+
+        for process in pool:
+            process.join()
 
     if command_line_args.dropbox:
         dbx.upload()
