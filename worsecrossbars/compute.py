@@ -110,14 +110,14 @@ def main():
     if tf.config.list_physical_devices("GPU"):
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
-        mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
+        #mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
-        with mirrored_strategy.scope():
-            for simulation_parameters in json_object["simulations"]:
-                if command_line_args.teams is None:
-                    worker(dataset, simulation_parameters, output_folder)
-                else:
-                    worker(dataset, simulation_parameters, output_folder, teams)
+        #with mirrored_strategy.scope():
+        #    for simulation_parameters in json_object["simulations"]:
+        if command_line_args.teams is None:
+            worker(dataset, simulation_parameters, output_folder)
+        else:
+            worker(dataset, simulation_parameters, output_folder, teams)
     else:
 
         pool = []
