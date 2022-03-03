@@ -111,11 +111,11 @@ def main():
     if tf.config.list_physical_devices("GPU"):
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
-        try:
-            for gpu in tf.config.list_physical_devices("GPU")[1:]:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        except RuntimeError as err:
-            print(err)
+        #try:
+        #    for gpu in tf.config.list_physical_devices("GPU")[1:]:
+        #        tf.config.experimental.set_memory_growth(gpu, True)
+        #except RuntimeError as err:
+        #    print(err)
         
         mirrored_strategy = tf.distribute.MirroredStrategy(devices=['/gpu:1', '/gpu:2'])
         BATCH_SIZE_PER_REPLICA = 100
