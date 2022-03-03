@@ -52,7 +52,7 @@ def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
     _output_folder: str,
-    tf_device: str = "cpu:0",
+    tf_device: str,
     _teams: MSTeamsNotifier = None,
     _batch_size: int = 100,
 ):
