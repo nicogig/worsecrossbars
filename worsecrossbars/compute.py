@@ -116,8 +116,13 @@ def main():
         #        tf.config.experimental.set_memory_growth(gpu, True)
         #except RuntimeError as err:
         #    print(err)
+        physical_devices = tf.config.list_physical_devices('GPU')
+        try:
+            tf.config.set_visible_devices(physical_devices[1:], 'GPU')
+        except:
+            pass
         
-        mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/physical_device:GPU:1", "/physical_device:GPU:2"])
+        mirrored_strategy = tf.distribute.MirroredStrategy()
         BATCH_SIZE_PER_REPLICA = 100
         BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
 
