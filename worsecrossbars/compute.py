@@ -70,8 +70,7 @@ def worker(
         )
 
     # Running simulations
-    with tf.device(tf_device):
-        accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, batch_size=_batch_size)
+    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, tf_device, batch_size=_batch_size)
 
     # Saving accuracies array to file
     with open(

@@ -6,6 +6,8 @@ from typing import Tuple
 import numpy as np
 from numpy import ndarray
 
+import tensorflow as tf
+
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
 from worsecrossbars.backend.nonidealities import D2DVariability
@@ -26,7 +28,7 @@ def _simulate(
     pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
 
     for simulation in range(simulation_parameters["number_simulations"]):
-        
+
         nonideality_labels = [nonideality.label() for nonideality in nonidealities]
         print(f"Simulation #{simulation+1}, nonidealities: {nonideality_labels}")
 
@@ -62,6 +64,7 @@ def _simulate(
 def run_simulations(
     simulation_parameters: dict,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    tf_device: str,
     batch_size: int = 100,
 ) -> Tuple[ndarray, ndarray]:
     """This function...
@@ -101,7 +104,8 @@ def run_simulations(
 
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
-        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size)
+        with tf.device(tf_device):
+            simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size)
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])
 
@@ -152,7 +156,8 @@ def run_simulations(
                 nonideality.probability = percentage
 
         # Running simulations
-        simulation_results = _simulate(simulation_parameters, nonidealities, dataset)
+        with tf.device(tf_device):
+            simulation_results = _simulate(simulation_parameters, nonidealities, dataset)
         accuracies[index] = simulation_results[0]
         pre_discretisation_accuracies[index] = simulation_results[1]
 
