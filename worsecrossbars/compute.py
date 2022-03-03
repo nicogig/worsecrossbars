@@ -110,7 +110,7 @@ def main():
     if tf.config.list_physical_devices("GPU"):
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
-        mirrored_strategy = tf.distribute.MirroredStrategy()
+        mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
         with mirrored_strategy.scope():
             for simulation_parameters in json_object["simulations"]:
