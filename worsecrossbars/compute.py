@@ -52,6 +52,7 @@ def worker(
     simulation_parameters: dict,
     _output_folder: str,
     _teams: MSTeamsNotifier = None,
+    _batch_size: int = 100,
 ):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
@@ -67,7 +68,7 @@ def worker(
         )
 
     # Running simulations
-    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset)
+    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, batch_size=_batch_size)
 
     # Saving accuracies array to file
     with open(
@@ -110,14 +111,16 @@ def main():
     if tf.config.list_physical_devices("GPU"):
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
-        #mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
+        mirrored_strategy = tf.distribute.MirroredStrategy()
+        BATCH_SIZE_PER_REPLICA = 100
+        BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
 
-        #with mirrored_strategy.scope():
-        for simulation_parameters in json_object["simulations"]:
-            if command_line_args.teams is None:
-                worker(dataset, simulation_parameters, output_folder)
-            else:
-                worker(dataset, simulation_parameters, output_folder, teams)
+        with mirrored_strategy.scope():
+            for simulation_parameters in json_object["simulations"]:
+                if command_line_args.teams is None:
+                    worker(dataset, simulation_parameters, output_folder, _batch_size=BATCH_SIZE)
+                else:
+                    worker(dataset, simulation_parameters, output_folder, teams, BATCH_SIZE)
     else:
 
         pool = []

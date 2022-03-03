@@ -18,6 +18,7 @@ def _simulate(
     simulation_parameters: dict,
     nonidealities: list,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    batch_size: int = 100,
 ) -> Tuple[float, float]:
     """"""
 
@@ -41,7 +42,7 @@ def _simulate(
             dataset,
             model,
             epochs=60,
-            batch_size=100,
+            batch_size=batch_size,
             discretise=True,
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
             number_conductance_levels=simulation_parameters["number_conductance_levels"],
@@ -60,6 +61,7 @@ def _simulate(
 def run_simulations(
     simulation_parameters: dict,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    batch_size: int = 100,
 ) -> Tuple[ndarray, ndarray]:
     """This function...
 
@@ -98,7 +100,7 @@ def run_simulations(
 
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
-        simulation_results = _simulate(simulation_parameters, nonidealities, dataset)
+        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size)
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])
 
