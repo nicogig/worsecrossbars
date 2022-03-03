@@ -122,16 +122,16 @@ def main():
         except:
             pass
         
-        mirrored_strategy = tf.distribute.MirroredStrategy()
-        BATCH_SIZE_PER_REPLICA = 100
-        BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
+        # mirrored_strategy = tf.distribute.MirroredStrategy()
+        # BATCH_SIZE_PER_REPLICA = 100
+        # BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
 
-        with mirrored_strategy.scope():
-            for simulation_parameters in json_object["simulations"]:
-                if command_line_args.teams is None:
-                    worker(dataset, simulation_parameters, output_folder, _batch_size=BATCH_SIZE)
-                else:
-                    worker(dataset, simulation_parameters, output_folder, teams, BATCH_SIZE)
+        # with mirrored_strategy.scope():
+        for simulation_parameters in json_object["simulations"]:
+            if command_line_args.teams is None:
+                worker(dataset, simulation_parameters, output_folder)
+            else:
+                worker(dataset, simulation_parameters, output_folder, teams)
     else:
 
         pool = []
