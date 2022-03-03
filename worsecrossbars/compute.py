@@ -26,6 +26,7 @@ from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+from worsecrossbars.utilities import nvidia
 
 
 def stop_handler(signum, _):
@@ -51,6 +52,7 @@ def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
     _output_folder: str,
+    tf_device: str = "cpu:0",
     _teams: MSTeamsNotifier = None,
     _batch_size: int = 100,
 ):
@@ -68,7 +70,8 @@ def worker(
         )
 
     # Running simulations
-    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, batch_size=_batch_size)
+    with tf.device(tf_device):
+        accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, batch_size=_batch_size)
 
     # Saving accuracies array to file
     with open(
@@ -111,27 +114,26 @@ def main():
     if tf.config.list_physical_devices("GPU"):
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
-        #try:
-        #    for gpu in tf.config.list_physical_devices("GPU")[1:]:
-        #        tf.config.experimental.set_memory_growth(gpu, True)
-        #except RuntimeError as err:
-        #    print(err)
-        physical_devices = tf.config.list_physical_devices('GPU')
-        try:
-            tf.config.set_visible_devices(physical_devices[1:], 'GPU')
-        except:
-            pass
-        
-        # mirrored_strategy = tf.distribute.MirroredStrategy()
-        # BATCH_SIZE_PER_REPLICA = 100
-        # BATCH_SIZE = BATCH_SIZE_PER_REPLICA * mirrored_strategy.num_replicas_in_sync
+        pool = []
 
-        # with mirrored_strategy.scope():
         for simulation_parameters in json_object["simulations"]:
+            
+            next_available_gpu = nvidia.pick_gpu_lowest_memory()
+            tf_gpu = "gpu:" + str(next_available_gpu)
+            
             if command_line_args.teams is None:
-                worker(dataset, simulation_parameters, output_folder)
+                process = Process(
+                    target=worker, args=[dataset, simulation_parameters, output_folder, tf_gpu]
+                )
             else:
-                worker(dataset, simulation_parameters, output_folder, teams)
+                process = Process(
+                    target=worker, args=[dataset, simulation_parameters, output_folder, tf_gpu, teams]
+                )
+            process.start()
+            pool.append(process)
+
+        for process in pool:
+            process.join()
     else:
 
         pool = []
@@ -139,11 +141,11 @@ def main():
         for simulation_parameters in json_object["simulations"]:
             if command_line_args.teams is None:
                 process = Process(
-                    target=worker, args=[dataset, simulation_parameters, output_folder]
+                    target=worker, args=[dataset, simulation_parameters, output_folder, "cpu:0"]
                 )
             else:
                 process = Process(
-                    target=worker, args=[dataset, simulation_parameters, output_folder, teams]
+                    target=worker, args=[dataset, simulation_parameters, output_folder, "cpu:0", teams]
                 )
             process.start()
             pool.append(process)
