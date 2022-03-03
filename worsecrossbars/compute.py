@@ -112,7 +112,7 @@ def main():
         # Perform a different parallelisation strategy if on GPU
         # -nicogig
         try:
-            for gpu in tf.config.list_physical_devices("GPU"):
+            for gpu in tf.config.list_physical_devices("GPU")[1:]:
                 tf.config.experimental.set_memory_growth(gpu, True)
         except RuntimeError as err:
             print(err)
