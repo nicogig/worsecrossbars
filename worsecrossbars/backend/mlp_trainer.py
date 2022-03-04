@@ -152,7 +152,7 @@ def train_mlp(
             verbose = 2
         else:
             verbose = 0
-        steps = compute_steps_per_epoch(len(dataset[0][2])) // hvd.size()
+        steps = (compute_steps_per_epoch(len(dataset[0][2]))*2) // hvd.size()
     else:
         callbacks = []
         verbose = 2
