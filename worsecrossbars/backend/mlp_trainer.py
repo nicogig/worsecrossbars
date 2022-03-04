@@ -145,8 +145,8 @@ def train_mlp(
         scaled_lr = 0.001 * hvd.size()
         callbacks = [
             hvd.keras.callbacks.BroadcastGlobalVariablesCallback(0),
-            hvd.callbacks.MetricAverageCallback(),
-            hvd.callbacks.LearningRateWarmupCallback(initial_lr=scaled_lr, warmup_epochs=3, verbose=1),
+            hvd.keras.callbacks.MetricAverageCallback(),
+            hvd.keras.callbacks.LearningRateWarmupCallback(initial_lr=scaled_lr, warmup_epochs=3, verbose=1),
         ]
         if hvd.rank() == 0:
             verbose = 2
