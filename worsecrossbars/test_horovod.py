@@ -16,7 +16,7 @@
 import tensorflow as tf
 import horovod.tensorflow as hvd
 
-from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Activation, Flatten
 
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 from worsecrossbars.backend.nonidealities import StuckAtValue
@@ -50,6 +50,7 @@ dataset = tf.data.Dataset.from_tensor_slices(
 dataset = dataset.repeat().shuffle(10000).batch(128)
 
 mnist_model = tf.keras.Sequential([
+    Flatten(input_shape=(28, 28)),
     MemristiveFullyConnected(784, 112, G_off, G_on, k_V, nonidealities=nonidealities),
     Activation("sigmoid"),
     MemristiveFullyConnected(112, 10, G_off, G_on, k_V, nonidealities=nonidealities),
