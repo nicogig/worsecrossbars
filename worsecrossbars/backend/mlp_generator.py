@@ -126,7 +126,7 @@ def mnist_mlp(
         opt = tf.keras.optimizers.Adam(0.001*hvd.size())
         opt = hvd.DistributedOptimizer(opt)
         model.compile(
-            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"], run_eagerly=True
+            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
         )
     else:
         opt = tf.keras.optimizers.Adam()
