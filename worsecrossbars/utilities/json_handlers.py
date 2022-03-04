@@ -26,7 +26,7 @@ def validate_json(extracted_json: dict) -> None:
                         "G_off": {"type": "number", "minimum": 0},
                         "G_on": {"type": "number", "minimum": 0},
                         "k_V": {"type": "number", "minimum": 0},
-                        "number_conductance_levels": {"type": "integer", "minimum": 1},
+                        "number_conductance_levels": {"type": "integer", "minimum": 0},
                         "excluded_weights_proportion": {
                             "type": "number",
                             "minimum": 0,
