@@ -4,6 +4,8 @@ A backend module used to create dataset and train a Keras model on them.
 from typing import List
 from typing import Tuple
 
+import math
+
 from numpy import ndarray
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
@@ -137,6 +139,7 @@ def train_mlp(
         )
 
     # Training with validation
+    compute_steps_per_epoch = lambda x: int(math.ceil(1. * x / batch_size))
 
     if horovod:
         callbacks = [
@@ -146,9 +149,11 @@ def train_mlp(
             verbose = 2
         else:
             verbose = 0
+        steps = compute_steps_per_epoch(len(dataset[0][2])) // hvd.size()
     else:
         callbacks = []
         verbose = 2
+        steps = compute_steps_per_epoch(len(dataset[0][2]))
 
 
     model.is_training = True
@@ -156,7 +161,7 @@ def train_mlp(
         dataset[0][2],
         dataset[0][3],
         epochs=epochs,
-        steps_per_epoch= 500 // hvd.size(),
+        steps_per_epoch=steps,
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
         callbacks=callbacks,
