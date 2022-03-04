@@ -118,27 +118,28 @@ def worker(
     # Running simulations
     accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, tf_device, batch_size=_batch_size, horovod=horovod)
 
+    if horovod and hvd.rank() == 0:
     # Saving accuracies array to file
-    with open(
-        str(
-            Path.home().joinpath(
-                "worsecrossbars",
-                "outputs",
-                _output_folder,
-                f"output_{process_id}.json",
-            )
-        ),
-        "w",
-        encoding="utf-8",
-    ) as file:
-        output_object = {
-            "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
-            "accuracies": accuracies.tolist(),
-            "simulation_parameters": simulation_parameters,
-        }
-        json.dump(output_object, file)
+        with open(
+            str(
+                Path.home().joinpath(
+                    "worsecrossbars",
+                    "outputs",
+                    _output_folder,
+                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}.json",
+                )
+            ),
+            "w",
+            encoding="utf-8",
+        ) as file:
+            output_object = {
+                "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
+                "accuracies": accuracies.tolist(),
+                "simulation_parameters": simulation_parameters,
+            }
+            json.dump(output_object, file)
 
-    logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
+        logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
 
     if _teams and hvd.rank() == 0:
         _teams.send_message(

@@ -115,10 +115,9 @@ def run_simulations(
         return accuracies, pre_discretisation_accuracies
 
     # Generating vectors to be used for device-percentage-based nonidealities analysis
-    #percentages = np.arange(0, 1.01, 0.02).round(2)
-    percentages = [0.5]
-    accuracies = np.zeros(1)
-    pre_discretisation_accuracies = np.zeros(1)
+    percentages = np.arange(0, 1.01, 0.02).round(2)
+    accuracies = np.zeros(percentages.size)
+    pre_discretisation_accuracies = np.zeros(percentages.size)
 
     # Adding percentage-based nonidealities
     for nonideality in simulation_parameters["nonidealities"]:
