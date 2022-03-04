@@ -11,6 +11,8 @@ from tensorflow.keras.models import Sequential
 
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
+import horovod.tensorflow as hvd
+
 
 def mnist_mlp(
     G_off: float,
@@ -22,6 +24,7 @@ def mnist_mlp(
     model_name: str = "",
     noise_variance: float = 0.0,
     debug: bool = False,
+    horovod: bool = False,
 ) -> Model:
     """This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
@@ -119,8 +122,18 @@ def mnist_mlp(
     )
     model.add(Activation("softmax"))
 
-    model.compile(
-        optimizer=tf.keras.optimizers.Adam(), loss="categorical_crossentropy", metrics=["accuracy"]
-    )
+    if horovod:
+        opt = tf.keras.optimizers.Adam(0.001*hvd.size())
+        opt = hvd.DistributedOptimizer(opt)
+        model.compile(
+            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"], run_eagerly=True
+        )
+    else:
+        opt = tf.keras.optimizers.Adam()
+        model.compile(
+            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
+        )
+
+
 
     return model

@@ -21,6 +21,7 @@ def _simulate(
     nonidealities: list,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     batch_size: int = 100,
+    horovod: bool = False,
 ) -> Tuple[float, float]:
     """"""
 
@@ -39,6 +40,7 @@ def _simulate(
             nonidealities=nonidealities,
             number_hidden_layers=simulation_parameters["number_hidden_layers"],
             noise_variance=simulation_parameters["noise_variance"],
+            horovod=horovod
         )
 
         *_, pre_discretisation_accuracy = train_mlp(
@@ -50,6 +52,7 @@ def _simulate(
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
             number_conductance_levels=simulation_parameters["number_conductance_levels"],
             excluded_weights_proportion=simulation_parameters["excluded_weights_proportion"],
+            horovod=horovod
         )
 
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
@@ -66,6 +69,7 @@ def run_simulations(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     tf_device: str,
     batch_size: int = 100,
+    horovod: bool = False,
 ) -> Tuple[ndarray, ndarray]:
     """This function...
 
@@ -104,8 +108,7 @@ def run_simulations(
 
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
-        with tf.device(tf_device):
-            simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size)
+        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size, horovod=horovod)
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])
 
@@ -156,8 +159,7 @@ def run_simulations(
                 nonideality.probability = percentage
 
         # Running simulations
-        with tf.device(tf_device):
-            simulation_results = _simulate(simulation_parameters, nonidealities, dataset)
+        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, horovod=horovod)
         accuracies[index] = simulation_results[0]
         pre_discretisation_accuracies[index] = simulation_results[1]
 

@@ -10,6 +10,8 @@ from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
+import horovod.tensorflow as hvd
+
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
@@ -76,6 +78,7 @@ def train_mlp(
     model: Model,
     epochs: int,
     batch_size: int,
+    horovod: bool = False,
     **kwargs
 ) -> Tuple[List[ndarray], History]:
     """This function trains a given Keras model on the dataset provided to it.
@@ -134,6 +137,20 @@ def train_mlp(
         )
 
     # Training with validation
+
+    if horovod:
+        callbacks = [
+            hvd.keras.callbacks.BroadcastGlobalVariablesCallback(0)
+        ]
+        if hvd.rank() == 0:
+            verbose = 2
+        else:
+            verbose = 0
+    else:
+        callbacks = []
+        verbose = 2
+
+
     model.is_training = True
     mlp_history = model.fit(
         dataset[0][2],
@@ -141,6 +158,8 @@ def train_mlp(
         epochs=epochs,
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
+        callbacks=callbacks,
+        verbose=verbose
     )
     model.is_training = False
 
