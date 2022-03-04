@@ -108,7 +108,7 @@ def worker(
 
     logging.info("Attempting simulation with process ID %d.", process_id)
 
-    if _teams:
+    if _teams and hvd.rank() == 0:
         _teams.send_message(
             f"Process ID: {process_id}\nSimulation parameters:\n{simulation_parameters}",
             title="Started simulation",
@@ -140,7 +140,7 @@ def worker(
 
     logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
 
-    if _teams:
+    if _teams and hvd.rank() == 0:
         _teams.send_message(
             f"Process ID: {process_id}",
             title="Finished simulation",

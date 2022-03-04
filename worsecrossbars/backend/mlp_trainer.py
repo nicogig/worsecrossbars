@@ -156,6 +156,7 @@ def train_mlp(
         dataset[0][2],
         dataset[0][3],
         epochs=epochs,
+        steps_per_epoch= 500 // hvd.size(),
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
         callbacks=callbacks,
