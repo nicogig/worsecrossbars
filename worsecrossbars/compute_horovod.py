@@ -162,7 +162,7 @@ def main():
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
-        tf.config.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+        tf.config.set_visible_devices(gpus[hvd.local_rank()+1], 'GPU')
     
     for simulation_parameters in json_object["simulations"]:
         worker(dataset, simulation_parameters, output_folder, "Doesn't matter", True, teams)
