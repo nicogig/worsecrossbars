@@ -11,9 +11,6 @@ from tensorflow.keras.models import Sequential
 
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
-import horovod.tensorflow as hvd
-
-
 def mnist_mlp(
     G_off: float,
     G_on: float,
@@ -123,6 +120,7 @@ def mnist_mlp(
     model.add(Activation("softmax"))
 
     if horovod:
+        import horovod.tensorflow as hvd
         opt = tf.keras.optimizers.Adam(0.001*hvd.size())
         opt = hvd.DistributedOptimizer(opt)
         model.compile(

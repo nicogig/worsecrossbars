@@ -12,8 +12,6 @@ from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
-import horovod.tensorflow as hvd
-
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
@@ -142,6 +140,7 @@ def train_mlp(
     compute_steps_per_epoch = lambda x: int(math.ceil(1. * x / batch_size))
 
     if horovod:
+        import horovod.tensorflow as hvd
         scaled_lr = 0.001 * hvd.size()
         callbacks = [
             hvd.keras.callbacks.BroadcastGlobalVariablesCallback(0),

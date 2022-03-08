@@ -1,6 +1,7 @@
 """simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
+import json
 from typing import Tuple
 
 import numpy as np
@@ -45,7 +46,7 @@ def _simulate(
             horovod=horovod
         )
 
-        *_, pre_discretisation_accuracy = train_mlp(
+        mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
             dataset,
             model,
             epochs=60,
@@ -56,6 +57,13 @@ def _simulate(
             excluded_weights_proportion=simulation_parameters["excluded_weights_proportion"],
             horovod=horovod
         )
+
+        with open(f"mlp_weights_{simulation+1}.json", 'w') as file:
+            out = []
+            for arr in mlp_weights:
+                out.append(arr.tolist())
+            json.dump(out, file)
+
 
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
         pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
@@ -158,7 +166,7 @@ def run_simulations(
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
-                nonideality.probability = percentage
+                nonideality.update(percentage)
 
         # Running simulations
         simulation_results = _simulate(simulation_parameters, nonidealities, dataset, horovod=horovod)
