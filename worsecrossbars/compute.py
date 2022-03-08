@@ -26,7 +26,6 @@ from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.utilities import nvidia
 
 
 def stop_handler(signum, _):
@@ -52,7 +51,6 @@ def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
     _output_folder: str,
-    tf_device: str,
     _teams: MSTeamsNotifier = None,
     _batch_size: int = 100,
 ):
@@ -70,7 +68,9 @@ def worker(
         )
 
     # Running simulations
-    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, tf_device, batch_size=_batch_size)
+    accuracies, pre_discretisation_accuracies = run_simulations(
+        simulation_parameters, dataset, batch_size=_batch_size
+    )
 
     # Saving accuracies array to file
     with open(
@@ -118,18 +118,17 @@ def main():
         print("Hello")
 
         for simulation_parameters in json_object["simulations"]:
-            
-            next_available_gpu = nvidia.pick_gpu_lowest_memory()
-            tf_gpu = "/device:GPU:" + str(next_available_gpu)
+
+            tf_gpu = "/device:GPU:0" 
             print(tf_gpu)
-            
+
             if command_line_args.teams is None:
                 process = Process(
-                    target=worker, args=[dataset, simulation_parameters, output_folder, tf_gpu]
+                    target=worker, args=[dataset, simulation_parameters, output_folder]
                 )
             else:
                 process = Process(
-                    target=worker, args=[dataset, simulation_parameters, output_folder, tf_gpu, teams]
+                    target=worker, args=[dataset, simulation_parameters, output_folder, teams]
                 )
             process.start()
             pool.append(process)
@@ -147,7 +146,8 @@ def main():
                 )
             else:
                 process = Process(
-                    target=worker, args=[dataset, simulation_parameters, output_folder, "cpu:0", teams]
+                    target=worker,
+                    args=[dataset, simulation_parameters, output_folder, "cpu:0", teams],
                 )
             process.start()
             pool.append(process)

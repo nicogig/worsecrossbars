@@ -13,13 +13,16 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple
 
+import horovod.tensorflow as hvd
+import numpy as np
 import tensorflow as tf
 from numpy import ndarray
-import numpy as np
-
-import horovod.tensorflow as hvd
 
 from worsecrossbars.backend.mlp_trainer import mnist_datasets
+from worsecrossbars.backend.nonidealities import D2DVariability
+from worsecrossbars.backend.nonidealities import IVNonlinear
+from worsecrossbars.backend.nonidealities import StuckAtValue
+from worsecrossbars.backend.nonidealities import StuckDistribution
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.initial_setup import main_setup
@@ -29,9 +32,6 @@ from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.utilities import nvidia
-
-from worsecrossbars.backend.nonidealities import IVNonlinear, StuckAtValue, StuckDistribution, D2DVariability
 
 
 def gen_nonideality_list(simulation_parameters):
@@ -74,6 +74,7 @@ def gen_nonideality_list(simulation_parameters):
                 )
     return nonidealities
 
+
 def stop_handler(signum, _):
     """This function handles stop signals transmitted by the Kernel when the script terminates
     abruptly/unexpectedly."""
@@ -97,7 +98,6 @@ def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
     _output_folder: str,
-    tf_device: str,
     horovod: bool = False,
     _teams: MSTeamsNotifier = None,
     _batch_size: int = 100,
@@ -116,10 +116,12 @@ def worker(
         )
 
     # Running simulations
-    accuracies, pre_discretisation_accuracies = run_simulations(simulation_parameters, dataset, tf_device, batch_size=_batch_size, horovod=horovod)
+    accuracies, pre_discretisation_accuracies = run_simulations(
+        simulation_parameters, dataset, batch_size=_batch_size, horovod=horovod
+    )
 
     if horovod and hvd.rank() == 0:
-    # Saving accuracies array to file
+        # Saving accuracies array to file
         with open(
             str(
                 Path.home().joinpath(
@@ -159,14 +161,14 @@ def main():
 
     dataset = mnist_datasets(training_validation_ratio=3)
 
-    gpus = tf.config.list_physical_devices('GPU')
+    gpus = tf.config.list_physical_devices("GPU")
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
-        tf.config.set_visible_devices(gpus[hvd.local_rank()+1], 'GPU')
-    
+        tf.config.set_visible_devices(gpus[hvd.local_rank() + 1], "GPU")
+
     for simulation_parameters in json_object["simulations"]:
-        worker(dataset, simulation_parameters, output_folder, "Doesn't matter", True, teams)
+        worker(dataset, simulation_parameters, output_folder, True, teams)
 
     if command_line_args.dropbox:
         dbx.upload()

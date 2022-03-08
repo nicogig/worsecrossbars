@@ -5,9 +5,8 @@ import json
 from typing import Tuple
 
 import numpy as np
-from numpy import ndarray
-
 import tensorflow as tf
+from numpy import ndarray
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -43,7 +42,7 @@ def _simulate(
             nonidealities=nonidealities,
             number_hidden_layers=simulation_parameters["number_hidden_layers"],
             noise_variance=simulation_parameters["noise_variance"],
-            horovod=horovod
+            horovod=horovod,
         )
 
         mlp_weights, mlp_history, pre_discretisation_accuracy = train_mlp(
@@ -55,15 +54,14 @@ def _simulate(
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
             number_conductance_levels=simulation_parameters["number_conductance_levels"],
             excluded_weights_proportion=simulation_parameters["excluded_weights_proportion"],
-            horovod=horovod
+            horovod=horovod,
         )
 
-        with open(f"mlp_weights_{simulation+1}.json", 'w') as file:
+        with open(f"mlp_weights_{simulation+1}.json", "w") as file:
             out = []
             for arr in mlp_weights:
                 out.append(arr.tolist())
             json.dump(out, file)
-
 
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
         pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
@@ -77,7 +75,6 @@ def _simulate(
 def run_simulations(
     simulation_parameters: dict,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
-    tf_device: str,
     batch_size: int = 100,
     horovod: bool = False,
 ) -> Tuple[ndarray, ndarray]:
@@ -118,7 +115,9 @@ def run_simulations(
 
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
-        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size, horovod=horovod)
+        simulation_results = _simulate(
+            simulation_parameters, nonidealities, dataset, batch_size=batch_size, horovod=horovod
+        )
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])
 
@@ -169,7 +168,9 @@ def run_simulations(
                 nonideality.update(percentage)
 
         # Running simulations
-        simulation_results = _simulate(simulation_parameters, nonidealities, dataset, horovod=horovod)
+        simulation_results = _simulate(
+            simulation_parameters, nonidealities, dataset, horovod=horovod
+        )
         accuracies[index] = simulation_results[0]
         pre_discretisation_accuracies[index] = simulation_results[1]
 
