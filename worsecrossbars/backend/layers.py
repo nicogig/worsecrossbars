@@ -33,7 +33,10 @@ class MemristiveFullyConnected(layers.Layer):
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
 
-        self.prob_mask = tf.random.uniform([neurons_in, neurons_out], 0, 1, dtype=tf.dtypes.float64)
+        if self.uses_double_weights:
+            self.prob_mask = tf.random.uniform([neurons_in+1, neurons_out*2], 0, 1, dtype=tf.dtypes.float64)
+        else:
+            self.prob_mask = tf.random.uniform([neurons_in+1, neurons_out], 0, 1, dtype=tf.dtypes.float64)
 
         super().__init__()
 
@@ -117,11 +120,11 @@ class MemristiveFullyConnected(layers.Layer):
 
         if self.uses_double_weights:
 
-            pos_biases = tf.expand_dims(self.b_pos, 0)
-            neg_biases = tf.expand_dims(self.b_neg, 0)
+            pos_biases = tf.expand_dims(self.b_pos, 0) # (1, 112)
+            neg_biases = tf.expand_dims(self.b_neg, 0) # (1, 112)
 
-            comb_pos = tf.concat([self.w_pos, pos_biases], 0)
-            comb_neg = tf.concat([self.w_neg, neg_biases], 0)
+            comb_pos = tf.concat([self.w_pos, pos_biases], 0) # (785, 112)
+            comb_neg = tf.concat([self.w_neg, neg_biases], 0) # (785, 112)
 
             combined_weights = tf.reshape(
                 tf.concat([comb_pos[..., tf.newaxis], comb_neg[..., tf.newaxis]], -1),
