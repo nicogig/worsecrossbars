@@ -21,6 +21,7 @@ class StuckAtValue:
 
         return f"StuckAtValue (Value: {self.value}; Probability: {self.probability*100}%)"
 
+    @tf.function
     def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
         """"""
 
