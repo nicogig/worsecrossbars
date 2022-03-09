@@ -152,7 +152,7 @@ class MemristiveFullyConnected(layers.Layer):
             )
         
         if self.prob_mask is None:
-            self.prob_mask = tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
+            self.prob_mask = tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64).numpy().tolist()
 
         # Either this is not working correctly
         # or it is extremely detrimental to the network.
