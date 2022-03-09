@@ -33,6 +33,8 @@ class MemristiveFullyConnected(layers.Layer):
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
 
+        self.prob_mask = None
+
         super().__init__()
 
     def get_output_shape_for(self, input_shape):
@@ -158,7 +160,11 @@ class MemristiveFullyConnected(layers.Layer):
         # Applying linearity-preserving nonidealities
         for nonideality in self.nonidealities:
             if nonideality.is_linearity_preserving:
-                conductances = nonideality.alter_conductances(conductances)
+                # Gen a probability mask for the current layer if one has not been generated yet.
+                if self.prob_mask is None:
+                    self.prob_mask = tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
+                
+                conductances = nonideality.alter_conductances(conductances, self.prob_mask)
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None

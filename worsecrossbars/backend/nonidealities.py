@@ -15,23 +15,25 @@ class StuckAtValue:
         self.value = value
         self.probability = probability
         self.is_linearity_preserving = True
-        self.mask = None
 
     def __repr__(self) -> str:
 
         return f"StuckAtValue (Value: {self.value}; Probability: {self.probability*100}%)"
 
     @tf.function
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
+    def alter_conductances(self, conductances: tf.Tensor, prob_mask: tf.Tensor = None) -> tf.Tensor:
         """"""
 
-        if self.mask is None:
+        if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values
-            self.mask = (
+            mask = (
                 tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
                 < self.probability
             )
-        altered_conductances = tf.where(self.mask, self.value, conductances)
+        else:
+            mask = prob_mask < self.probability
+        
+        altered_conductances = tf.where(mask, self.value, conductances)
 
         return altered_conductances
 
