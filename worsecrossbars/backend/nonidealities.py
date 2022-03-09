@@ -75,15 +75,18 @@ class StuckDistribution:
 
         return f"StuckDistribution (Distrib: {self.distrib}; Probability: {self.probability*100}%)"
 
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
+    @tf.function
+    def alter_conductances(self, conductances: tf.Tensor, prob_mask: tf.Tensor = None) -> tf.Tensor:
         """"""
 
-        if self.mask is None:
+        if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values
-            self.mask = (
+            mask = (
                 tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
                 < self.probability
             )
+        else:
+            mask = prob_mask < self.probability
         if self.indices is None:
             self.indices = tf.random.uniform(
                 conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
@@ -92,7 +95,7 @@ class StuckDistribution:
         for index, level in enumerate(self.distrib):
             altered_conductances = tf.where(tf.equal(self.indices, index), level, conductances)
 
-        altered_conductances = tf.where(self.mask, altered_conductances, conductances)
+        altered_conductances = tf.where(mask, altered_conductances, conductances)
 
         return altered_conductances
 
