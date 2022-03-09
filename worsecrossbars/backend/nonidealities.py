@@ -39,6 +39,7 @@ class StuckAtValue:
 
         self.probability = probability
         self.mask = None
+        return 1
 
 
 class StuckDistribution:

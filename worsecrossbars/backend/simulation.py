@@ -165,7 +165,7 @@ def run_simulations(
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
-                nonideality.update(percentage)
+                _ = nonideality.update(percentage)
 
         # Running simulations
         simulation_results = _simulate(
