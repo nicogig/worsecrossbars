@@ -134,6 +134,7 @@ class MemristiveFullyConnected(layers.Layer):
 
         return combined_weights
 
+    @tf.function
     def memristive_outputs(self, x, weights):
         """"""
 
