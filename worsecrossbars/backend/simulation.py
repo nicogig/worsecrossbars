@@ -16,7 +16,6 @@ from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.nonidealities import StuckDistribution
 
 
-@tf.function
 def _simulate(
     simulation_parameters: dict,
     nonidealities: list,
