@@ -33,7 +33,7 @@ class MemristiveFullyConnected(layers.Layer):
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
 
-        self.prob_mask = None
+        self.prob_mask = tf.random.uniform([neurons_in, neurons_out], 0, 1, dtype=tf.dtypes.float64)
 
         super().__init__()
 
@@ -151,8 +151,6 @@ class MemristiveFullyConnected(layers.Layer):
                 weights, self.G_off, self.G_on, self.mapping_rule
             )
         
-        if self.prob_mask is None:
-            self.prob_mask = np.random.uniform(size=conductances.shape).tolist()
 
         # Either this is not working correctly
         # or it is extremely detrimental to the network.
