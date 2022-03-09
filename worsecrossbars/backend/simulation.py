@@ -32,7 +32,7 @@ def _simulate(
 
     for simulation in range(simulation_parameters["number_simulations"]):
 
-        nonideality_labels = [nonideality.label() for nonideality in nonidealities]
+        nonideality_labels = [str(nonideality) for nonideality in nonidealities]
         print(f"Simulation #{simulation+1}, nonidealities: {nonideality_labels}")
 
         model = mnist_mlp(
