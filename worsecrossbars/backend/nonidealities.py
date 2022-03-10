@@ -41,7 +41,6 @@ class StuckAtValue:
         """"""
 
         self.probability = probability
-        self.mask = None
         return None
 
 
@@ -87,6 +86,7 @@ class StuckDistribution:
             )
         else:
             mask = prob_mask < self.probability
+
         if self.indices is None:
             self.indices = tf.random.uniform(
                 conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
@@ -103,7 +103,6 @@ class StuckDistribution:
         """"""
 
         self.probability = probability
-        self.mask = None
         self.indices = None
         return None
 
