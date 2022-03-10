@@ -8,8 +8,6 @@ import signal
 import sys
 from pathlib import Path
 
-import multiprocessing_logging
-
 from worsecrossbars.utilities.initial_setup import main_setup
 from worsecrossbars.utilities.io_operations import create_output_structure
 from worsecrossbars.utilities.io_operations import read_external_json
