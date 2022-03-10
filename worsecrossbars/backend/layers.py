@@ -1,5 +1,7 @@
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
+
 from tensorflow.keras import layers
 
 from worsecrossbars.backend import mapping
@@ -32,6 +34,7 @@ class MemristiveFullyConnected(layers.Layer):
         self.regulariser = kwargs.get("regulariser", "L1")
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
+        self.conductance_drifting = kwargs.get("conductance_drifting", True)
 
         if self.uses_double_weights:
             self.prob_mask = tf.random.uniform([neurons_in+1, neurons_out*2], 0, 1, dtype=tf.dtypes.float64)
@@ -167,6 +170,10 @@ class MemristiveFullyConnected(layers.Layer):
             if nonideality.is_linearity_preserving:
                 # Gen a probability mask for the current layer if one has not been generated yet.
                 conductances = nonideality.alter_conductances(conductances, self.prob_mask)
+
+        # Apply conductance drifting
+        if self.conductance_drifting:
+            conductances = tfp.distributions.Normal(loc=conductances, scale=tf.constant(0.1, shape=conductances.shape)).sample()
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None

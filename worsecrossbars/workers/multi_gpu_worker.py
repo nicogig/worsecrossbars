@@ -1,20 +1,15 @@
 """compute:
 Worsecrossbars' main module and entrypoint.
 """
-import argparse
-import gc
+
 import json
 import logging
 import os
-import platform
-import signal
 import sys
-from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple
 
 import horovod.tensorflow as hvd
-import numpy as np
 import tensorflow as tf
 from numpy import ndarray
 
@@ -25,12 +20,6 @@ from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.nonidealities import StuckDistribution
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
-from worsecrossbars.utilities.initial_setup import main_setup
-from worsecrossbars.utilities.io_operations import create_output_structure
-from worsecrossbars.utilities.io_operations import read_external_json
-from worsecrossbars.utilities.io_operations import read_webhook
-from worsecrossbars.utilities.io_operations import user_folders
-from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 
 
@@ -73,25 +62,6 @@ def gen_nonideality_list(simulation_parameters):
                     )
                 )
     return nonidealities
-
-
-def stop_handler(signum, _):
-    """This function handles stop signals transmitted by the Kernel when the script terminates
-    abruptly/unexpectedly."""
-
-    logging.error(
-        "Simulation terminated unexpectedly due to Signal %s",
-        signal.Signals(signum).name,
-    )
-    if command_line_args.teams:
-        sims = json_object["simulations"]
-        teams.send_message(
-            f"Using parameters:\n{sims}\nSignal:{signal.Signals(signum).name}",
-            title="Simulation terminated unexpectedly",
-            color="b90e0a",
-        )
-    gc.collect()
-    sys.exit(1)
 
 
 def worker(
@@ -151,9 +121,8 @@ def worker(
         )
 
 
-def main():
+def main(command_line_args, output_folder, json_object, teams=None):
     """Main point of entry for the computing-side of the package."""
-    # tf.debugging.set_log_device_placement(True)
     hvd.init()
 
     if command_line_args.dropbox:
@@ -180,90 +149,3 @@ def main():
                 color="0060ff",
             )
     sys.exit(0)
-
-
-if __name__ == "__main__":
-
-    # Command line parser for input arguments
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "config",
-        metavar="CONFIG_FILE",
-        nargs="?",
-        help="Provide the config file needed for simulations",
-        type=str,
-        default="",
-    )
-    parser.add_argument(
-        "--setup",
-        dest="setup",
-        metavar="INITIAL_SETUP",
-        help="Run the inital setup",
-        type=bool,
-        default=False,
-    )
-    parser.add_argument(
-        "-w",
-        dest="wipe_current",
-        metavar="WIPE_CURRENT",
-        help="Wipe the current output (or config)",
-        type=bool,
-        default=False,
-    )
-    parser.add_argument(
-        "-d",
-        dest="dropbox",
-        metavar="DROPBOX",
-        help="Enable Dropbox integration",
-        type=bool,
-        default=True,
-    )
-    parser.add_argument(
-        "-t",
-        dest="teams",
-        metavar="MSTEAMS",
-        help="Enable MS Teams integration",
-        type=bool,
-        default=True,
-    )
-
-    command_line_args = parser.parse_args()
-
-    if command_line_args.setup:
-
-        main_setup(command_line_args.wipe_current)
-        sys.exit(0)
-
-    else:
-
-        # Create user and output folders.
-        user_folders()
-        output_folder = create_output_structure(command_line_args.wipe_current)
-
-        logging.basicConfig(
-            filename=str(
-                Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs", "run.log")
-            ),
-            filemode="w",
-            format="[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s",
-            level=logging.INFO,
-            datefmt="%d-%b-%y %H:%M:%S",
-        )
-
-        # Get the JSON supplied, parse it, validate it against a known schema.
-        json_path = Path.cwd().joinpath(command_line_args.config)
-        json_object = read_external_json(str(json_path))
-        validate_json(json_object)
-
-        if command_line_args.teams:
-            teams = MSTeamsNotifier(read_webhook())
-
-        # Attach Signal Handler
-        signal.signal(signal.SIGINT, stop_handler)
-        signal.signal(signal.SIGTERM, stop_handler)
-        if platform.system() == "Darwin" or platform.system() == "Linux":
-            signal.signal(signal.SIGHUP, stop_handler)
-
-        # GoTo main
-        main()

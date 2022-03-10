@@ -23,9 +23,11 @@ def validate_json(extracted_json: dict) -> None:
                 "items": {
                     "type": "object",
                     "properties": {
+                        "conductance_drifting": {"type": "boolean"},
                         "G_off": {"type": "number", "minimum": 0},
                         "G_on": {"type": "number", "minimum": 0},
                         "k_V": {"type": "number", "minimum": 0},
+                        "discretisation": {"type": "boolean"},
                         "number_conductance_levels": {"type": "integer", "minimum": 0},
                         "excluded_weights_proportion": {
                             "type": "number",
@@ -57,9 +59,29 @@ def validate_json(extracted_json: dict) -> None:
                         "noise_variance": {"type": "number", "minimum": 0},
                         "number_simulations": {"type": "integer", "minimum": 1},
                     },
+                    "required": ["conductance_drifting", "discretisation", "G_off", "G_on", "k_V", "number_hidden_layers", "nonidealities", "noise_variance", "number_simulations"],
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {"conductance_drifting": { "const": True }}
+                            },
+                            "then": {
+                                "properties": {"discretisation": { "const": False }}
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {"discretisation": { "const": True }}
+                            },
+                            "then": {
+                                "properties": {"conductance_drifting": { "const": False }}
+                            }
+                        },
+                    ],
                 },
             },
         },
+        "required": ["simulations"]
     }
 
     try:

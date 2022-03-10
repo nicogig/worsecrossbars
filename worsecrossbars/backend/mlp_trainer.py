@@ -105,7 +105,7 @@ def train_mlp(
     """
 
     # kwargs unpacking
-    discretise = kwargs.get("discretise", True)
+    discretise = kwargs.get("discretise", False) # Default should be conductance_drifting
     hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
     number_conductance_levels = kwargs.get("number_conductance_levels", 10)
     excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)

@@ -20,8 +20,7 @@ def mnist_mlp(
     neurons: List[int] = None,
     model_name: str = "",
     noise_variance: float = 0.0,
-    debug: bool = False,
-    horovod: bool = False,
+    **kwargs,
 ) -> Model:
     """This function returns a Keras model set up to be trained to recognise digits from the MNIST
     dataset (784 input neurons, 10 softmax output neurons).
@@ -61,6 +60,11 @@ def mnist_mlp(
       model: Keras model object, contaning the desired topology.
     """
 
+    debug = kwargs.get("debug", False)
+    horovod = kwargs.get("horovod", False)
+    conductance_drifting = kwargs.get("conductance_drifting", True)
+
+
     default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
 
     # Setting default argument values
@@ -86,7 +90,15 @@ def mnist_mlp(
 
     # Creating first hidden layer
     model.add(
-        MemristiveFullyConnected(784, neurons[0], G_off, G_on, k_V, nonidealities=nonidealities)
+        MemristiveFullyConnected(
+            784,
+            neurons[0],
+            G_off,
+            G_on,
+            k_V,
+            nonidealities=nonidealities,
+            conductance_drifting=conductance_drifting
+            )
     )
 
     if noise_variance:
@@ -105,6 +117,7 @@ def mnist_mlp(
                 G_on,
                 k_V,
                 nonidealities=nonidealities,
+                conductance_drifting=conductance_drifting
             )
         )
 
@@ -115,7 +128,7 @@ def mnist_mlp(
 
     # Creating output layer
     model.add(
-        MemristiveFullyConnected(neurons[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities)
+        MemristiveFullyConnected(neurons[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities, conductance_drifting=conductance_drifting)
     )
     model.add(Activation("softmax"))
 
