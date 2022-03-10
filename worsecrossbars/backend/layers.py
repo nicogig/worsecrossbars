@@ -37,9 +37,13 @@ class MemristiveFullyConnected(layers.Layer):
         self.conductance_drifting = kwargs.get("conductance_drifting", True)
 
         if self.uses_double_weights:
-            self.prob_mask = tf.random.uniform([neurons_in+1, neurons_out*2], 0, 1, dtype=tf.dtypes.float64)
+            self.prob_mask = tf.random.uniform(
+                [neurons_in + 1, neurons_out * 2], 0, 1, dtype=tf.dtypes.float64
+            )
         else:
-            self.prob_mask = tf.random.uniform([neurons_in+1, neurons_out], 0, 1, dtype=tf.dtypes.float64)
+            self.prob_mask = tf.random.uniform(
+                [neurons_in + 1, neurons_out], 0, 1, dtype=tf.dtypes.float64
+            )
 
         super().__init__()
 
@@ -123,11 +127,11 @@ class MemristiveFullyConnected(layers.Layer):
 
         if self.uses_double_weights:
 
-            pos_biases = tf.expand_dims(self.b_pos, 0) # (1, 112)
-            neg_biases = tf.expand_dims(self.b_neg, 0) # (1, 112)
+            pos_biases = tf.expand_dims(self.b_pos, 0)  # (1, 112)
+            neg_biases = tf.expand_dims(self.b_neg, 0)  # (1, 112)
 
-            comb_pos = tf.concat([self.w_pos, pos_biases], 0) # (785, 112)
-            comb_neg = tf.concat([self.w_neg, neg_biases], 0) # (785, 112)
+            comb_pos = tf.concat([self.w_pos, pos_biases], 0)  # (785, 112)
+            comb_neg = tf.concat([self.w_neg, neg_biases], 0)  # (785, 112)
 
             combined_weights = tf.reshape(
                 tf.concat([comb_pos[..., tf.newaxis], comb_neg[..., tf.newaxis]], -1),
@@ -156,7 +160,6 @@ class MemristiveFullyConnected(layers.Layer):
             conductances, max_weight = mapping.weights_to_conductances(
                 weights, self.G_off, self.G_on, self.mapping_rule
             )
-        
 
         # Either this is not working correctly
         # or it is extremely detrimental to the network.
@@ -173,7 +176,9 @@ class MemristiveFullyConnected(layers.Layer):
 
         # Apply conductance drifting
         if self.conductance_drifting:
-            conductances = tfp.distributions.Normal(loc=conductances, scale=tf.constant(0.1, shape=conductances.shape)).sample()
+            conductances = tfp.distributions.Normal(
+                loc=conductances, scale=conductances * 0.05
+            ).sample()
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None

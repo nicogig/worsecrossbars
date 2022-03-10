@@ -32,7 +32,7 @@ class StuckAtValue:
             )
         else:
             mask = prob_mask < self.probability
-        
+
         altered_conductances = tf.where(mask, self.value, conductances)
 
         return altered_conductances
@@ -42,7 +42,7 @@ class StuckAtValue:
 
         self.probability = probability
         self.mask = None
-        return 1
+        return None
 
 
 class StuckDistribution:
@@ -105,6 +105,7 @@ class StuckDistribution:
         self.probability = probability
         self.mask = None
         self.indices = None
+        return None
 
 
 class D2DVariability:
