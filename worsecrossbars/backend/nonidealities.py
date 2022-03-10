@@ -21,8 +21,11 @@ class StuckAtValue:
         return f"StuckAtValue (Value: {self.value}; Probability: {self.probability*100}%)"
 
     @tf.function
-    def alter_conductances(self, conductances: tf.Tensor, prob_mask: tf.Tensor = None) -> tf.Tensor:
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
         """"""
+
+        # Unpacking kwargs
+        prob_mask = kwargs.get("prob_mask", None)
 
         if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values
@@ -51,8 +54,6 @@ class StuckDistribution:
 
         self.probability = probability
         self.is_linearity_preserving = True
-        self.mask = None
-        self.indices = None
         if distrib is not None:
             self.distrib = distrib
             self.num_of_weights = len(distrib)
@@ -75,8 +76,12 @@ class StuckDistribution:
         return f"StuckDistribution (Distrib: {self.distrib}; Probability: {self.probability*100}%)"
 
     @tf.function
-    def alter_conductances(self, conductances: tf.Tensor, prob_mask: tf.Tensor = None) -> tf.Tensor:
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
         """"""
+
+        # Unpacking kwargs
+        prob_mask = kwargs.get("prob_mask", None)
+        indices = kwargs.get("indices")
 
         if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values
@@ -87,13 +92,13 @@ class StuckDistribution:
         else:
             mask = prob_mask < self.probability
 
-        if self.indices is None:
-            self.indices = tf.random.uniform(
+        if indices == tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32):
+            indices = tf.random.uniform(
                 conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
             )
 
         for index, level in enumerate(self.distrib):
-            altered_conductances = tf.where(tf.equal(self.indices, index), level, conductances)
+            altered_conductances = tf.where(tf.equal(indices, index), level, conductances)
 
         altered_conductances = tf.where(mask, altered_conductances, conductances)
 
@@ -103,7 +108,6 @@ class StuckDistribution:
         """"""
 
         self.probability = probability
-        self.indices = None
         return None
 
 
@@ -121,7 +125,7 @@ class D2DVariability:
 
         return f"D2DVariability (On_std: {self.on_std}; Off_std: {self.off_std})"
 
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
 
         resistances = 1 / conductances
         resistance_on = 1 / self.G_on
