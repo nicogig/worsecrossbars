@@ -22,13 +22,14 @@ def worker(
     simulation_parameters: dict,
     _output_folder: str,
     _teams: MSTeamsNotifier = None,
+    _logger: logging.Logger = None,
     _batch_size: int = 100,
 ):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     process_id = os.getpid()
 
-    logging.info("Attempting simulation with process ID %d.", process_id)
+    _logger.write(f"Attempting simulation with process ID {process_id}")
 
     if _teams:
         _teams.send_message(
@@ -39,7 +40,7 @@ def worker(
 
     # Running simulations
     accuracies, pre_discretisation_accuracies = run_simulations(
-        simulation_parameters, dataset, batch_size=_batch_size
+        simulation_parameters, dataset, batch_size=_batch_size, logger=_logger
     )
 
     # Saving accuracies array to file
@@ -62,7 +63,7 @@ def worker(
         }
         json.dump(output_object, file)
 
-    logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
+    _logger.write(f"Saved accuracy data for simulation with process ID {process_id}")
 
     if _teams:
         _teams.send_message(
@@ -72,7 +73,7 @@ def worker(
         )
 
 
-def main(command_line_args, output_folder, json_object, teams=None):
+def main(command_line_args, output_folder, json_object, teams=None, logger=None):
     """Main point of entry for the computing-side of the package."""
 
     if command_line_args.dropbox:
@@ -85,12 +86,12 @@ def main(command_line_args, output_folder, json_object, teams=None):
     for simulation_parameters in json_object["simulations"]:
         if command_line_args.teams is None:
             process = Process(
-                target=worker, args=[dataset, simulation_parameters, output_folder]
+                target=worker, args=[dataset, simulation_parameters, output_folder, None, logger]
             )
         else:
             process = Process(
                 target=worker,
-                args=[dataset, simulation_parameters, output_folder, teams],
+                args=[dataset, simulation_parameters, output_folder, teams, logger],
             )
         process.start()
         pool.append(process)
@@ -100,7 +101,7 @@ def main(command_line_args, output_folder, json_object, teams=None):
 
     if command_line_args.dropbox:
         dbx.upload()
-        logging.info("Uploaded simulation outcome to Dropbox.")
+        logger.write("Uploaded simulation outcome to Dropbox.")
         if command_line_args.teams:
             teams.send_message(
                 f"Simulations {output_folder} uploaded successfully.",

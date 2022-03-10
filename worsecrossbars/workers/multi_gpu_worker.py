@@ -23,74 +23,33 @@ from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 
 
-def gen_nonideality_list(simulation_parameters):
-    nonidealities = []
-
-    while simulation_parameters["nonidealities"] > 0:
-        nonideality = simulation_parameters["nonidealities"].pop()
-
-        if nonideality["type"] == "IVNonlinear":
-            nonidealities.append(
-                IVNonlinear(
-                    V_ref=nonideality["parameters"][0],
-                    avg_gamma=nonideality["parameters"][1],
-                    std_gamma=nonideality["parameters"][2],
-                )
-            )
-        elif nonideality["type"] == "D2DVariability":
-            nonidealities.append(
-                D2DVariability(
-                    simulation_parameters["G_off"],
-                    simulation_parameters["G_on"],
-                    nonideality["parameters"][0],
-                    nonideality["parameters"][1],
-                )
-            )
-        elif nonideality["type"] == "StuckAtValue":
-            nonidealities.append(StuckAtValue(value=nonideality["parameters"][0]))
-            simulation_parameters["nonidealities"].remove(nonideality)
-        else:
-            if isinstance(nonideality["parameters"][0], list):
-                nonidealities.append(StuckDistribution(distrib=nonideality["parameters"][0]))
-                simulation_parameters["nonidealities"].remove(nonideality)
-            elif isinstance(nonideality["parameters"][0], int):
-                nonidealities.append(
-                    StuckDistribution(
-                        num_of_weights=nonideality["parameters"][0],
-                        G_off=simulation_parameters["G_off"],
-                        G_on=simulation_parameters["G_on"],
-                    )
-                )
-    return nonidealities
-
-
 def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
     _output_folder: str,
-    horovod: bool = False,
     _teams: MSTeamsNotifier = None,
+    _logger: logging.Logger = None,
     _batch_size: int = 100,
 ):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
-    process_id = os.getpid()
+    if hvd.rank() == 0:
+        process_id = os.getpid()
+        _logger.write(f"Attempting simulation with process ID {process_id}")
 
-    logging.info("Attempting simulation with process ID %d.", process_id)
-
-    if _teams and hvd.rank() == 0:
-        _teams.send_message(
-            f"Process ID: {process_id}\nSimulation parameters:\n{simulation_parameters}",
-            title="Started simulation",
-            color="ffca33",
-        )
+        if _teams:
+            _teams.send_message(
+                f"Process ID: {process_id}\nSimulation parameters:\n{simulation_parameters}",
+                title="Started simulation",
+                color="ffca33",
+            )
 
     # Running simulations
     accuracies, pre_discretisation_accuracies = run_simulations(
-        simulation_parameters, dataset, batch_size=_batch_size, horovod=horovod
+        simulation_parameters, dataset, batch_size=_batch_size, horovod=True, logger=_logger
     )
 
-    if horovod and hvd.rank() == 0:
+    if hvd.rank() == 0:
         # Saving accuracies array to file
         with open(
             str(
@@ -111,17 +70,17 @@ def worker(
             }
             json.dump(output_object, file)
 
-        logging.info("Saved accuracy data for simulation with process ID %d.", process_id)
+        _logger.info("Saved accuracy data for simulation with process ID %d.", process_id)
 
-    if _teams and hvd.rank() == 0:
-        _teams.send_message(
-            f"Process ID: {process_id}",
-            title="Finished simulation",
-            color="1fd513",
-        )
+        if _teams:
+            _teams.send_message(
+                f"Process ID: {process_id}",
+                title="Finished simulation",
+                color="1fd513",
+            )
 
 
-def main(command_line_args, output_folder, json_object, teams=None):
+def main(command_line_args, output_folder, json_object, teams=None, logger=None):
     """Main point of entry for the computing-side of the package."""
     hvd.init()
 
@@ -137,11 +96,11 @@ def main(command_line_args, output_folder, json_object, teams=None):
         tf.config.set_visible_devices(gpus[hvd.local_rank() + 1], "GPU")
 
     for simulation_parameters in json_object["simulations"]:
-        worker(dataset, simulation_parameters, output_folder, True, teams)
+        worker(dataset, simulation_parameters, output_folder, teams, logger)
 
     if command_line_args.dropbox:
         dbx.upload()
-        logging.info("Uploaded simulation outcome to Dropbox.")
+        logger.write("Uploaded simulation outcome to Dropbox.")
         if command_line_args.teams:
             teams.send_message(
                 f"Simulations {output_folder} uploaded successfully.",

@@ -3,11 +3,12 @@ Worsecrossbars' main module and entrypoint.
 """
 import argparse
 import gc
-import logging
 import platform
 import signal
 import sys
 from pathlib import Path
+
+import multiprocessing_logging
 
 from worsecrossbars.utilities.initial_setup import main_setup
 from worsecrossbars.utilities.io_operations import create_output_structure
@@ -16,6 +17,7 @@ from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.workers import traditional_worker
 
 
@@ -23,9 +25,9 @@ def stop_handler(signum, _):
     """This function handles stop signals transmitted by the Kernel when the script terminates
     abruptly/unexpectedly."""
 
-    logging.error(
-        "Simulation terminated unexpectedly due to Signal %s",
-        signal.Signals(signum).name,
+    logger.write(
+        f"Simulation terminated unexpectedly due to Signal {signal.Signals(signum).name}",
+        "ERROR"
     )
     if command_line_args.teams:
         sims = json_object["simulations"]
@@ -43,9 +45,9 @@ def main():
 
     if command_line_args.multiGPU:
         from worsecrossbars.workers import multi_gpu_worker
-        multi_gpu_worker.main(command_line_args, output_folder, json_object, teams)
+        multi_gpu_worker.main(command_line_args, output_folder, json_object, teams, logger)
     else:
-        traditional_worker.main(command_line_args, output_folder, json_object, teams)
+        traditional_worker.main(command_line_args, output_folder, json_object, teams, logger)
 
 
 if __name__ == "__main__":
@@ -114,16 +116,8 @@ if __name__ == "__main__":
         # Create user and output folders.
         user_folders()
         output_folder = create_output_structure(command_line_args.wipe_current)
-
-        logging.basicConfig(
-            filename=str(
-                Path.home().joinpath("worsecrossbars", "outputs", output_folder, "logs", "run.log")
-            ),
-            filemode="w",
-            format="[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s",
-            level=logging.INFO,
-            datefmt="%d-%b-%y %H:%M:%S",
-        )
+        
+        logger = Logging(output_folder)
 
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
