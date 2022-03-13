@@ -50,7 +50,6 @@ def _simulate(
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
-            debug=True
         )
 
         *_, pre_discretisation_accuracy = train_mlp(
@@ -132,8 +131,7 @@ def run_simulations(
         return accuracies, pre_discretisation_accuracies
 
     # Generating vectors to be used for device-percentage-based nonidealities analysis
-    # percentages = np.arange(0.0, 1.01, 0.02).round(2)
-    percentages = np.arange(0.8, 1.01, 0.1).round(2)
+    percentages = np.arange(0.0, 1.01, 0.02).round(2)
     accuracies = np.zeros(percentages.size)
     pre_discretisation_accuracies = np.zeros(percentages.size)
 
@@ -174,8 +172,7 @@ def run_simulations(
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
-                nonideality.probability = percentage
-                print(nonideality.probability)
+                _ = nonideality.update(percentage)
 
         # Running simulations
         simulation_results = _simulate(

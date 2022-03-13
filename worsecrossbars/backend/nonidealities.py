@@ -21,13 +21,11 @@ class StuckAtValue:
 
         return f"StuckAtValue (Value: {self.value}; Probability: {self.probability*100}%)"
 
-    @tf.function
     def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
         """"""
 
         # Unpacking kwargs
         prob_mask = kwargs.get("prob_mask", None)
-        # tf.print(prob_mask, output_stream=sys.stdout)
 
         if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values
@@ -77,7 +75,6 @@ class StuckDistribution:
 
         return f"StuckDistribution (Distrib: {self.distrib}; Probability: {self.probability*100}%)"
 
-    @tf.function
     def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
         """"""
 
