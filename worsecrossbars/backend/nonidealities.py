@@ -2,6 +2,7 @@
 A backend module used to simulate various memristive nonidealities.
 """
 import copy
+import sys
 from typing import Tuple
 
 import tensorflow as tf
@@ -26,6 +27,7 @@ class StuckAtValue:
 
         # Unpacking kwargs
         prob_mask = kwargs.get("prob_mask", None)
+        # tf.print(prob_mask, output_stream=sys.stdout)
 
         if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values

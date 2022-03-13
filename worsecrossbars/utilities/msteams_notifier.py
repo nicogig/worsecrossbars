@@ -33,4 +33,8 @@ class MSTeamsNotifier:
             msteams_message.title(title)
         if color:
             msteams_message.color(color)
-        msteams_message.send()
+        try:
+            msteams_message.send()
+        except Exception as e:
+            print(f"An exception was raised while sending a message: {e}")
+            
