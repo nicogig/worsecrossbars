@@ -18,7 +18,7 @@
                 }
             ],
             "noise_variance": 0,
-            "number_simulations": 15
+            "number_simulations": 1
         },
         {
             "G_off": 7.723066346443375e-07,

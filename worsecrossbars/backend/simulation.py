@@ -50,6 +50,7 @@ def _simulate(
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
+            debug=True
         )
 
         *_, pre_discretisation_accuracy = train_mlp(
@@ -173,7 +174,8 @@ def run_simulations(
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
-                _ = nonideality.update(percentage)
+                nonideality.probability = percentage
+                print(nonideality.probability)
 
         # Running simulations
         simulation_results = _simulate(
