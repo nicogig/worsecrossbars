@@ -50,7 +50,6 @@ def _simulate(
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
-            debug=True
         )
 
         *_, pre_discretisation_accuracy = train_mlp(
