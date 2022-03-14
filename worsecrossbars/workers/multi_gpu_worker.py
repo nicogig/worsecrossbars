@@ -70,7 +70,7 @@ def worker(
             }
             json.dump(output_object, file)
 
-        _logger.info("Saved accuracy data for simulation with process ID %d.", process_id)
+        _logger.write(f"Saved accuracy data for simulation with process ID {process_id}.")
 
         if _teams:
             _teams.send_message(
