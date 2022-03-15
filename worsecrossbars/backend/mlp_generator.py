@@ -134,13 +134,15 @@ def mnist_mlp(
 
     if horovod:
         import horovod.tensorflow as hvd
-        opt = tf.keras.optimizers.Adam(0.001*hvd.size())
+        # opt = tf.keras.optimizers.Adam(0.001*hvd.size())
+        opt = tf.keras.optimizers.SGD(0.01*hvd.size())
         opt = hvd.DistributedOptimizer(opt)
         model.compile(
             optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
         )
     else:
-        opt = tf.keras.optimizers.Adam()
+        # opt = tf.keras.optimizers.Adam()
+        opt = tf.keras.optimizers.SGD()
         model.compile(
             optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
         )
