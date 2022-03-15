@@ -23,6 +23,11 @@ def validate_json(extracted_json: dict) -> None:
                 "items": {
                     "type": "object",
                     "properties": {
+                        "tiny_model": {"type": "boolean"},
+                        "optimiser": {
+                            "type": "string",
+                            "enum": ["adam", "sgd"]
+                        },
                         "conductance_drifting": {"type": "boolean"},
                         "G_off": {"type": "number", "minimum": 0},
                         "G_on": {"type": "number", "minimum": 0},
@@ -59,7 +64,7 @@ def validate_json(extracted_json: dict) -> None:
                         "noise_variance": {"type": "number", "minimum": 0},
                         "number_simulations": {"type": "integer", "minimum": 1},
                     },
-                    "required": ["conductance_drifting", "discretisation", "G_off", "G_on", "k_V", "number_hidden_layers", "nonidealities", "noise_variance", "number_simulations"],
+                    "required": ["tiny_model", "optimiser", "conductance_drifting", "discretisation", "G_off", "G_on", "k_V", "number_hidden_layers", "nonidealities", "noise_variance", "number_simulations"],
                     "allOf": [
                         {
                             "if": {

@@ -63,6 +63,7 @@ def mnist_mlp(
     debug = kwargs.get("debug", False)
     horovod = kwargs.get("horovod", False)
     conductance_drifting = kwargs.get("conductance_drifting", True)
+    optimiser = kwargs.get("optimiser", "adam")
 
 
     default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
@@ -134,15 +135,19 @@ def mnist_mlp(
 
     if horovod:
         import horovod.tensorflow as hvd
-        # opt = tf.keras.optimizers.Adam(0.001*hvd.size())
-        opt = tf.keras.optimizers.SGD(0.01*hvd.size())
+        if optimiser == "adam":
+            opt = tf.keras.optimizers.Adam(0.001*hvd.size())
+        elif optimiser == "sgd":
+            opt = tf.keras.optimizers.SGD(0.01*hvd.size())
         opt = hvd.DistributedOptimizer(opt)
         model.compile(
             optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
         )
     else:
-        # opt = tf.keras.optimizers.Adam()
-        opt = tf.keras.optimizers.SGD()
+        if optimiser == "adam":
+            opt = tf.keras.optimizers.Adam()
+        elif optimiser == "sgd":
+            opt = tf.keras.optimizers.SGD()
         model.compile(
             optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
         )
