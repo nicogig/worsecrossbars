@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Tuple
 
 from numpy import ndarray
+import tensorflow as tf
 
 from worsecrossbars.backend.mlp_trainer import mnist_datasets
 from worsecrossbars.backend.simulation import run_simulations
@@ -85,7 +86,8 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
 
     for simulation_parameters in json_object["simulations"]:
 
-        worker(dataset, simulation_parameters, output_folder, teams, logger)
+        with tf.device('/device:gpu:1'):
+            worker(dataset, simulation_parameters, output_folder, teams, logger)
         
         #if command_line_args.teams is None:
         #    process = Process(
