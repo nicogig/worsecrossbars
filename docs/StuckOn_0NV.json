@@ -4,8 +4,8 @@
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "discretisation": false,
-            "conductance_drifting": true,
+            "discretisation": true,
+            "conductance_drifting": false,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 1,
@@ -24,8 +24,8 @@
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "discretisation": false,
-            "conductance_drifting": true,
+            "discretisation": true,
+            "conductance_drifting": false,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 2,
@@ -38,14 +38,14 @@
                 }
             ],
             "noise_variance": 0,
-            "number_simulations": 15
+            "number_simulations": 1
         },
         {
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "discretisation": false,
-            "conductance_drifting": true,
+            "discretisation": true,
+            "conductance_drifting": false,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 3,
@@ -58,14 +58,14 @@
                 }
             ],
             "noise_variance": 0,
-            "number_simulations": 15
+            "number_simulations": 1
         },
         {
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "discretisation": false,
-            "conductance_drifting": true,
+            "discretisation": true,
+            "conductance_drifting": false,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 4,
@@ -78,7 +78,7 @@
                 }
             ],
             "noise_variance": 0,
-            "number_simulations": 15
+            "number_simulations": 1
         }
     ]
 }

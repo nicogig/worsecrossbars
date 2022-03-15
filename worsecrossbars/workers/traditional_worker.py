@@ -50,7 +50,7 @@ def worker(
                 "worsecrossbars",
                 "outputs",
                 _output_folder,
-                f"output_{process_id}.json",
+                f"output_{process_id}_{simulation_parameters['number_hidden_layers']}.json",
             )
         ),
         "w",
