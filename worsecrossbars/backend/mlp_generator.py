@@ -111,7 +111,7 @@ def mnist_mlp(
             k_V,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
-            uses_double_weights=uses_double_weights
+            uses_double_weights=uses_double_weights,
         )
     )
 
@@ -132,7 +132,7 @@ def mnist_mlp(
                 k_V,
                 nonidealities=nonidealities,
                 conductance_drifting=conductance_drifting,
-                uses_double_weights=uses_double_weights
+                uses_double_weights=uses_double_weights,
             )
         )
 
@@ -151,7 +151,7 @@ def mnist_mlp(
             k_V,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
-            uses_double_weights=uses_double_weights
+            uses_double_weights=uses_double_weights,
         )
     )
     model.add(Activation("softmax"))

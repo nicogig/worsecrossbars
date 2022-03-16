@@ -57,7 +57,7 @@ def weights_to_conductances(
 
     else:
 
-        raise ValueError("mapping_style parameter not valid.")
+        raise ValueError('"mapping_style" parameter is not valid.')
 
     conductance_layer = tf.reshape(
         tf.concat([cond_pos[..., tf.newaxis], cond_neg[..., tf.newaxis]], axis=-1),
