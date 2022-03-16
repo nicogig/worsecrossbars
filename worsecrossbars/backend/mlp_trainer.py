@@ -9,19 +9,22 @@ from numpy import ndarray
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
+from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
 
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 
-def mnist_datasets(
+def get_dataset(
+    dataset: str,
     training_validation_ratio: float,
 ) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
-    """This function creates traning and validation datasets based on the MNIST digit database,
-    according to the given training/validation split.
+    """This function creates traning and validation datasets based on either the MNIST digit
+    database, or on the CIFAR-10 image database, according to the given training/validation split.
 
     Args:
+      dataset: String indicating whether the data should be MNIST or CIFAR-10.
       training_validation_ratio: Positive integer/float, ratio between size of training and
         validation datasets, indicating that the training dataset is "training_validation_ratio"
         times bigger than the validation dataset.
@@ -41,12 +44,19 @@ def mnist_datasets(
     if not isinstance(training_validation_ratio, float) or training_validation_ratio < 0:
         raise ValueError('"training_validation_ratio" argument should be a positive real number.')
 
-    # Dataset download
-    (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+    # Dataset download, normalisation and reshaping
+    if dataset == "mnist":
+        (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+        train_data = train_images.reshape((60000, 28 * 28)).astype("float32") / 255.0
+        test_data = test_images.reshape((10000, 28 * 28)).astype("float32") / 255.0
+    elif dataset == "cifar10":
+        (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+        train_data = train_images.astype("float32") / 255.0
+        test_data = test_images.astype("float32") / 255.0
+    else:
+        raise ValueError('"dataset" parameter should be a string equal to "mnist" or "cifar10".')
 
-    # Data reshaping
-    train_data = train_images.reshape((60000, 28 * 28)).astype("float32") / 255
-    test_data = test_images.reshape((10000, 28 * 28)).astype("float32") / 255
+    # Casting labels to categorical form (one-hot encoding)
     train_labels = to_categorical(train_labels)
     test_labels = to_categorical(test_labels)
 
@@ -61,15 +71,6 @@ def mnist_datasets(
         test_data,
         test_labels,
     )
-
-
-def cifar_datasets(
-    training_validation_ratio: float,
-) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
-
-    """"""
-
-    pass
 
 
 def train_mlp(

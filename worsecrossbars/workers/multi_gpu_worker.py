@@ -12,7 +12,7 @@ import horovod.tensorflow as hvd
 import tensorflow as tf
 from numpy import ndarray
 
-from worsecrossbars.backend.mlp_trainer import mnist_datasets
+from worsecrossbars.backend.mlp_trainer import get_dataset
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
@@ -82,7 +82,7 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
     if command_line_args.dropbox:
         dbx = DropboxUpload(output_folder)
 
-    dataset = mnist_datasets(training_validation_ratio=3)
+    dataset = get_dataset("mnist", 3)
 
     gpus = tf.config.list_physical_devices("GPU")
     for gpu in gpus:
