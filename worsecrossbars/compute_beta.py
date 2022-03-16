@@ -14,8 +14,8 @@ from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
-from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.utilities.logging_module import Logging
+from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.workers import traditional_worker
 
 
@@ -24,8 +24,7 @@ def stop_handler(signum, _):
     abruptly/unexpectedly."""
 
     logger.write(
-        f"Simulation terminated unexpectedly due to Signal {signal.Signals(signum).name}",
-        "ERROR"
+        f"Simulation terminated unexpectedly due to Signal {signal.Signals(signum).name}", "ERROR"
     )
     if command_line_args.teams:
         sims = json_object["simulations"]
@@ -43,6 +42,7 @@ def main():
 
     if command_line_args.multiGPU:
         from worsecrossbars.workers import multi_gpu_worker
+
         multi_gpu_worker.main(command_line_args, output_folder, json_object, teams, logger)
     else:
         traditional_worker.main(command_line_args, output_folder, json_object, teams, logger)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         metavar="MULTIGPU",
         help="Enable MultiGPU Support",
         type=bool,
-        default=False
+        default=False,
     )
 
     command_line_args = parser.parse_args()
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         # Create user and output folders.
         user_folders()
         output_folder = create_output_structure(command_line_args.wipe_current)
-        
+
         logger = Logging(output_folder)
 
         # Get the JSON supplied, parse it, validate it against a known schema.

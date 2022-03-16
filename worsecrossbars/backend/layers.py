@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-
 from tensorflow.keras import layers
 
 from worsecrossbars.backend import mapping
@@ -133,11 +132,11 @@ class MemristiveFullyConnected(layers.Layer):
 
         if self.uses_double_weights:
 
-            pos_biases = tf.expand_dims(self.b_pos, 0)  # (1, 112)
-            neg_biases = tf.expand_dims(self.b_neg, 0)  # (1, 112)
+            pos_biases = tf.expand_dims(self.b_pos, 0)
+            neg_biases = tf.expand_dims(self.b_neg, 0)
 
-            comb_pos = tf.concat([self.w_pos, pos_biases], 0)  # (785, 112)
-            comb_neg = tf.concat([self.w_neg, neg_biases], 0)  # (785, 112)
+            comb_pos = tf.concat([self.w_pos, pos_biases], 0)
+            comb_neg = tf.concat([self.w_neg, neg_biases], 0)
 
             combined_weights = tf.reshape(
                 tf.concat([comb_pos[..., tf.newaxis], comb_neg[..., tf.newaxis]], -1),

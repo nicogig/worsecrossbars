@@ -1,7 +1,6 @@
 """compute:
 Worsecrossbars' main module and entrypoint.
 """
-
 import json
 import logging
 import os

@@ -1,7 +1,6 @@
 """compute:
 Worsecrossbars' main module and entrypoint.
 """
-
 import json
 import logging
 import os
@@ -10,13 +9,14 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple
 
-from numpy import ndarray
 import tensorflow as tf
+from numpy import ndarray
 
 from worsecrossbars.backend.mlp_trainer import mnist_datasets
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
+
 
 def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
@@ -81,27 +81,27 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
         dbx = DropboxUpload(output_folder)
 
     dataset = mnist_datasets(training_validation_ratio=3)
-    
+
     pool = []
 
     for simulation_parameters in json_object["simulations"]:
 
-        with tf.device('/device:gpu:1'):
+        with tf.device("/device:gpu:1"):
             worker(dataset, simulation_parameters, output_folder, teams, logger)
-        
-        #if command_line_args.teams is None:
+
+        # if command_line_args.teams is None:
         #    process = Process(
         #        target=worker, args=[dataset, simulation_parameters, output_folder, None, logger]
         #    )
-        #else:
+        # else:
         #    process = Process(
         #        target=worker,
         #        args=[dataset, simulation_parameters, output_folder, teams, logger],
         #    )
-        #process.start()
-        #pool.append(process)
+        # process.start()
+        # pool.append(process)
 
-    #for process in pool:
+    # for process in pool:
     #    process.join()
 
     if command_line_args.dropbox:

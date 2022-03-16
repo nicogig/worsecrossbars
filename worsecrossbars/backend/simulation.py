@@ -21,7 +21,7 @@ def _simulate(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     batch_size: int = 100,
     horovod: bool = False,
-    _logger: Logging = None
+    _logger: Logging = None,
 ) -> Tuple[float, float]:
     """"""
 
@@ -35,11 +35,15 @@ def _simulate(
 
         if horovod:
             import horovod.tensorflow as hvd
-            if hvd.rank() == 0:
-                _logger.write(f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}")
-        else:
-            _logger.write(f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}")
 
+            if hvd.rank() == 0:
+                _logger.write(
+                    f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
+                )
+        else:
+            _logger.write(
+                f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
+            )
 
         model = mnist_mlp(
             simulation_parameters["G_off"],
@@ -51,7 +55,7 @@ def _simulate(
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
             debug=simulation_parameters["tiny_model"],
-            optimiser=simulation_parameters["optimiser"]
+            optimiser=simulation_parameters["optimiser"],
         )
 
         *_, pre_discretisation_accuracy = train_mlp(
@@ -70,7 +74,7 @@ def _simulate(
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
         else:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
-        
+
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
         pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
 
@@ -125,7 +129,12 @@ def run_simulations(
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
         simulation_results = _simulate(
-            simulation_parameters, nonidealities, dataset, batch_size=batch_size, horovod=horovod, _logger=logger
+            simulation_parameters,
+            nonidealities,
+            dataset,
+            batch_size=batch_size,
+            horovod=horovod,
+            _logger=logger,
         )
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])

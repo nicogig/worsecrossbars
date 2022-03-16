@@ -1,10 +1,9 @@
 """mlp_trainer:
 A backend module used to create dataset and train a Keras model on them.
 """
+import math
 from typing import List
 from typing import Tuple
-
-import math
 
 from numpy import ndarray
 from tensorflow.keras import Model
@@ -105,7 +104,7 @@ def train_mlp(
     """
 
     # kwargs unpacking
-    discretise = kwargs.get("discretise", False) # Default should be conductance_drifting
+    discretise = kwargs.get("discretise", False)  # Default should be conductance_drifting
     hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
     number_conductance_levels = kwargs.get("number_conductance_levels", 10)
     excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)
@@ -137,26 +136,28 @@ def train_mlp(
         )
 
     # Training with validation
-    compute_steps_per_epoch = lambda x: int(math.ceil(1. * x / batch_size))
+    compute_steps_per_epoch = lambda x: int(math.ceil(1.0 * x / batch_size))
 
     if horovod:
         import horovod.tensorflow as hvd
+
         scaled_lr = 0.001 * hvd.size()
         callbacks = [
             hvd.keras.callbacks.BroadcastGlobalVariablesCallback(0),
             hvd.keras.callbacks.MetricAverageCallback(),
-            hvd.keras.callbacks.LearningRateWarmupCallback(initial_lr=scaled_lr, warmup_epochs=3, verbose=1),
+            hvd.keras.callbacks.LearningRateWarmupCallback(
+                initial_lr=scaled_lr, warmup_epochs=3, verbose=1
+            ),
         ]
         if hvd.rank() == 0:
             verbose = 2
         else:
             verbose = 0
-        steps = (compute_steps_per_epoch(len(dataset[0][2]))*2) // hvd.size()
+        steps = (compute_steps_per_epoch(len(dataset[0][2])) * 2) // hvd.size()
     else:
         callbacks = []
         verbose = 2
         steps = compute_steps_per_epoch(len(dataset[0][2]))
-
 
     model.is_training = True
     mlp_history = model.fit(
@@ -167,11 +168,11 @@ def train_mlp(
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
         callbacks=callbacks,
-        verbose=verbose
+        verbose=verbose,
     )
     model.is_training = False
     model.run_eagerly = False
-    
+
     pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
 
     # If discrete weights are being used, the the bucketize_weights_layer function is employed.

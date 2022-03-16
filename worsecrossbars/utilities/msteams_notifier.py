@@ -37,4 +37,3 @@ class MSTeamsNotifier:
             msteams_message.send()
         except Exception as e:
             print(f"An exception was raised while sending a message: {e}")
-            

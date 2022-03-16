@@ -3,13 +3,16 @@ A backend module used to create a Keras model for a densely connected MLP with a
 """
 from typing import List
 
+import numpy as np
 import tensorflow as tf
+import tensorflow.keras.backend as K
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import GaussianNoise
 from tensorflow.keras.models import Sequential
 
 from worsecrossbars.backend.layers import MemristiveFullyConnected
+
 
 def mnist_mlp(
     G_off: float,
@@ -60,13 +63,28 @@ def mnist_mlp(
       model: Keras model object, contaning the desired topology.
     """
 
-    debug = kwargs.get("debug", False)
+    # Unpacking kwargs
     horovod = kwargs.get("horovod", False)
     conductance_drifting = kwargs.get("conductance_drifting", True)
     optimiser = kwargs.get("optimiser", "adam")
+    model_size = kwargs.get("model_size", "small")
 
+    default_neurons = {
+        "big": {1: [112], 2: [100, 100], 3: [91, 91, 91], 4: [85, 85, 85, 85]},
+        "regular": {1: [53], 2: [50, 50], 3: [47, 47, 47], 4: [45, 45, 45, 45]},
+        "small": {1: [26], 2: [25, 25], 3: [24, 24, 24], 4: [24, 24, 24, 24]},
+        "tiny": {1: [12], 2: [12, 12], 3: [12, 12, 12], 4: [12, 12, 12, 12]},
+    }
 
-    default_neurons = {1: [112], 2: [100, 100], 3: [90, 95, 95], 4: [85, 85, 85, 85]}
+    if not isinstance(model_name, str):
+        raise ValueError('"model_name" argument should be a string object.')
+
+    if not isinstance(model_size, str) or model_size not in ["big", "regular", "small", "tiny"]:
+        raise ValueError(
+            '"model_size" argument should be a string equal to "big", "regular", "small" or "tiny".'
+        )
+
+    default_neurons = default_neurons[model_size]
 
     # Setting default argument values
     if neurons is None:
@@ -74,18 +92,11 @@ def mnist_mlp(
     if model_name == "":
         model_name = f"MNIST_MLP_{number_hidden_layers}HL"
 
-    if debug:
-        number_hidden_layers = 1
-        neurons = [25]
-
     if not isinstance(neurons, list) or len(neurons) != number_hidden_layers:
         raise ValueError(
             '"neurons" argument should be a list object with the same length as '
             + "the number of layers being instantiated."
         )
-
-    if not isinstance(model_name, str):
-        raise ValueError('"model_name" argument should be a string object.')
 
     model = Sequential(name=model_name)
 
@@ -98,8 +109,8 @@ def mnist_mlp(
             G_on,
             k_V,
             nonidealities=nonidealities,
-            conductance_drifting=conductance_drifting
-            )
+            conductance_drifting=conductance_drifting,
+        )
     )
 
     if noise_variance:
@@ -118,7 +129,7 @@ def mnist_mlp(
                 G_on,
                 k_V,
                 nonidealities=nonidealities,
-                conductance_drifting=conductance_drifting
+                conductance_drifting=conductance_drifting,
             )
         )
 
@@ -129,29 +140,54 @@ def mnist_mlp(
 
     # Creating output layer
     model.add(
-        MemristiveFullyConnected(neurons[-1], 10, G_off, G_on, k_V, nonidealities=nonidealities, conductance_drifting=conductance_drifting)
+        MemristiveFullyConnected(
+            neurons[-1],
+            10,
+            G_off,
+            G_on,
+            k_V,
+            nonidealities=nonidealities,
+            conductance_drifting=conductance_drifting,
+        )
     )
     model.add(Activation("softmax"))
 
     if horovod:
         import horovod.tensorflow as hvd
+
         if optimiser == "adam":
-            opt = tf.keras.optimizers.Adam(0.001*hvd.size())
+            opt = tf.keras.optimizers.Adam(0.001 * hvd.size())
         elif optimiser == "sgd":
-            opt = tf.keras.optimizers.SGD(0.01*hvd.size())
+            opt = tf.keras.optimizers.SGD(0.01 * hvd.size())
         opt = hvd.DistributedOptimizer(opt)
-        model.compile(
-            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
-        )
+        model.compile(optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"])
     else:
         if optimiser == "adam":
             opt = tf.keras.optimizers.Adam()
         elif optimiser == "sgd":
             opt = tf.keras.optimizers.SGD()
-        model.compile(
-            optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"]
-        )
-
-
+        model.compile(optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"])
 
     return model
+
+
+def get_number_parameters(model_size: str) -> List[int]:
+
+    model_sizes = []
+
+    for num_hl in range(1, 5):
+
+        model = mnist_mlp(0, 0, 0, number_hidden_layers=num_hl, model_size=model_size)
+        model.build((1, 784))
+        trainable_count = np.sum([K.count_params(w) for w in model.trainable_weights])
+        # non_trainable_count = np.sum([K.count_params(w) for w in model.non_trainable_weights])
+        model_sizes.append(trainable_count)
+
+    return model_sizes
+
+
+if __name__ == "__main__":
+
+    for model_size in ["big", "regular", "small", "tiny"]:
+
+        print(f"{model_size.title()}: {get_number_parameters(model_size)}")
