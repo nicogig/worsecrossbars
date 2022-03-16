@@ -1,6 +1,7 @@
 """mlp_trainer:
 A backend module used to create dataset and train a Keras model on them.
 """
+import math
 from typing import List
 from typing import Tuple
 
@@ -8,19 +9,22 @@ from numpy import ndarray
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
 from tensorflow.keras.datasets import mnist
+from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
 
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 
-def mnist_datasets(
+def get_dataset(
+    dataset: str,
     training_validation_ratio: float,
 ) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
-    """This function creates traning and validation datasets based on the MNIST digit database,
-    according to the given training/validation split.
+    """This function creates traning and validation datasets based on either the MNIST digit
+    database, or on the CIFAR-10 image database, according to the given training/validation split.
 
     Args:
+      dataset: String indicating whether the data should be MNIST or CIFAR-10.
       training_validation_ratio: Positive integer/float, ratio between size of training and
         validation datasets, indicating that the training dataset is "training_validation_ratio"
         times bigger than the validation dataset.
@@ -40,12 +44,19 @@ def mnist_datasets(
     if not isinstance(training_validation_ratio, float) or training_validation_ratio < 0:
         raise ValueError('"training_validation_ratio" argument should be a positive real number.')
 
-    # Dataset download
-    (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+    # Dataset download, normalisation and reshaping
+    if dataset == "mnist":
+        (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+        train_data = train_images.reshape((60000, 28 * 28)).astype("float32") / 255.0
+        test_data = test_images.reshape((10000, 28 * 28)).astype("float32") / 255.0
+    elif dataset == "cifar10":
+        (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+        train_data = train_images.astype("float32") / 255.0
+        test_data = test_images.astype("float32") / 255.0
+    else:
+        raise ValueError('"dataset" parameter should be a string equal to "mnist" or "cifar10".')
 
-    # Data reshaping
-    train_data = train_images.reshape((60000, 28 * 28)).astype("float32") / 255
-    test_data = test_images.reshape((10000, 28 * 28)).astype("float32") / 255
+    # Casting labels to categorical form (one-hot encoding)
     train_labels = to_categorical(train_labels)
     test_labels = to_categorical(test_labels)
 
@@ -62,20 +73,12 @@ def mnist_datasets(
     )
 
 
-def cifar_datasets(
-    training_validation_ratio: float,
-) -> Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]]:
-
-    """"""
-
-    pass
-
-
 def train_mlp(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     model: Model,
     epochs: int,
     batch_size: int,
+    horovod: bool = False,
     **kwargs
 ) -> Tuple[List[ndarray], History]:
     """This function trains a given Keras model on the dataset provided to it.
@@ -102,7 +105,7 @@ def train_mlp(
     """
 
     # kwargs unpacking
-    discretise = kwargs.get("discretise", True)
+    discretise = kwargs.get("discretise", False)  # Default should be conductance_drifting
     hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
     number_conductance_levels = kwargs.get("number_conductance_levels", 10)
     excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)
@@ -134,15 +137,42 @@ def train_mlp(
         )
 
     # Training with validation
+    compute_steps_per_epoch = lambda x: int(math.ceil(1.0 * x / batch_size))
+
+    if horovod:
+        import horovod.tensorflow as hvd
+
+        scaled_lr = 0.001 * hvd.size()
+        callbacks = [
+            hvd.keras.callbacks.BroadcastGlobalVariablesCallback(0),
+            hvd.keras.callbacks.MetricAverageCallback(),
+            hvd.keras.callbacks.LearningRateWarmupCallback(
+                initial_lr=scaled_lr, warmup_epochs=3, verbose=1
+            ),
+        ]
+        if hvd.rank() == 0:
+            verbose = 2
+        else:
+            verbose = 0
+        steps = (compute_steps_per_epoch(len(dataset[0][2])) * 2) // hvd.size()
+    else:
+        callbacks = []
+        verbose = 2
+        steps = compute_steps_per_epoch(len(dataset[0][2]))
+
     model.is_training = True
     mlp_history = model.fit(
         dataset[0][2],
         dataset[0][3],
         epochs=epochs,
+        steps_per_epoch=steps,
         batch_size=batch_size,
         validation_data=(dataset[0][0], dataset[0][1]),
+        callbacks=callbacks,
+        verbose=verbose,
     )
     model.is_training = False
+    model.run_eagerly = False
 
     pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
 

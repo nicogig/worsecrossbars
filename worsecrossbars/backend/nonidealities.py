@@ -2,6 +2,7 @@
 A backend module used to simulate various memristive nonidealities.
 """
 import copy
+import sys
 from typing import Tuple
 
 import tensorflow as tf
@@ -16,27 +17,34 @@ class StuckAtValue:
         self.probability = probability
         self.is_linearity_preserving = True
 
-    def label(self) -> str:
+    def __repr__(self) -> str:
 
-        return f"StuckAtValue: value {self.value}, probability {self.probability}"
+        return f"StuckAtValue (Value: {self.value}; Probability: {self.probability*100}%)"
 
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
-        """A method to alter conductances stored in a PyTorch Tensor.
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
+        """"""
 
-        Args:
-            conductances: A PyTorch tensor containing memristive conductances.
+        # Unpacking kwargs
+        prob_mask = kwargs.get("prob_mask", None)
 
-        Returns:
-            altered_conductances: A PyTorch tensor containing the altered memristive conductances.
-        """
+        if prob_mask is None:
+            # Creating a mask of bools to alter a given percentage of conductance values
+            mask = (
+                tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
+                < self.probability
+            )
+        else:
+            mask = prob_mask < self.probability
 
-        # Creating a mask of bools to alter a given percentage of conductance values
-        mask = (
-            tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
-        )
         altered_conductances = tf.where(mask, self.value, conductances)
 
         return altered_conductances
+
+    def update(self, probability: float) -> None:
+        """"""
+
+        self.probability = probability
+        return None
 
 
 class StuckDistribution:
@@ -63,24 +71,43 @@ class StuckDistribution:
                 .tolist()
             )
 
-    def label(self) -> str:
+    def __repr__(self) -> str:
 
-        return f"StuckDistribution: distrib {self.value}, probability {self.probability}"
+        return f"StuckDistribution (Distrib: {self.distrib}; Probability: {self.probability*100}%)"
 
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
-        """ """
-        mask = (
-            tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64) < self.probability
-        )
-        indices = tf.random.uniform(
-            conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
-        )
-        altered_conds = copy.deepcopy(conductances)
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
+        """"""
+
+        # Unpacking kwargs
+        prob_mask = kwargs.get("prob_mask", None)
+        indices = kwargs.get("indices")
+
+        if prob_mask is None:
+            # Creating a mask of bools to alter a given percentage of conductance values
+            mask = (
+                tf.random.uniform(conductances.shape, 0, 1, dtype=tf.dtypes.float64)
+                < self.probability
+            )
+        else:
+            mask = prob_mask < self.probability
+
+        if indices == tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32):
+            indices = tf.random.uniform(
+                conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
+            )
 
         for index, level in enumerate(self.distrib):
-            altered_conds = tf.where(tf.equal(indices, index), level, altered_conds)
+            altered_conductances = tf.where(tf.equal(indices, index), level, conductances)
 
-        return tf.where(mask, altered_conds, conductances)
+        altered_conductances = tf.where(mask, altered_conductances, conductances)
+
+        return altered_conductances
+
+    def update(self, probability: float) -> None:
+        """"""
+
+        self.probability = probability
+        return None
 
 
 class D2DVariability:
@@ -93,7 +120,11 @@ class D2DVariability:
         self.on_std = on_std
         self.off_std = off_std
 
-    def alter_conductances(self, conductances: tf.Tensor) -> tf.Tensor:
+    def __repr__(self) -> str:
+
+        return f"D2DVariability (On_std: {self.on_std}; Off_std: {self.off_std})"
+
+    def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
 
         resistances = 1 / conductances
         resistance_on = 1 / self.G_on
@@ -109,7 +140,9 @@ class D2DVariability:
 
         resistances = tfp.distributions.LogNormal(log_mu, log_std, validate_args=True).sample()
 
-        return 1 / resistances
+        altered_conductances = 1 / resistances
+
+        return altered_conductances
 
 
 class IVNonlinear:
@@ -121,6 +154,10 @@ class IVNonlinear:
         self.std_gamma = std_gamma
         self.k_V = 2 * self.V_ref
         self.is_linearity_preserving = False
+
+    def __repr__(self) -> str:
+
+        return f"IVNonlinear (V_ref: {self.V_ref}; Avg_gamma: {self.avg_gamma}; Std_gamma: {self.std_gamma})"
 
     def calc_currents(
         self, voltages: tf.Tensor, conductances: tf.Tensor

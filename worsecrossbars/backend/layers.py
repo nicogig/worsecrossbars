@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 from tensorflow.keras import layers
 
 from worsecrossbars.backend import mapping
@@ -32,6 +33,22 @@ class MemristiveFullyConnected(layers.Layer):
         self.regulariser = kwargs.get("regulariser", "L1")
         self.mapping_rule = kwargs.get("mapping_rule", "lowest")
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
+        self.conductance_drifting = kwargs.get("conductance_drifting", True)
+
+        if self.uses_double_weights:
+            self.prob_mask = tf.random.uniform(
+                (neurons_in + 1, neurons_out * 2), 0, 1, dtype=tf.dtypes.float64
+            )
+            self.distr_indices = tf.constant(
+                -1, shape=(neurons_in + 1, neurons_out * 2), dtype=tf.dtypes.int32
+            )
+        else:
+            self.prob_mask = tf.random.uniform(
+                (neurons_in + 1, neurons_out), 0, 1, dtype=tf.dtypes.float64
+            )
+            self.distr_indices = tf.constant(
+                -1, shape=(neurons_in + 1, neurons_out), dtype=tf.dtypes.int32
+            )
 
         super().__init__()
 
@@ -132,6 +149,7 @@ class MemristiveFullyConnected(layers.Layer):
 
         return combined_weights
 
+    @tf.function
     def memristive_outputs(self, x, weights):
         """"""
 
@@ -148,17 +166,19 @@ class MemristiveFullyConnected(layers.Layer):
                 weights, self.G_off, self.G_on, self.mapping_rule
             )
 
-        # Either this is not working correctly
-        # or it is extremely detrimental to the network.
-        # Maybe bucketization should not be something the network is aware of? (i.e. do on device)
-
-        # cond_levels = weights_manipulation.gen_conductance_level(self.G_off, self.G_on, 100, 1000)
-        # conductances = weights_manipulation.bucketize_weights(conductances, cond_levels)
-
         # Applying linearity-preserving nonidealities
         for nonideality in self.nonidealities:
             if nonideality.is_linearity_preserving:
-                conductances = nonideality.alter_conductances(conductances)
+                # Gen a probability mask for the current layer if one has not been generated yet.
+                conductances = nonideality.alter_conductances(
+                    conductances, prob_mask=self.prob_mask, indices=self.distr_indices
+                )
+
+        # Apply conductance drifting
+        if self.conductance_drifting:
+            conductances = tfp.distributions.Normal(
+                loc=conductances, scale=conductances * 0.05
+            ).sample()
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None

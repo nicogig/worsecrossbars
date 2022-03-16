@@ -6,14 +6,13 @@ from typing import Tuple
 import numpy as np
 from numpy import ndarray
 
-import tensorflow as tf
-
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
 from worsecrossbars.backend.nonidealities import D2DVariability
 from worsecrossbars.backend.nonidealities import IVNonlinear
 from worsecrossbars.backend.nonidealities import StuckAtValue
 from worsecrossbars.backend.nonidealities import StuckDistribution
+from worsecrossbars.utilities.logging_module import Logging
 
 
 def _simulate(
@@ -21,6 +20,8 @@ def _simulate(
     nonidealities: list,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     batch_size: int = 100,
+    horovod: bool = False,
+    _logger: Logging = None,
 ) -> Tuple[float, float]:
     """"""
 
@@ -29,8 +30,20 @@ def _simulate(
 
     for simulation in range(simulation_parameters["number_simulations"]):
 
-        nonideality_labels = [nonideality.label() for nonideality in nonidealities]
+        nonideality_labels = [str(nonideality) for nonideality in nonidealities]
         print(f"Simulation #{simulation+1}, nonidealities: {nonideality_labels}")
+
+        if horovod:
+            import horovod.tensorflow as hvd
+
+            if hvd.rank() == 0:
+                _logger.write(
+                    f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
+                )
+        else:
+            _logger.write(
+                f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
+            )
 
         model = mnist_mlp(
             simulation_parameters["G_off"],
@@ -39,18 +52,36 @@ def _simulate(
             nonidealities=nonidealities,
             number_hidden_layers=simulation_parameters["number_hidden_layers"],
             noise_variance=simulation_parameters["noise_variance"],
+            horovod=horovod,
+            conductance_drifting=simulation_parameters["conductance_drifting"],
+            model_size=simulation_parameters["model_size"],
+            optimiser=simulation_parameters["optimiser"],
+            double_weights=simulation_parameters["double_weights"]
         )
+
+        if simulation_parameters["discretisation"]:
+            kwargs = {
+                "discretise": simulation_parameters["discretisation"],
+                "number_conductance_levels": simulation_parameters["number_conductance_levels"],
+                "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"]
+            }
+        else:
+            kwargs = {}
 
         *_, pre_discretisation_accuracy = train_mlp(
             dataset,
             model,
             epochs=60,
             batch_size=batch_size,
-            discretise=True,
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
-            number_conductance_levels=simulation_parameters["number_conductance_levels"],
-            excluded_weights_proportion=simulation_parameters["excluded_weights_proportion"],
+            horovod=horovod,
+            **kwargs
         )
+
+        if horovod and hvd.rank() == 0:
+            _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
+        else:
+            _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
 
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
         pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
@@ -64,8 +95,9 @@ def _simulate(
 def run_simulations(
     simulation_parameters: dict,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
-    tf_device: str,
     batch_size: int = 100,
+    horovod: bool = False,
+    logger: Logging = None,
 ) -> Tuple[ndarray, ndarray]:
     """This function...
 
@@ -104,15 +136,21 @@ def run_simulations(
 
         # If no other nonidealities (i.e. no device-percentage-based nonidealities remain), there
         # is no need to simualate varying percentages of faulty devices.
-        with tf.device(tf_device):
-            simulation_results = _simulate(simulation_parameters, nonidealities, dataset, batch_size=batch_size)
+        simulation_results = _simulate(
+            simulation_parameters,
+            nonidealities,
+            dataset,
+            batch_size=batch_size,
+            horovod=horovod,
+            _logger=logger,
+        )
         accuracies = np.array([simulation_results[0]])
         pre_discretisation_accuracies = np.array([simulation_results[1]])
 
         return accuracies, pre_discretisation_accuracies
 
     # Generating vectors to be used for device-percentage-based nonidealities analysis
-    percentages = np.arange(0, 1.01, 0.02).round(2)
+    percentages = np.arange(0.0, 1.01, 0.02).round(2)
     accuracies = np.zeros(percentages.size)
     pre_discretisation_accuracies = np.zeros(percentages.size)
 
@@ -153,11 +191,12 @@ def run_simulations(
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
-                nonideality.probability = percentage
+                _ = nonideality.update(percentage)
 
         # Running simulations
-        with tf.device(tf_device):
-            simulation_results = _simulate(simulation_parameters, nonidealities, dataset)
+        simulation_results = _simulate(
+            simulation_parameters, nonidealities, dataset, horovod=horovod, _logger=logger
+        )
         accuracies[index] = simulation_results[0]
         pre_discretisation_accuracies[index] = simulation_results[1]
 
