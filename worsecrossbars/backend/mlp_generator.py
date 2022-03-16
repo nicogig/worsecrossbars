@@ -68,6 +68,7 @@ def mnist_mlp(
     conductance_drifting = kwargs.get("conductance_drifting", True)
     optimiser = kwargs.get("optimiser", "adam")
     model_size = kwargs.get("model_size", "small")
+    uses_double_weights = kwargs.get("double_weights", True)
 
     default_neurons = {
         "big": {1: [112], 2: [100, 100], 3: [91, 91, 91], 4: [85, 85, 85, 85]},
@@ -110,6 +111,7 @@ def mnist_mlp(
             k_V,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
+            uses_double_weights=uses_double_weights
         )
     )
 
@@ -130,6 +132,7 @@ def mnist_mlp(
                 k_V,
                 nonidealities=nonidealities,
                 conductance_drifting=conductance_drifting,
+                uses_double_weights=uses_double_weights
             )
         )
 
@@ -148,6 +151,7 @@ def mnist_mlp(
             k_V,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
+            uses_double_weights=uses_double_weights
         )
     )
     model.add(Activation("softmax"))
@@ -159,6 +163,8 @@ def mnist_mlp(
             opt = tf.keras.optimizers.Adam(0.001 * hvd.size())
         elif optimiser == "sgd":
             opt = tf.keras.optimizers.SGD(0.01 * hvd.size())
+        elif optimiser == "rmsprop":
+            opt = tf.keras.optimizers.RMSprop(0.001 * hvd.size())
         opt = hvd.DistributedOptimizer(opt)
         model.compile(optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"])
     else:
@@ -166,6 +172,8 @@ def mnist_mlp(
             opt = tf.keras.optimizers.Adam()
         elif optimiser == "sgd":
             opt = tf.keras.optimizers.SGD()
+        elif optimiser == "rmsprop":
+            opt = tf.keras.optimizers.RMSprop()
         model.compile(optimizer=opt, loss="categorical_crossentropy", metrics=["accuracy"])
 
     return model

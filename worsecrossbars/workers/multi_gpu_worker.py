@@ -13,10 +13,6 @@ import tensorflow as tf
 from numpy import ndarray
 
 from worsecrossbars.backend.mlp_trainer import mnist_datasets
-from worsecrossbars.backend.nonidealities import D2DVariability
-from worsecrossbars.backend.nonidealities import IVNonlinear
-from worsecrossbars.backend.nonidealities import StuckAtValue
-from worsecrossbars.backend.nonidealities import StuckDistribution
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
@@ -56,7 +52,7 @@ def worker(
                     "worsecrossbars",
                     "outputs",
                     _output_folder,
-                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}.json",
+                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}_{simulation_parameters['model_size']}.json",
                 )
             ),
             "w",

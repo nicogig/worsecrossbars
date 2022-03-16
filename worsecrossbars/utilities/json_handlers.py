@@ -28,6 +28,7 @@ def validate_json(extracted_json: dict) -> None:
                             "enum": ["big", "regular", "small", "tiny"],
                         },
                         "optimiser": {"type": "string", "enum": ["adam", "sgd", "rmsprop"]},
+                        "double_weights": {"type": "boolean"},
                         "conductance_drifting": {"type": "boolean"},
                         "G_off": {"type": "number", "minimum": 0},
                         "G_on": {"type": "number", "minimum": 0},
@@ -67,6 +68,7 @@ def validate_json(extracted_json: dict) -> None:
                     "required": [
                         "model_size",
                         "optimiser",
+                        "double_weights",
                         "conductance_drifting",
                         "discretisation",
                         "G_off",
@@ -84,7 +86,10 @@ def validate_json(extracted_json: dict) -> None:
                         },
                         {
                             "if": {"properties": {"discretisation": {"const": True}}},
-                            "then": {"properties": {"conductance_drifting": {"const": False}}},
+                            "then": {
+                                "properties": { "conductance_drifting": {"const": False} },
+                                "required": [ "number_conductance_levels", "excluded_weights_proportion" ]
+                                },
                         },
                     ],
                 },

@@ -54,20 +54,28 @@ def _simulate(
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
-            debug=simulation_parameters["tiny_model"],
+            model_size=simulation_parameters["model_size"],
             optimiser=simulation_parameters["optimiser"],
+            double_weights=simulation_parameters["double_weights"]
         )
+
+        if simulation_parameters["discretisation"]:
+            kwargs = {
+                "discretise": simulation_parameters["discretisation"],
+                "number_conductance_levels": simulation_parameters["number_conductance_levels"],
+                "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"]
+            }
+        else:
+            kwargs = {}
 
         *_, pre_discretisation_accuracy = train_mlp(
             dataset,
             model,
             epochs=60,
             batch_size=batch_size,
-            discretise=simulation_parameters["discretisation"],
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
-            number_conductance_levels=simulation_parameters["number_conductance_levels"],
-            excluded_weights_proportion=simulation_parameters["excluded_weights_proportion"],
             horovod=horovod,
+            **kwargs
         )
 
         if horovod and hvd.rank() == 0:
