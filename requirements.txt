@@ -1,10 +1,9 @@
-matplotlib==3.5.1
-torch>=1.10.2
-torchvision>=0.11.3
+numpy>=1.22.3
+matplotlib>=3.5.1
 pymsteams>=0.1.16
-numpy==1.22.1
 dropbox>=11.23.0
 wget>=3.2
 pylint>=2.11.1
-jsonschema==4.4.0
-tensorflow_probability
+jsonschema>=4.4.0
+tensorflow>=2.8.0
+tensorflow_probability>=0.16.0
