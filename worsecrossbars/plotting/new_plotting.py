@@ -1,6 +1,5 @@
 import argparse
 import os
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -28,6 +27,7 @@ def load_font() -> FontProperties:
 
     return fpath
 
+
 def plot(json_object: dict):
     i = 0
     fpath = load_font()
@@ -51,20 +51,20 @@ def plot(json_object: dict):
                     x_data * 100,
                     np.array(file_as_json["pre_discretisation_accuracies"]) * 100,
                     label=label + " (Pre-Discretisation)",
-                    linewidth=2
+                    linewidth=2,
                 )
                 plt.plot(
                     x_data * 100,
                     np.array(file_as_json["accuracies"]) * 100,
                     label=label + " (Discretised)",
-                    linewidth=2
+                    linewidth=2,
                 )
             else:
                 plt.plot(
                     x_data * 100,
                     np.array(file_as_json["accuracies"]) * 100,
                     label=label,
-                    linewidth=2
+                    linewidth=2,
                 )
 
         plt.xlabel(xlabel, font=fpath, fontsize=20)
@@ -79,6 +79,7 @@ def plot(json_object: dict):
 
         plt.savefig(f"plot_{i}.png", dpi=300)
         i += 1
+
 
 if __name__ == "__main__":
 
