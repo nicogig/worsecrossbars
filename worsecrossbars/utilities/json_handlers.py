@@ -8,14 +8,15 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
 
-def validate_json(extracted_json: dict) -> None:
+def validate_json(extracted_json: dict, json_schema: dict = None) -> None:
     """Validate a given JSON object against a standard schema.
 
     Args:
       extracted_json: The JSON object to be validated.
     """
 
-    json_schema = {
+    if json_schema is None:
+        json_schema = {
         "type": "object",
         "properties": {
             "simulations": {
@@ -96,7 +97,7 @@ def validate_json(extracted_json: dict) -> None:
             },
         },
         "required": ["simulations"],
-    }
+        }
 
     try:
         validate(extracted_json, json_schema)
