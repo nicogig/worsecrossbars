@@ -88,7 +88,7 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
-        tf.config.set_visible_devices(gpus[hvd.local_rank() + 1], "GPU")
+        tf.config.set_visible_devices(gpus[hvd.local_rank()], "GPU")
 
     for simulation_parameters in json_object["simulations"]:
         worker(dataset, simulation_parameters, output_folder, teams, logger)
