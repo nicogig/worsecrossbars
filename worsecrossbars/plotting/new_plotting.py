@@ -9,6 +9,7 @@ from matplotlib.font_manager import FontProperties
 
 from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.json_handlers import validate_json
+from worsecrossbars.utilities.json_schemas import plot_schema
 
 
 def load_font() -> FontProperties:
@@ -39,7 +40,12 @@ def plot(json_object: dict):
             sim_parameters = file_as_json["simulation_parameters"]
             scaling = 1 / (len(file_as_json["accuracies"]) - 1)
             x_data = np.arange(0.0, 1.01, scaling).round(2)
-            label = f"{sim_parameters['model_size']}, {sim_parameters['number_hidden_layers']} HL"
+            label = ""
+            for feature in plot["key_features"]:
+                if feature == "number_hidden_layers":
+                    label += f"{sim_parameters[feature]} HL, "
+                else:
+                    label += f"{sim_parameters[feature]}, "
             if sim_parameters["discretisation"]:
                 plt.plot(
                     x_data * 100,
@@ -91,24 +97,6 @@ if __name__ == "__main__":
     json_path = Path.cwd().joinpath(command_line_args.config)
     json_object = read_external_json(str(json_path))
 
-    json_schema = {
-        "type": "object",
-        "properties": {
-            "plots": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "files": {
-                            "type": "array",
-                            "items": {"type": "string"}
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    validate_json(json_object, json_schema)
+    validate_json(json_object, plot_schema)
 
     plot(json_object)
