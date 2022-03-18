@@ -52,7 +52,7 @@ def worker(
                     "worsecrossbars",
                     "outputs",
                     _output_folder,
-                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}_{simulation_parameters['model_size']}_{simulation_parameters['optimiser']}.json",
+                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}_{simulation_parameters['model_size']}_{simulation_parameters['optimiser']}_{simulation_parameters['noise_variance']}.json",
                 )
             ),
             "w",
