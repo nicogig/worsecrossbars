@@ -187,7 +187,7 @@ class IVNonlinear:
 
         log_gammas = tf.experimental.numpy.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
         currents = tf.math.reduce_sum(individual_currents, axis=1)
 
         return currents, individual_currents
