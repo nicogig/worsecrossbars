@@ -89,10 +89,12 @@ class StuckDistribution:
         else:
             mask = prob_mask < self.probability
 
-        if indices == tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32):
-            indices = tf.random.uniform(
+        count = tf.math.count_nonzero(tf.math.equal(indices, tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32)))
+        if count > 0:
+            indices.assign(tf.random.uniform(
                 conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
-            )
+            ))
+
 
         for index, level in enumerate(self.distrib):
             altered_conductances = tf.where(tf.equal(indices, index), level, conductances)

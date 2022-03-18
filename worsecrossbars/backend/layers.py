@@ -35,20 +35,13 @@ class MemristiveFullyConnected(layers.Layer):
         self.uses_double_weights = kwargs.get("uses_double_weights", True)
         self.conductance_drifting = kwargs.get("conductance_drifting", True)
 
-        if self.uses_double_weights:
-            self.prob_mask = tf.random.uniform(
-                (neurons_in + 1, neurons_out * 2), 0, 1, dtype=tf.dtypes.float64
-            )
-            self.distr_indices = tf.constant(
-                -1, shape=(neurons_in + 1, neurons_out * 2), dtype=tf.dtypes.int32
-            )
-        else:
-            self.prob_mask = tf.random.uniform(
-                (neurons_in + 1, neurons_out), 0, 1, dtype=tf.dtypes.float64
-            )
-            self.distr_indices = tf.constant(
-                -1, shape=(neurons_in + 1, neurons_out), dtype=tf.dtypes.int32
-            )
+        self.prob_mask = tf.random.uniform(
+            (neurons_in + 1, neurons_out * 2), 0, 1, dtype=tf.dtypes.float64
+        )
+        self.distr_indices = tf.Variable(
+            tf.constant(-1, shape=(neurons_in + 1, neurons_out * 2), dtype=tf.dtypes.int32),
+            trainable=False
+        )
 
         super().__init__()
 
