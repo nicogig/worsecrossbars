@@ -1,8 +1,6 @@
 """nonidealities:
 A backend module used to simulate various memristive nonidealities.
 """
-import copy
-import sys
 from typing import Tuple
 
 import tensorflow as tf
