@@ -95,9 +95,9 @@ class StuckDistribution:
                 conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
             ))
 
-
+        altered_conductances = conductances
         for index, level in enumerate(self.distrib):
-            altered_conductances = tf.where(tf.equal(indices, index), level, conductances)
+            altered_conductances = tf.where(tf.equal(indices, index), level, altered_conductances)
 
         altered_conductances = tf.where(mask, altered_conductances, conductances)
 

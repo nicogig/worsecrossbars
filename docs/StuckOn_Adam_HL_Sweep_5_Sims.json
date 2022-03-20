@@ -4,13 +4,11 @@
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "model_size": "tiny",
+            "model_size": "regular",
             "optimiser": "adam",
             "double_weights": true,
             "discretisation": false,
             "conductance_drifting": true,
-            "number_conductance_levels": 10,
-            "excluded_weights_proportion": 0.015,
             "number_hidden_layers": 1,
             "nonidealities": [
                 {
@@ -20,21 +18,19 @@
                     ]
                 }
             ],
-            "noise_variance": 0.0,
-            "number_simulations": 1
+            "noise_variance": 0,
+            "number_simulations": 5
         },
         {
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "model_size": "tiny",
+            "model_size": "regular",
             "optimiser": "adam",
             "double_weights": true,
             "discretisation": false,
             "conductance_drifting": true,
-            "number_conductance_levels": 10,
-            "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "number_hidden_layers": 2,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -43,21 +39,19 @@
                     ]
                 }
             ],
-            "noise_variance": 0.1,
-            "number_simulations": 1
+            "noise_variance": 0,
+            "number_simulations": 5
         },
         {
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "model_size": "tiny",
+            "model_size": "regular",
             "optimiser": "adam",
             "double_weights": true,
             "discretisation": false,
             "conductance_drifting": true,
-            "number_conductance_levels": 10,
-            "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "number_hidden_layers": 3,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -66,21 +60,19 @@
                     ]
                 }
             ],
-            "noise_variance": 0.25,
-            "number_simulations": 1
+            "noise_variance": 0,
+            "number_simulations": 5
         },
         {
             "G_off": 7.723066346443375e-07,
             "G_on": 2.730684400376049e-06,
             "k_V": 0.5,
-            "model_size": "tiny",
+            "model_size": "regular",
             "optimiser": "adam",
             "double_weights": true,
             "discretisation": false,
             "conductance_drifting": true,
-            "number_conductance_levels": 10,
-            "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "number_hidden_layers": 4,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -89,31 +81,8 @@
                     ]
                 }
             ],
-            "noise_variance": 0.5,
-            "number_simulations": 1
-        },
-        {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
-            "optimiser": "adam",
-            "double_weights": true,
-            "discretisation": false,
-            "conductance_drifting": true,
-            "number_conductance_levels": 10,
-            "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
-            "nonidealities": [
-                {
-                    "type": "StuckAtValue",
-                    "parameters": [
-                        2.730684400376049e-06
-                    ]
-                }
-            ],
-            "noise_variance": 0.75,
-            "number_simulations": 1
+            "noise_variance": 0,
+            "number_simulations": 5
         }
     ]
 }
