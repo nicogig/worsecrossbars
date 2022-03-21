@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow.keras import layers
+from pathlib import Path
 
 from worsecrossbars.backend import mapping
 
@@ -17,7 +18,7 @@ class MemristiveFullyConnected(layers.Layer):
         G_on: float,
         k_V: float,
         is_training: bool = False,
-        **kwargs
+        **kwargs,
     ) -> None:
 
         # Assigning positional arguments to the layer
@@ -40,7 +41,7 @@ class MemristiveFullyConnected(layers.Layer):
         )
         self.distr_indices = tf.Variable(
             tf.constant(-1, shape=(neurons_in + 1, neurons_out * 2), dtype=tf.dtypes.int32),
-            trainable=False
+            trainable=False,
         )
 
         super().__init__()
@@ -116,7 +117,7 @@ class MemristiveFullyConnected(layers.Layer):
         inputs = tf.concat([x, tf.ones([tf.shape(x)[0], 1])], 1)
 
         # Calculating layers outputs
-        self.out = self.memristive_outputs(inputs, self.combine_weights())
+        self.out = self.memristive_outputs(inputs, self.combine_weights(), monitor=False)
 
         return self.out
 
@@ -143,8 +144,12 @@ class MemristiveFullyConnected(layers.Layer):
         return combined_weights
 
     @tf.function
-    def memristive_outputs(self, x, weights):
+    def memristive_outputs(self, x, weights, **kwargs):
         """"""
+
+        # Unpacking kwargs
+        monitor = kwargs.get("monitor", True)
+        conductance_drifting_variance = kwargs.get("conductance_drifting_variance", 0.05)
 
         # Converting neuronal inputs to voltages
         voltages = self.k_V * x
@@ -159,6 +164,20 @@ class MemristiveFullyConnected(layers.Layer):
                 weights, self.G_off, self.G_on, self.mapping_rule
             )
 
+        if monitor:
+            filepath = Path.home().joinpath("worsecrossbars", "tensors")
+            filepath.mkdir(parents=True, exist_ok=True)
+            tf.print(
+                weights,
+                output_stream=f"file://{filepath}/weights.txt",
+                summarize=-1,
+            )
+            tf.print(
+                conductances,
+                output_stream=f"file://{filepath}/conductances_pre_alteration.txt",
+                summarize=-1,
+            )
+
         # Applying linearity-preserving nonidealities
         for nonideality in self.nonidealities:
             if nonideality.is_linearity_preserving:
@@ -170,8 +189,15 @@ class MemristiveFullyConnected(layers.Layer):
         # Apply conductance drifting
         if self.conductance_drifting:
             conductances = tfp.distributions.Normal(
-                loc=conductances, scale=conductances * 0.05
+                loc=conductances, scale=conductances * conductance_drifting_variance
             ).sample()
+
+        if monitor:
+            tf.print(
+                conductances,
+                output_stream=f"file://{filepath}/conductances_post_alteration.txt",
+                summarize=-1,
+            )
 
         # Applying linearity-non-preserving nonidealities
         currents, individual_currents = None, None
@@ -191,5 +217,14 @@ class MemristiveFullyConnected(layers.Layer):
         total_currents = currents[:, 0::2] - currents[:, 1::2]
         k_cond = (self.G_on - self.G_off) / max_weight
         y_disturbed = total_currents / (self.k_V * k_cond)
+
+        if monitor:
+            tf.print(currents, output_stream=f"file://{filepath}/currents.txt", summarize=-1)
+            tf.print(
+                total_currents,
+                output_stream=f"file://{filepath}/total_currents.txt",
+                summarize=-1,
+            )
+            tf.print(y_disturbed, output_stream=f"file://{filepath}/y_disturbed.txt", summarize=-1)
 
         return y_disturbed
