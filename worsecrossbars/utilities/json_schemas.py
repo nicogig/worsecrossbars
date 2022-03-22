@@ -44,7 +44,7 @@ simulation_schema = {
                         "maximum": 1,
                     },
                     "number_hidden_layers": {"type": "integer", "enum": [1, 2, 3, 4]},
-                    "nonidealities_after_training": { "type": "boolean" },
+                    "nonidealities_after_training": {"type": "boolean"},
                     "nonidealities": {
                         "type": "array",
                         "items": {
@@ -68,6 +68,7 @@ simulation_schema = {
                     },
                     "noise_variance": {"type": "number", "minimum": 0},
                     "number_simulations": {"type": "integer", "minimum": 1},
+                    "epochs": {"type": "integer", "minimum": 1},
                 },
                 "required": [
                     "nonidealities_after_training",

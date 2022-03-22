@@ -72,10 +72,15 @@ def _simulate(
                 "nonidealities": nonidealities,
             }
 
+        try:
+            epochs = simulation_parameters["epochs"]
+        except KeyError:
+            epochs = 60
+
         *_, pre_discretisation_accuracy = train_mlp(
             dataset,
             model,
-            epochs=60,
+            epochs=epochs,
             batch_size=batch_size,
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
             horovod=horovod,
