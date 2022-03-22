@@ -56,11 +56,17 @@ def worker(
         "w",
         encoding="utf-8",
     ) as file:
-        output_object = {
-            "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
-            "accuracies": accuracies.tolist(),
-            "simulation_parameters": simulation_parameters,
-        }
+        if simulation_parameters["discretisation"]:
+            output_object = {
+                "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
+                "accuracies": accuracies.tolist(),
+                "simulation_parameters": simulation_parameters,
+            }
+        else:
+            output_object = {
+                "accuracies": accuracies.tolist(),
+                "simulation_parameters": simulation_parameters,
+            }
         json.dump(output_object, file)
 
     _logger.write(f"Saved accuracy data for simulation with process ID {process_id}")

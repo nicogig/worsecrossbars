@@ -31,33 +31,31 @@ def _simulate(
 
     for simulation in range(simulation_parameters["number_simulations"]):
 
-        nonideality_labels = [str(nonideality) for nonideality in nonidealities]
-        print(f"Simulation #{simulation+1}, nonidealities: {nonideality_labels}")
+        # nonideality_labels = [str(nonideality) for nonideality in nonidealities]
+        print(f"Simulation #{simulation+1}, nonidealities: {nonidealities}")
 
         if horovod:
             import horovod.tensorflow as hvd
 
             if hvd.rank() == 0:
                 _logger.write(
-                    f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
+                    f"Performing simulation {simulation+1}. Nonidealities {nonidealities}"
                 )
         else:
-            _logger.write(
-                f"Performing Simulation {simulation+1}. Nonidealities {nonideality_labels}"
-            )
+            _logger.write(f"Performing simulation {simulation+1}. Nonidealities {nonidealities}")
 
         model = mnist_mlp(
             simulation_parameters["G_off"],
             simulation_parameters["G_on"],
             simulation_parameters["k_V"],
-            nonidealities= [] if nonidealities_after_training else nonidealities,
+            nonidealities=[] if nonidealities_after_training else nonidealities,
             number_hidden_layers=simulation_parameters["number_hidden_layers"],
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
             conductance_drifting=simulation_parameters["conductance_drifting"],
             model_size=simulation_parameters["model_size"],
             optimiser=simulation_parameters["optimiser"],
-            double_weights=simulation_parameters["double_weights"]
+            double_weights=simulation_parameters["double_weights"],
         )
 
         if simulation_parameters["discretisation"]:
@@ -66,12 +64,12 @@ def _simulate(
                 "number_conductance_levels": simulation_parameters["number_conductance_levels"],
                 "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"],
                 "nonidealities_after_training": nonidealities_after_training,
-                "nonidealities": nonidealities
+                "nonidealities": nonidealities,
             }
         else:
             kwargs = {
                 "nonidealities_after_training": nonidealities_after_training,
-                "nonidealities": nonidealities
+                "nonidealities": nonidealities,
             }
 
         *_, pre_discretisation_accuracy = train_mlp(
@@ -81,18 +79,22 @@ def _simulate(
             batch_size=batch_size,
             hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
             horovod=horovod,
-            **kwargs
+            **kwargs,
         )
 
         if horovod and hvd.rank() == 0:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
         else:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
-        
 
-        simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
-        pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
+        if simulation_parameters["discretisation"]:
+            simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
+            pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy
 
+        else:
+            simulation_accuracies[simulation] = pre_discretisation_accuracy
+
+    # Returning 0.0 for average_pre_discretisation_accuracy if no discretisation is being performed
     average_accuracy = simulation_accuracies.mean()
     average_pre_discretisation_accuracy = pre_discretisation_simulation_accuracies.mean()
 
