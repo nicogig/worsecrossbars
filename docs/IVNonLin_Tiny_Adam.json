@@ -91,6 +91,62 @@
             ],
             "noise_variance": 0,
             "number_simulations": 1
+        },
+        {
+            "G_off": 7.722007722007722e-07,
+            "G_on": 2.7307482250136536e-06,
+            "k_V": 0.5,
+            "model_size": "tiny",
+            "optimiser": "adam",
+            "double_weights": true,
+            "discretisation": false,
+            "conductance_drifting": true,
+            "number_hidden_layers": 1,
+            "nonidealities": [],
+            "noise_variance": 0,
+            "number_simulations": 1
+        },
+        {
+            "G_off": 7.722007722007722e-07,
+            "G_on": 2.7307482250136536e-06,
+            "k_V": 0.5,
+            "model_size": "tiny",
+            "optimiser": "adam",
+            "double_weights": true,
+            "discretisation": false,
+            "conductance_drifting": true,
+            "number_hidden_layers": 4,
+            "nonidealities": [],
+            "noise_variance": 0,
+            "number_simulations": 1
+        },
+        {
+            "G_off": 0.0009970089730807576,
+            "G_on": 0.0035137034434293743,
+            "k_V": 0.5,
+            "model_size": "tiny",
+            "optimiser": "adam",
+            "double_weights": true,
+            "discretisation": false,
+            "conductance_drifting": true,
+            "number_hidden_layers": 1,
+            "nonidealities": [],
+            "noise_variance": 0,
+            "number_simulations": 1
+        },
+        {
+            "G_off": 0.0009970089730807576,
+            "G_on": 0.0035137034434293743,
+            "k_V": 0.5,
+            "model_size": "tiny",
+            "optimiser": "adam",
+            "double_weights": true,
+            "discretisation": false,
+            "conductance_drifting": true,
+            "number_hidden_layers": 4,
+            "nonidealities": [],
+            "noise_variance": 0,
+            "number_simulations": 1
         }
     ]
 }
