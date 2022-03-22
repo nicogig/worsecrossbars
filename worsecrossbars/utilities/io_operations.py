@@ -73,15 +73,15 @@ def create_output_structure(wipe_current: bool = True) -> str:
     home_dir.joinpath("worsecrossbars", "outputs", folder, "logs").mkdir(
         parents=True, exist_ok=True
     )
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "accuracies").mkdir(
-        parents=True, exist_ok=True
-    )
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "training_validation").mkdir(
-        parents=True, exist_ok=True
-    )
-    home_dir.joinpath("worsecrossbars", "outputs", folder, "training_validation").mkdir(
-        parents=True, exist_ok=True
-    )
+    # home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "accuracies").mkdir(
+    #     parents=True, exist_ok=True
+    # )
+    # home_dir.joinpath("worsecrossbars", "outputs", folder, "plots", "training_validation").mkdir(
+    #     parents=True, exist_ok=True
+    # )
+    # home_dir.joinpath("worsecrossbars", "outputs", folder, "training_validation").mkdir(
+    #     parents=True, exist_ok=True
+    # )
 
     return folder
 

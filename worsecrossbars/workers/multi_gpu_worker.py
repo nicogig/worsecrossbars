@@ -52,17 +52,24 @@ def worker(
                     "worsecrossbars",
                     "outputs",
                     _output_folder,
-                    f"output_{process_id}_{simulation_parameters['number_hidden_layers']}_{simulation_parameters['model_size']}_{simulation_parameters['optimiser']}_{simulation_parameters['noise_variance']}.json",
+                    "accuracies",
+                    f"output_{process_id}_{simulation_parameters['ID']}.json",
                 )
             ),
             "w",
             encoding="utf-8",
         ) as file:
-            output_object = {
-                "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
-                "accuracies": accuracies.tolist(),
-                "simulation_parameters": simulation_parameters,
-            }
+            if simulation_parameters["discretisation"]:
+                output_object = {
+                    "pre_discretisation_accuracies": pre_discretisation_accuracies.tolist(),
+                    "accuracies": accuracies.tolist(),
+                    "simulation_parameters": simulation_parameters,
+                }
+            else:
+                output_object = {
+                    "accuracies": accuracies.tolist(),
+                    "simulation_parameters": simulation_parameters,
+                }
             json.dump(output_object, file)
 
         _logger.write(f"Saved accuracy data for simulation with process ID {process_id}.")
@@ -90,7 +97,9 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
     if gpus:
         tf.config.set_visible_devices(gpus[hvd.local_rank()], "GPU")
 
-    for simulation_parameters in json_object["simulations"]:
+    for index, simulation_parameters in enumerate(json_object["simulations"]):
+
+        simulation_parameters["ID"] = index + 1
         worker(dataset, simulation_parameters, output_folder, teams, logger)
 
     if command_line_args.dropbox:

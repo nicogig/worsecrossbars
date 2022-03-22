@@ -23,7 +23,7 @@
             ],
             "noise_variance": 0,
             "number_simulations": 1,
-            "epochs": 30
+            "epochs": 5
         },
         {
             "G_off": 7.722007722007722e-07,
@@ -48,7 +48,7 @@
             ],
             "noise_variance": 0,
             "number_simulations": 1,
-            "epochs": 30
+            "epochs": 5
         },
         {
             "G_off": 0.0009970089730807576,
@@ -73,7 +73,7 @@
             ],
             "noise_variance": 0,
             "number_simulations": 1,
-            "epochs": 30
+            "epochs": 5
         },
         {
             "G_off": 0.0009970089730807576,
@@ -98,7 +98,7 @@
             ],
             "noise_variance": 0,
             "number_simulations": 1,
-            "epochs": 30
+            "epochs": 5
         }
     ]
 }

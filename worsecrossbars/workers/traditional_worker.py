@@ -50,7 +50,8 @@ def worker(
                 "worsecrossbars",
                 "outputs",
                 _output_folder,
-                f"output_{process_id}_{simulation_parameters['number_hidden_layers']}_{simulation_parameters['model_size']}_{simulation_parameters['optimiser']}_{simulation_parameters['noise_variance']}.json",
+                "accuracies",
+                f"output_{process_id}_{simulation_parameters['ID']}.json",
             )
         ),
         "w",
@@ -67,7 +68,7 @@ def worker(
                 "accuracies": accuracies.tolist(),
                 "simulation_parameters": simulation_parameters,
             }
-        json.dump(output_object, file)
+        json.dump(output_object, file, ensure_ascii=False, indent=4)
 
     _logger.write(f"Saved accuracy data for simulation with process ID {process_id}")
 
@@ -87,9 +88,11 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
 
     dataset = get_dataset("mnist", 3)
 
-    pool = []
+    # pool = []
 
-    for simulation_parameters in json_object["simulations"]:
+    for index, simulation_parameters in enumerate(json_object["simulations"]):
+
+        simulation_parameters["ID"] = index + 1
 
         with tf.device("/device:gpu:1"):
             worker(dataset, simulation_parameters, output_folder, teams, logger)
