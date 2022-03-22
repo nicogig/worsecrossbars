@@ -27,6 +27,7 @@ def _simulate(
 
     simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
     pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
+    nonidealities_after_training = simulation_parameters["nonidealities_after_training"]
 
     for simulation in range(simulation_parameters["number_simulations"]):
 
@@ -49,7 +50,7 @@ def _simulate(
             simulation_parameters["G_off"],
             simulation_parameters["G_on"],
             simulation_parameters["k_V"],
-            nonidealities=nonidealities,
+            nonidealities= [] if nonidealities_after_training else nonidealities,
             number_hidden_layers=simulation_parameters["number_hidden_layers"],
             noise_variance=simulation_parameters["noise_variance"],
             horovod=horovod,
@@ -63,10 +64,15 @@ def _simulate(
             kwargs = {
                 "discretise": simulation_parameters["discretisation"],
                 "number_conductance_levels": simulation_parameters["number_conductance_levels"],
-                "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"]
+                "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"],
+                "nonidealities_after_training": nonidealities_after_training,
+                "nonidealities": nonidealities
             }
         else:
-            kwargs = {}
+            kwargs = {
+                "nonidealities_after_training": nonidealities_after_training,
+                "nonidealities": nonidealities
+            }
 
         *_, pre_discretisation_accuracy = train_mlp(
             dataset,
@@ -82,6 +88,7 @@ def _simulate(
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
         else:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
+        
 
         simulation_accuracies[simulation] = model.evaluate(dataset[1][0], dataset[1][1])[1]
         pre_discretisation_simulation_accuracies[simulation] = pre_discretisation_accuracy

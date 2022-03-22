@@ -15,6 +15,9 @@ def double_weights_to_conductances(weights: tf.Tensor, G_off: float, G_on: float
 
     return conductance, maximum_weight
 
+@tf.function
+def conductances_to_double_weights(conductances: tf.Tensor, G_off: float, G_on: float, max_weight: float):
+    return (conductances - G_off) / ((G_on - G_off) / max_weight)
 
 @tf.function
 def weights_to_conductances(

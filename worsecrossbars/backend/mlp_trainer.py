@@ -14,6 +14,7 @@ from tensorflow.keras.utils import to_categorical
 
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
+from worsecrossbars.backend import mapping
 
 
 def get_dataset(
@@ -109,6 +110,8 @@ def train_mlp(
     hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
     number_conductance_levels = kwargs.get("number_conductance_levels", 10)
     excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)
+    nonidealities_after_training = kwargs.get("nonidealities_after_training", False)
+    nonidealities = kwargs.get("nonidealities", [])
 
     if not isinstance(model, Model):
         raise ValueError('"model" argument should be a Keras model object.')
@@ -174,6 +177,12 @@ def train_mlp(
     model.is_training = False
     model.run_eagerly = False
 
+    if nonidealities_after_training:
+        for layer in model.layers:
+            if isinstance(layer, MemristiveFullyConnected):
+                layer.nonidealities = nonidealities
+
+    
     pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
 
     # If discrete weights are being used, the the bucketize_weights_layer function is employed.
