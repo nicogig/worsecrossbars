@@ -179,7 +179,6 @@ def _simulate(
             for layer in pre_trained.layers:
                 if isinstance(layer, MemristiveFullyConnected):
                     layer.nonidealities = nonidealities
-                    print(layer.nonidealities)
             pre_discretisation_accuracy = pre_trained.evaluate(dataset[1][0], dataset[1][1])[1]
         else:
             # Training model with given nonidealities
