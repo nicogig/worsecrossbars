@@ -1,10 +1,16 @@
 """simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
+import copy
+import gc
 from typing import Tuple
+from typing import List
+from typing import Union
 
 import numpy as np
 from numpy import ndarray
+from keras import Model
+from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -15,23 +21,149 @@ from worsecrossbars.backend.nonidealities import StuckDistribution
 from worsecrossbars.utilities.logging_module import Logging
 
 
+def _generate_linnonpres_nonidealities(
+    simulation_parameters: dict,
+) -> List[Union[IVNonlinear, D2DVariability]]:
+    """"""
+
+    linnonpres_nonidealities = []
+
+    for nonideality in simulation_parameters["nonidealities"]:
+
+        if nonideality["type"] == "IVNonlinear":
+            linnonpres_nonidealities.append(
+                IVNonlinear(
+                    V_ref=nonideality["parameters"][0],
+                    avg_gamma=nonideality["parameters"][1],
+                    std_gamma=nonideality["parameters"][2],
+                )
+            )
+            simulation_parameters["nonidealities"].remove(nonideality)
+
+        elif nonideality["type"] == "D2DVariability":
+            linnonpres_nonidealities.append(
+                D2DVariability(
+                    simulation_parameters["G_off"],
+                    simulation_parameters["G_on"],
+                    nonideality["parameters"][0],
+                    nonideality["parameters"][1],
+                )
+            )
+            simulation_parameters["nonidealities"].remove(nonideality)
+
+    return linnonpres_nonidealities
+
+
+def _generate_linpres_nonidealities(
+    simulation_parameters: dict,
+) -> List[Union[StuckAtValue, StuckDistribution]]:
+
+    linpres_nonidealities = []
+
+    for nonideality in simulation_parameters["nonidealities"]:
+
+        if nonideality["type"] == "StuckAtValue":
+            linpres_nonidealities.append(StuckAtValue(value=nonideality["parameters"][0]))
+            simulation_parameters["nonidealities"].remove(nonideality)
+
+        elif nonideality["type"] == "StuckDistribution":
+            # If only nonideality["parameters"][0] is a single integer, then this indicates the
+            # number of weights to create between G_off and G_on. Otherwise, if
+            # nonideality["parameters"][0] is a list, this is passed as distrib to
+            # StuckDistribution()
+            if isinstance(nonideality["parameters"][0], list):
+                linpres_nonidealities.append(
+                    StuckDistribution(distrib=nonideality["parameters"][0])
+                )
+                simulation_parameters["nonidealities"].remove(nonideality)
+            elif isinstance(nonideality["parameters"][0], int):
+                linpres_nonidealities.append(
+                    StuckDistribution(
+                        num_of_weights=nonideality["parameters"][0],
+                        G_off=simulation_parameters["G_off"],
+                        G_on=simulation_parameters["G_on"],
+                    )
+                )
+                simulation_parameters["nonidealities"].remove(nonideality)
+            else:
+                raise ValueError(
+                    "StuckDistribution nonideality was not passed the correct parameters."
+                )
+
+        else:
+            raise ValueError(f"Nonideality {nonideality} is not recognised.")
+
+    return linpres_nonidealities
+
+
+def _train_model(
+    simulation_parameters: dict,
+    nonidealities: list,
+    dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
+    batch_size: int = 100,
+    horovod: bool = False,
+) -> Tuple[Model, np.ndarray]:
+
+    model = mnist_mlp(
+        simulation_parameters["G_off"],
+        simulation_parameters["G_on"],
+        simulation_parameters["k_V"],
+        nonidealities=nonidealities,
+        number_hidden_layers=simulation_parameters["number_hidden_layers"],
+        noise_variance=simulation_parameters["noise_variance"],
+        horovod=horovod,
+        conductance_drifting=simulation_parameters["conductance_drifting"],
+        model_size=simulation_parameters["model_size"],
+        optimiser=simulation_parameters["optimiser"],
+        double_weights=simulation_parameters["double_weights"],
+    )
+
+    if simulation_parameters["discretisation"]:
+        kwargs = {
+            "discretise": simulation_parameters["discretisation"],
+            "number_conductance_levels": simulation_parameters["number_conductance_levels"],
+            "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"],
+            "nonidealities": nonidealities,
+        }
+    else:
+        kwargs = {
+            "nonidealities": nonidealities,
+        }
+
+    try:
+        epochs = simulation_parameters["epochs"]
+    except KeyError:
+        epochs = 60
+
+    *_, pre_discretisation_accuracy = train_mlp(
+        dataset,
+        model,
+        epochs=epochs,
+        batch_size=batch_size,
+        hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
+        horovod=horovod,
+        **kwargs,
+    )
+
+    return model, pre_discretisation_accuracy
+
+
 def _simulate(
     simulation_parameters: dict,
     nonidealities: list,
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     batch_size: int = 100,
     horovod: bool = False,
+    pre_trained: Tuple[Model, np.ndarray] = None,
     _logger: Logging = None,
 ) -> Tuple[float, float]:
     """"""
 
     simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
     pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
-    nonidealities_after_training = simulation_parameters["nonidealities_after_training"]
 
     for simulation in range(simulation_parameters["number_simulations"]):
 
-        # nonideality_labels = [str(nonideality) for nonideality in nonidealities]
         print(f"Simulation #{simulation+1}, nonidealities: {nonidealities}")
 
         if horovod:
@@ -44,48 +176,21 @@ def _simulate(
         else:
             _logger.write(f"Performing simulation {simulation+1}. Nonidealities {nonidealities}")
 
-        model = mnist_mlp(
-            simulation_parameters["G_off"],
-            simulation_parameters["G_on"],
-            simulation_parameters["k_V"],
-            nonidealities=[] if nonidealities_after_training else nonidealities,
-            number_hidden_layers=simulation_parameters["number_hidden_layers"],
-            noise_variance=simulation_parameters["noise_variance"],
-            horovod=horovod,
-            conductance_drifting=simulation_parameters["conductance_drifting"],
-            model_size=simulation_parameters["model_size"],
-            optimiser=simulation_parameters["optimiser"],
-            double_weights=simulation_parameters["double_weights"],
-        )
-
-        if simulation_parameters["discretisation"]:
-            kwargs = {
-                "discretise": simulation_parameters["discretisation"],
-                "number_conductance_levels": simulation_parameters["number_conductance_levels"],
-                "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"],
-                "nonidealities_after_training": nonidealities_after_training,
-                "nonidealities": nonidealities,
-            }
+        if pre_trained:
+            # Assigning ideal model and accuracies
+            model, pre_discretisation_accuracy = copy.deepcopy(pre_trained)
+            for layer in model.layers:
+                if isinstance(layer, MemristiveFullyConnected):
+                    layer.nonidealities = nonidealities
         else:
-            kwargs = {
-                "nonidealities_after_training": nonidealities_after_training,
-                "nonidealities": nonidealities,
-            }
-
-        try:
-            epochs = simulation_parameters["epochs"]
-        except KeyError:
-            epochs = 60
-
-        *_, pre_discretisation_accuracy = train_mlp(
-            dataset,
-            model,
-            epochs=epochs,
-            batch_size=batch_size,
-            hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
-            horovod=horovod,
-            **kwargs,
-        )
+            # Training model with given nonidealities
+            model, pre_discretisation_accuracy = _train_model(
+                simulation_parameters=simulation_parameters,
+                nonidealities=nonidealities,
+                dataset=dataset,
+                batch_size=batch_size,
+                horovod=horovod,
+            )
 
         if horovod and hvd.rank() == 0:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
@@ -98,6 +203,8 @@ def _simulate(
 
         else:
             simulation_accuracies[simulation] = pre_discretisation_accuracy
+
+        gc.collect()
 
     # Returning 0.0 for average_pre_discretisation_accuracy if no discretisation is being performed
     average_accuracy = simulation_accuracies.mean()
@@ -120,31 +227,8 @@ def run_simulations(
       pre_discretisation_accuracies: Numpy ndarray containing one (or multiple) float value(s),
     """
 
-    # Generating list of nonidealities
-    nonidealities = []
-
-    for nonideality in simulation_parameters["nonidealities"]:
-
-        if nonideality["type"] == "IVNonlinear":
-            nonidealities.append(
-                IVNonlinear(
-                    V_ref=nonideality["parameters"][0],
-                    avg_gamma=nonideality["parameters"][1],
-                    std_gamma=nonideality["parameters"][2],
-                )
-            )
-            simulation_parameters["nonidealities"].remove(nonideality)
-
-        elif nonideality["type"] == "D2DVariability":
-            nonidealities.append(
-                D2DVariability(
-                    simulation_parameters["G_off"],
-                    simulation_parameters["G_on"],
-                    nonideality["parameters"][0],
-                    nonideality["parameters"][1],
-                )
-            )
-            simulation_parameters["nonidealities"].remove(nonideality)
+    # Generating linearity non-preserving nonidealities
+    nonidealities = _generate_linnonpres_nonidealities(simulation_parameters)
 
     if not simulation_parameters["nonidealities"]:
 
@@ -169,36 +253,30 @@ def run_simulations(
     pre_discretisation_accuracies = np.zeros(percentages.size)
 
     # Adding percentage-based nonidealities
-    for nonideality in simulation_parameters["nonidealities"]:
+    nonidealities.extend(_generate_linpres_nonidealities(simulation_parameters))
 
-        if nonideality["type"] == "StuckAtValue":
-            nonidealities.append(StuckAtValue(value=nonideality["parameters"][0]))
-            simulation_parameters["nonidealities"].remove(nonideality)
+    # Handling nonidealites_after_training frameworks
+    try:
+        nonidealites_after_training = simulation_parameters["nonidealites_after_training"]
+    except KeyError:
+        nonidealites_after_training = 0
 
-        elif nonideality["type"] == "StuckDistribution":
-            # If only nonideality["parameters"][0] is a single integer, then this indicates the
-            # number of weights to create between G_off and G_on. Otherwise, if
-            # nonideality["parameters"][0] is a list, this is passed as distrib to
-            # StuckDistribution()
-            if isinstance(nonideality["parameters"][0], list):
-                nonidealities.append(StuckDistribution(distrib=nonideality["parameters"][0]))
-                simulation_parameters["nonidealities"].remove(nonideality)
-            elif isinstance(nonideality["parameters"][0], int):
-                nonidealities.append(
-                    StuckDistribution(
-                        num_of_weights=nonideality["parameters"][0],
-                        G_off=simulation_parameters["G_off"],
-                        G_on=simulation_parameters["G_on"],
-                    )
+    trained_models = []
+
+    if nonidealites_after_training:
+
+        # Training ideal memristive models
+        for _ in range(nonidealites_after_training):
+
+            trained_models.append(
+                _train_model(
+                    simulation_parameters=simulation_parameters,
+                    nonidealities=[],
+                    dataset=dataset,
+                    batch_size=batch_size,
+                    horovod=horovod,
                 )
-                simulation_parameters["nonidealities"].remove(nonideality)
-            else:
-                raise ValueError(
-                    "StuckDistribution nonideality was not passed the correct parameters."
-                )
-
-        else:
-            raise ValueError(f"Nonideality {nonideality} is not recognised.")
+            )
 
     for index, percentage in enumerate(percentages):
 
@@ -207,11 +285,33 @@ def run_simulations(
             if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
                 _ = nonideality.update(percentage)
 
-        # Running simulations
-        simulation_results = _simulate(
-            simulation_parameters, nonidealities, dataset, horovod=horovod, _logger=logger
-        )
-        accuracies[index] = simulation_results[0]
-        pre_discretisation_accuracies[index] = simulation_results[1]
+        if trained_models:
+            # Nonidealities after training simulations
+            for model in trained_models:
+                simulation_results = _simulate(
+                    simulation_parameters,
+                    nonidealities,
+                    dataset,
+                    horovod=horovod,
+                    pre_trained=model,
+                    _logger=logger,
+                )
+                accuracies[index] += simulation_results[0]
+                pre_discretisation_accuracies[index] += simulation_results[1]
+
+            accuracies /= nonidealites_after_training
+            pre_discretisation_accuracies /= nonidealites_after_training
+
+        else:
+            # Regular simulations
+            simulation_results = _simulate(
+                simulation_parameters,
+                nonidealities,
+                dataset,
+                horovod=horovod,
+                _logger=logger,
+            )
+            accuracies[index] = simulation_results[0]
+            pre_discretisation_accuracies[index] = simulation_results[1]
 
     return accuracies, pre_discretisation_accuracies
