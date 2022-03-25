@@ -1,8 +1,6 @@
 """simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
-import copy
-import gc
 from typing import Tuple
 from typing import List
 from typing import Union
@@ -178,11 +176,11 @@ def _simulate(
 
         if pre_trained:
             # Assigning ideal model and accuracies
-            model = copy.deepcopy(pre_trained)
-            for layer in model.layers:
+            for layer in pre_trained.layers:
                 if isinstance(layer, MemristiveFullyConnected):
                     layer.nonidealities = nonidealities
-            pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
+                    print(layer.nonidealities)
+            pre_discretisation_accuracy = pre_trained.evaluate(dataset[1][0], dataset[1][1])[1]
         else:
             # Training model with given nonidealities
             model, pre_discretisation_accuracy = _train_model(
@@ -204,8 +202,6 @@ def _simulate(
 
         else:
             simulation_accuracies[simulation] = pre_discretisation_accuracy
-
-        gc.collect()
 
     # Returning 0.0 for average_pre_discretisation_accuracy if no discretisation is being performed
     average_accuracy = simulation_accuracies.mean()
