@@ -154,7 +154,7 @@ def _simulate(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     batch_size: int = 100,
     horovod: bool = False,
-    pre_trained: Tuple[Model, np.ndarray] = None,
+    pre_trained: Model = None,
     _logger: Logging = None,
 ) -> Tuple[float, float]:
     """"""
@@ -178,10 +178,11 @@ def _simulate(
 
         if pre_trained:
             # Assigning ideal model and accuracies
-            model, pre_discretisation_accuracy = copy.deepcopy(pre_trained)
+            model = copy.deepcopy(pre_trained)
             for layer in model.layers:
                 if isinstance(layer, MemristiveFullyConnected):
                     layer.nonidealities = nonidealities
+            pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
         else:
             # Training model with given nonidealities
             model, pre_discretisation_accuracy = _train_model(
@@ -255,18 +256,27 @@ def run_simulations(
     # Adding percentage-based nonidealities
     nonidealities.extend(_generate_linpres_nonidealities(simulation_parameters))
 
-    # Handling nonidealites_after_training frameworks
+    # Handling nonidealities_after_training frameworks
     try:
-        nonidealites_after_training = simulation_parameters["nonidealites_after_training"]
+        nonidealities_after_training = simulation_parameters["nonidealities_after_training"]
     except KeyError:
-        nonidealites_after_training = 0
+        nonidealities_after_training = 0
 
     trained_models = []
 
-    if nonidealites_after_training:
+    if nonidealities_after_training:
 
         # Training ideal memristive models
-        for _ in range(nonidealites_after_training):
+        for model in range(nonidealities_after_training):
+            print(f"Training NAT model {model+1}.")
+
+            if horovod:
+                import horovod.tensorflow as hvd
+
+                if hvd.rank() == 0:
+                    logger.write(f"Training NAT model {model+1}.")
+            else:
+                logger.write(f"Training NAT model {model+1}.")
 
             trained_models.append(
                 _train_model(
@@ -275,7 +285,7 @@ def run_simulations(
                     dataset=dataset,
                     batch_size=batch_size,
                     horovod=horovod,
-                )
+                )[0]
             )
 
     for index, percentage in enumerate(percentages):
@@ -296,11 +306,9 @@ def run_simulations(
                     pre_trained=model,
                     _logger=logger,
                 )
+
                 accuracies[index] += simulation_results[0]
                 pre_discretisation_accuracies[index] += simulation_results[1]
-
-            accuracies /= nonidealites_after_training
-            pre_discretisation_accuracies /= nonidealites_after_training
 
         else:
             # Regular simulations
@@ -313,5 +321,9 @@ def run_simulations(
             )
             accuracies[index] = simulation_results[0]
             pre_discretisation_accuracies[index] = simulation_results[1]
+
+    if nonidealities_after_training:
+        accuracies /= nonidealities_after_training
+        pre_discretisation_accuracies /= nonidealities_after_training
 
     return accuracies, pre_discretisation_accuracies
