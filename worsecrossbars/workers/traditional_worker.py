@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Tuple
+import platform
 
 import tensorflow as tf
 from numpy import ndarray
@@ -94,7 +95,12 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
 
         simulation_parameters["ID"] = index + 1
 
-        with tf.device("/device:gpu:1"):
+        if platform.system() == "Darwin":
+            dev = "/device:cpu:0"
+        else:
+            dev = "/device:gpu:1"
+
+        with tf.device(dev):
             worker(dataset, simulation_parameters, output_folder, teams, logger)
 
         # if command_line_args.teams is None:
