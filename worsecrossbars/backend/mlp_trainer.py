@@ -174,7 +174,6 @@ def train_mlp(
         verbose=verbose,
     )
     model.is_training = False
-    model.run_eagerly = False
 
     pre_discretisation_accuracy = model.evaluate(dataset[1][0], dataset[1][1])[1]
 

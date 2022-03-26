@@ -8,6 +8,7 @@ from typing import Union
 import numpy as np
 from numpy import ndarray
 from keras import Model
+import tensorflow as tf
 from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
@@ -176,10 +177,25 @@ def _simulate(
 
         if pre_trained:
             # Assigning ideal model and accuracies
-            for layer in pre_trained.layers:
-                if isinstance(layer, MemristiveFullyConnected):
-                    layer.nonidealities = nonidealities
-            pre_discretisation_accuracy = pre_trained.evaluate(dataset[1][0], dataset[1][1])[1]
+            new_model = mnist_mlp(
+                simulation_parameters["G_off"],
+                simulation_parameters["G_on"],
+                simulation_parameters["k_V"],
+                nonidealities=nonidealities,
+                number_hidden_layers=simulation_parameters["number_hidden_layers"],
+                noise_variance=simulation_parameters["noise_variance"],
+                horovod=horovod,
+                conductance_drifting=simulation_parameters["conductance_drifting"],
+                model_size=simulation_parameters["model_size"],
+                optimiser=simulation_parameters["optimiser"],
+                double_weights=simulation_parameters["double_weights"],
+            )
+            new_model.build((1, 784))
+
+            for index, layer in enumerate(new_model.layers):
+                layer.set_weights(pre_trained.layers[index].get_weights())
+
+            pre_discretisation_accuracy = new_model.evaluate(dataset[1][0], dataset[1][1])[1]
         else:
             # Training model with given nonidealities
             model, pre_discretisation_accuracy = _train_model(

@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -146,6 +147,8 @@ class MemristiveFullyConnected(layers.Layer):
     @tf.function
     def memristive_outputs(self, x, weights, **kwargs):
         """"""
+
+        # tf.print(self.nonidealities, output_stream=sys.stdout)
 
         # Unpacking kwargs
         monitor = kwargs.get("monitor", True)
