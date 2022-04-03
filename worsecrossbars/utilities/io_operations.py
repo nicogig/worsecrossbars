@@ -26,6 +26,9 @@ def read_external_json(file_path: str) -> dict:
     else:
         try:
             with open(file_path, encoding="utf8") as json_file:
+                print(f"Reading file: {file_path}")
+                print(f"File size: {os.path.getsize(file_path)} bytes")
+                print(f"json_file: {json_file}")
                 json_object = json.load(json_file)
         except IsADirectoryError:
             print(

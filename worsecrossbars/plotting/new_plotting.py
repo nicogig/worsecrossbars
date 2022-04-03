@@ -46,6 +46,8 @@ def plot(json_object: dict):
                     label += f"{sim_parameters[feature]} HL, "
                 else:
                     label += f"{sim_parameters[feature]}, "
+            # Remove the last comma and space
+            label = label[:-2]
             if sim_parameters["discretisation"]:
                 plt.plot(
                     x_data * 100,
@@ -96,6 +98,7 @@ if __name__ == "__main__":
 
     command_line_args = parser.parse_args()
     json_path = Path.cwd().joinpath(command_line_args.config)
+    print(f"Reading the json file from {json_path}")
     json_object = read_external_json(str(json_path))
 
     validate_json(json_object, plot_schema)
