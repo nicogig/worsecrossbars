@@ -1,3 +1,6 @@
+"""tensor_plotting:
+A module used to plot key tensors obtained from the simulations.
+"""
 import os
 from pathlib import Path
 
@@ -9,8 +12,8 @@ from matplotlib.font_manager import FontProperties
 def load_font() -> FontProperties:
     """This function loads the computern modern font used in the plots.
 
-    fpath:
-      Font path object pointing to the computern modern font.
+    Returns:
+      fpath: Font path object pointing to the computern modern font.
     """
 
     if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
@@ -23,8 +26,14 @@ def load_font() -> FontProperties:
     return fpath
 
 
-def plot_tensor(figname: str, filepath: Path, xlabel: str):
-    """"""
+def plot_tensor(figname: str, filepath: Path, xlabel: str) -> None:
+    """This function plots the tensors obtained from the simulation.
+
+    Args:
+      figname: Name with which to save the produced figure.
+      filepath: Path to the file storing tensor contents.
+      xlabel: Label for the x-axis.
+    """
 
     y_label = "Absolute frequency"
 
@@ -34,8 +43,8 @@ def plot_tensor(figname: str, filepath: Path, xlabel: str):
 
     items = []
 
-    with open(filepath) as f:
-        lines = f.readlines()
+    with open(filepath) as file:
+        lines = file.readlines()
 
     for line in lines:
 
@@ -70,6 +79,8 @@ def plot_tensor(figname: str, filepath: Path, xlabel: str):
     plt.tight_layout()
     plt.savefig(f"{figname}.png", dpi=300)
 
+    return None
+
 
 if __name__ == "__main__":
 
@@ -91,5 +102,5 @@ if __name__ == "__main__":
 
     for file in zip(filenames, fignames, xlabels):
 
-        filepath = Path.home().joinpath("worsecrossbars", "tensors", file[0])
-        plot_tensor(figname=file[1], filepath=filepath, xlabel=file[2])
+        path = Path.home().joinpath("worsecrossbars", "tensors", file[0])
+        plot_tensor(figname=file[1], filepath=path, xlabel=file[2])

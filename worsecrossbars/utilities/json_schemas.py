@@ -1,4 +1,4 @@
-"""
+"""json_schemas:
 A module containing the JSON schemas used for plotting and simulation JSONs.
 """
 

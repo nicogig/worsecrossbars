@@ -23,7 +23,7 @@ def _generate_linnonpres_nonidealities(
 ) -> List[Union[IVNonlinear, D2DVariability]]:
     """"""
 
-    linnonpres_nonidealities = []
+    linnonpres_nonidealities: List[Union[IVNonlinear, D2DVariability]] = []
 
     for nonideality in simulation_parameters["nonidealities"]:
 
@@ -55,7 +55,7 @@ def _generate_linpres_nonidealities(
     simulation_parameters: dict,
 ) -> List[Union[StuckAtValue, StuckDistribution]]:
 
-    linpres_nonidealities = []
+    linpres_nonidealities: List[Union[StuckAtValue, StuckDistribution]] = []
 
     for nonideality in simulation_parameters["nonidealities"]:
 
@@ -238,7 +238,9 @@ def run_simulations(
     """
 
     # Generating linearity non-preserving nonidealities
-    nonidealities = _generate_linnonpres_nonidealities(simulation_parameters)
+    nonidealities: List[Union[IVNonlinear, D2DVariability, StuckAtValue, StuckDistribution]] = []
+    nonidealities.extend(_generate_linnonpres_nonidealities(simulation_parameters))
+    # linnonpres_nonidealities =
 
     if not simulation_parameters["nonidealities"]:
 

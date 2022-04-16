@@ -78,7 +78,7 @@ class StuckDistribution:
 
         # Unpacking kwargs
         prob_mask = kwargs.get("prob_mask", None)
-        indices = kwargs.get("indices")
+        indices: tf.Variable = kwargs.get("indices")
 
         if prob_mask is None:
             # Creating a mask of bools to alter a given percentage of conductance values

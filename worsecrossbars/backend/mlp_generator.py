@@ -1,6 +1,7 @@
 """mlp_generator:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
+from re import I
 from typing import List
 
 import numpy as np
@@ -18,7 +19,7 @@ def mnist_mlp(
     g_off: float,
     g_on: float,
     k_v: float,
-    nonidealities: list = [],
+    nonidealities: list = None,
     number_hidden_layers: int = 2,
     neurons: List[int] = None,
     model_name: str = "",
@@ -47,10 +48,10 @@ def mnist_mlp(
     power, as well as to increase resilience to faulty memristive devices.
 
     Args:
-      g_off:
-      g_on:
-      k_v:
-      nonidealities:
+      g_off: The off-state conductance of the memristor.
+      g_on: The on-state conductance of the memristor.
+      k_v: Memristive reference voltage.
+      nonidealities: A list of non-idealities to be applied to the network.
       number_hidden_layers: Integer comprised between 1 and 4, number of hidden layers instantiated
         as part of the model.
       neurons: List of length number_hidden_layers, contains the number of neurons to be created in
@@ -92,6 +93,8 @@ def mnist_mlp(
         neurons = selected_default_neurons[number_hidden_layers]
     if model_name == "":
         model_name = f"MNIST_MLP_{number_hidden_layers}HL"
+    if nonidealities is None:
+        nonidealities = []
 
     if not isinstance(neurons, list) or len(neurons) != number_hidden_layers:
         raise ValueError(
@@ -192,10 +195,3 @@ def get_number_parameters(model_size: str) -> List[int]:
         model_sizes.append(trainable_count)
 
     return model_sizes
-
-
-if __name__ == "__main__":
-
-    for model_size in ["big", "regular", "small", "tiny"]:
-
-        print(f"{model_size.title()}: {get_number_parameters(model_size)}")
