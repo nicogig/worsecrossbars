@@ -40,8 +40,8 @@ def _generate_linnonpres_nonidealities(
         elif nonideality["type"] == "D2DVariability":
             linnonpres_nonidealities.append(
                 D2DVariability(
-                    simulation_parameters["g_off"],
-                    simulation_parameters["g_on"],
+                    simulation_parameters["gOff"],
+                    simulation_parameters["gOn"],
                     nonideality["parameters"][0],
                     nonideality["parameters"][1],
                 )
@@ -77,8 +77,8 @@ def _generate_linpres_nonidealities(
                 linpres_nonidealities.append(
                     StuckDistribution(
                         num_of_weights=nonideality["parameters"][0],
-                        g_off=simulation_parameters["g_off"],
-                        g_on=simulation_parameters["g_on"],
+                        g_off=simulation_parameters["gOff"],
+                        g_on=simulation_parameters["gOn"],
                     )
                 )
                 simulation_parameters["nonidealities"].remove(nonideality)
@@ -102,24 +102,24 @@ def _train_model(
 ) -> Tuple[Model, np.ndarray]:
 
     model = mnist_mlp(
-        simulation_parameters["g_off"],
-        simulation_parameters["g_on"],
-        simulation_parameters["k_v"],
+        simulation_parameters["gOff"],
+        simulation_parameters["gOn"],
+        simulation_parameters["kV"],
         nonidealities=nonidealities,
-        number_hidden_layers=simulation_parameters["number_hidden_layers"],
-        noise_variance=simulation_parameters["noise_variance"],
+        number_hidden_layers=simulation_parameters["numberHiddenLayers"],
+        noise_variance=simulation_parameters["noiseVariance"],
         horovod=horovod,
-        conductance_drifting=simulation_parameters["conductance_drifting"],
-        model_size=simulation_parameters["model_size"],
+        conductance_drifting=simulation_parameters["conductanceDrifting"],
+        model_size=simulation_parameters["modelSize"],
         optimiser=simulation_parameters["optimiser"],
-        double_weights=simulation_parameters["double_weights"],
+        double_weights=simulation_parameters["doubleWeights"],
     )
 
     if simulation_parameters["discretisation"]:
         kwargs = {
             "discretise": simulation_parameters["discretisation"],
-            "number_conductance_levels": simulation_parameters["number_conductance_levels"],
-            "excluded_weights_proportion": simulation_parameters["excluded_weights_proportion"],
+            "number_conductance_levels": simulation_parameters["numberConductanceLevels"],
+            "excluded_weights_proportion": simulation_parameters["excludedWeightsProportion"],
             "nonidealities": nonidealities,
         }
     else:
@@ -137,7 +137,7 @@ def _train_model(
         model,
         epochs=epochs,
         batch_size=batch_size,
-        hrs_lrs_ratio=simulation_parameters["g_on"] / simulation_parameters["g_off"],
+        hrs_lrs_ratio=simulation_parameters["gOn"] / simulation_parameters["gOff"],
         horovod=horovod,
         **kwargs,
     )
@@ -156,10 +156,10 @@ def _simulate(
 ) -> Tuple[float, float]:
     """"""
 
-    simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
-    pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["number_simulations"])
+    simulation_accuracies = np.zeros(simulation_parameters["numberSimulations"])
+    pre_discretisation_simulation_accuracies = np.zeros(simulation_parameters["numberSimulations"])
 
-    for simulation in range(simulation_parameters["number_simulations"]):
+    for simulation in range(simulation_parameters["numberSimulations"]):
 
         print(f"Simulation #{simulation+1}, nonidealities: {nonidealities}")
 
@@ -176,17 +176,17 @@ def _simulate(
         if pre_trained:
             # Assigning ideal model and accuracies
             new_model = mnist_mlp(
-                simulation_parameters["g_off"],
-                simulation_parameters["g_on"],
-                simulation_parameters["k_v"],
+                simulation_parameters["gOff"],
+                simulation_parameters["gOn"],
+                simulation_parameters["kV"],
                 nonidealities=nonidealities,
-                number_hidden_layers=simulation_parameters["number_hidden_layers"],
-                noise_variance=simulation_parameters["noise_variance"],
+                number_hidden_layers=simulation_parameters["numberHiddenLayers"],
+                noise_variance=simulation_parameters["noiseVariance"],
                 horovod=horovod,
-                conductance_drifting=simulation_parameters["conductance_drifting"],
-                model_size=simulation_parameters["model_size"],
+                conductance_drifting=simulation_parameters["conductanceDrifting"],
+                model_size=simulation_parameters["modelSize"],
                 optimiser=simulation_parameters["optimiser"],
-                double_weights=simulation_parameters["double_weights"],
+                double_weights=simulation_parameters["doubleWeights"],
             )
             new_model.build((1, 784))
 
@@ -267,7 +267,7 @@ def run_simulations(
 
     # Handling nonidealities_after_training frameworks
     try:
-        nonidealities_after_training = simulation_parameters["nonidealities_after_training"]
+        nonidealities_after_training = simulation_parameters["nonidealitiesAfterTraining"]
     except KeyError:
         nonidealities_after_training = 0
 
