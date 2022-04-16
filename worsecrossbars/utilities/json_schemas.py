@@ -11,7 +11,7 @@ plot_schema = {
                 "type": "object",
                 "properties": {
                     "files": {"type": "array", "items": {"type": "string"}},
-                    "key_features": {"type": "array", "items": {"type": "string"}},
+                    "keyFeatures": {"type": "array", "items": {"type": "string"}},
                 },
             },
         }
@@ -26,25 +26,25 @@ simulation_schema = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "model_size": {
+                    "modelSize": {
                         "type": "string",
                         "enum": ["big", "regular", "small", "tiny"],
                     },
                     "optimiser": {"type": "string", "enum": ["adam", "sgd", "rmsprop"]},
-                    "double_weights": {"type": "boolean"},
-                    "conductance_drifting": {"type": "boolean"},
-                    "G_off": {"type": "number", "minimum": 0},
-                    "G_on": {"type": "number", "minimum": 0},
-                    "k_V": {"type": "number", "minimum": 0},
+                    "doubleWeights": {"type": "boolean"},
+                    "conductanceDrifting": {"type": "boolean"},
+                    "gOff": {"type": "number", "minimum": 0},
+                    "gOn": {"type": "number", "minimum": 0},
+                    "kV": {"type": "number", "minimum": 0},
                     "discretisation": {"type": "boolean"},
-                    "number_conductance_levels": {"type": "integer", "minimum": 0},
-                    "excluded_weights_proportion": {
+                    "numberConductanceLevels": {"type": "integer", "minimum": 0},
+                    "excludedWeightsProportion": {
                         "type": "number",
                         "minimum": 0,
                         "maximum": 1,
                     },
-                    "number_hidden_layers": {"type": "integer", "enum": [1, 2, 3, 4]},
-                    "nonidealities_after_training": {"type": "integer", "minimum": 1},
+                    "numberHiddenLayers": {"type": "integer", "enum": [1, 2, 3, 4]},
+                    "nonidealitiesAfterTraining": {"type": "integer", "minimum": 1},
                     "nonidealities": {
                         "type": "array",
                         "items": {
@@ -66,36 +66,36 @@ simulation_schema = {
                             },
                         },
                     },
-                    "noise_variance": {"type": "number", "minimum": 0},
-                    "number_simulations": {"type": "integer", "minimum": 1},
+                    "noiseVariance": {"type": "number", "minimum": 0},
+                    "numberSimulations": {"type": "integer", "minimum": 1},
                     "epochs": {"type": "integer", "minimum": 1},
                 },
                 "required": [
-                    "model_size",
+                    "modelSize",
                     "optimiser",
-                    "double_weights",
-                    "conductance_drifting",
+                    "doubleWeights",
+                    "conductanceDrifting",
                     "discretisation",
-                    "G_off",
-                    "G_on",
-                    "k_V",
-                    "number_hidden_layers",
+                    "gOff",
+                    "gOn",
+                    "kV",
+                    "numberHiddenLayers",
                     "nonidealities",
-                    "noise_variance",
-                    "number_simulations",
+                    "noiseVariance",
+                    "numberSimulations",
                 ],
                 "allOf": [
                     {
-                        "if": {"properties": {"conductance_drifting": {"const": True}}},
+                        "if": {"properties": {"conductanceDrifting": {"const": True}}},
                         "then": {"properties": {"discretisation": {"const": False}}},
                     },
                     {
                         "if": {"properties": {"discretisation": {"const": True}}},
                         "then": {
-                            "properties": {"conductance_drifting": {"const": False}},
+                            "properties": {"conductanceDrifting": {"const": False}},
                             "required": [
-                                "number_conductance_levels",
-                                "excluded_weights_proportion",
+                                "numberConductanceLevels",
+                                "excludedWeightsProportion",
                             ],
                         },
                     },
