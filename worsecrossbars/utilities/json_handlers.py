@@ -15,6 +15,7 @@ def validate_json(extracted_json: dict, json_schema: dict = simulation_schema) -
 
     Args:
       extracted_json: The JSON object to be validated.
+      json_schema: The schema to validate against.
     """
 
     try:

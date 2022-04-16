@@ -1,7 +1,6 @@
 """mlp_generator:
 A backend module used to create a Keras model for a densely connected MLP with a given topology.
 """
-from re import I
 from typing import List
 
 import numpy as np

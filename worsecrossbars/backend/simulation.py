@@ -240,7 +240,6 @@ def run_simulations(
     # Generating linearity non-preserving nonidealities
     nonidealities: List[Union[IVNonlinear, D2DVariability, StuckAtValue, StuckDistribution]] = []
     nonidealities.extend(_generate_linnonpres_nonidealities(simulation_parameters))
-    # linnonpres_nonidealities =
 
     if not simulation_parameters["nonidealities"]:
 
