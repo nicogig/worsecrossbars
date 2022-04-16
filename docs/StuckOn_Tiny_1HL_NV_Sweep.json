@@ -1,17 +1,17 @@
 {
     "simulations": [
         {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
+            "gOff": 7.723066346443375e-07,
+            "gOn": 2.730684400376049e-06,
+            "kV": 0.5,
+            "modelSize": "tiny",
             "optimiser": "adam",
-            "double_weights": true,
+            "doubleWeights": true,
             "discretisation": false,
-            "conductance_drifting": true,
+            "conductanceDrifting": true,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "numberHiddenLayers": 1,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -20,21 +20,21 @@
                     ]
                 }
             ],
-            "noise_variance": 0.0,
-            "number_simulations": 1
+            "noiseVariance": 0.0,
+            "numberSimulations": 1
         },
         {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
+            "gOff": 7.723066346443375e-07,
+            "gOn": 2.730684400376049e-06,
+            "kV": 0.5,
+            "modelSize": "tiny",
             "optimiser": "adam",
-            "double_weights": true,
+            "doubleWeights": true,
             "discretisation": false,
-            "conductance_drifting": true,
+            "conductanceDrifting": true,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "numberHiddenLayers": 1,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -43,21 +43,21 @@
                     ]
                 }
             ],
-            "noise_variance": 0.1,
-            "number_simulations": 1
+            "noiseVariance": 0.1,
+            "numberSimulations": 1
         },
         {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
+            "gOff": 7.723066346443375e-07,
+            "gOn": 2.730684400376049e-06,
+            "kV": 0.5,
+            "modelSize": "tiny",
             "optimiser": "adam",
-            "double_weights": true,
+            "doubleWeights": true,
             "discretisation": false,
-            "conductance_drifting": true,
+            "conductanceDrifting": true,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "numberHiddenLayers": 1,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -66,21 +66,21 @@
                     ]
                 }
             ],
-            "noise_variance": 0.25,
-            "number_simulations": 1
+            "noiseVariance": 0.25,
+            "numberSimulations": 1
         },
         {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
+            "gOff": 7.723066346443375e-07,
+            "gOn": 2.730684400376049e-06,
+            "kV": 0.5,
+            "modelSize": "tiny",
             "optimiser": "adam",
-            "double_weights": true,
+            "doubleWeights": true,
             "discretisation": false,
-            "conductance_drifting": true,
+            "conductanceDrifting": true,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "numberHiddenLayers": 1,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -89,21 +89,21 @@
                     ]
                 }
             ],
-            "noise_variance": 0.5,
-            "number_simulations": 1
+            "noiseVariance": 0.5,
+            "numberSimulations": 1
         },
         {
-            "G_off": 7.723066346443375e-07,
-            "G_on": 2.730684400376049e-06,
-            "k_V": 0.5,
-            "model_size": "tiny",
+            "gOff": 7.723066346443375e-07,
+            "gOn": 2.730684400376049e-06,
+            "kV": 0.5,
+            "modelSize": "tiny",
             "optimiser": "adam",
-            "double_weights": true,
+            "doubleWeights": true,
             "discretisation": false,
-            "conductance_drifting": true,
+            "conductanceDrifting": true,
             "number_conductance_levels": 10,
             "excluded_weights_proportion": 0.015,
-            "number_hidden_layers": 1,
+            "numberHiddenLayers": 1,
             "nonidealities": [
                 {
                     "type": "StuckAtValue",
@@ -112,8 +112,8 @@
                     ]
                 }
             ],
-            "noise_variance": 0.75,
-            "number_simulations": 1
+            "noiseVariance": 0.75,
+            "numberSimulations": 1
         }
     ]
 }
