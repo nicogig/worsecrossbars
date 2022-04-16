@@ -1,9 +1,9 @@
-import sys
+from pathlib import Path
+
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow.keras import layers
-from pathlib import Path
 
 from worsecrossbars.backend import mapping
 
@@ -15,9 +15,9 @@ class MemristiveFullyConnected(layers.Layer):
         self,
         neurons_in: int,
         neurons_out: int,
-        G_off: float,
-        G_on: float,
-        k_V: float,
+        g_off: float,
+        g_on: float,
+        k_v: float,
         is_training: bool = False,
         **kwargs,
     ) -> None:
@@ -25,9 +25,9 @@ class MemristiveFullyConnected(layers.Layer):
         # Assigning positional arguments to the layer
         self.neurons_in = neurons_in
         self.neurons_out = neurons_out
-        self.G_off = G_off
-        self.G_on = G_on
-        self.k_V = k_V
+        self.g_off = g_off
+        self.g_on = g_on
+        self.k_v = k_v
         self.is_training = is_training
 
         # Unpacking kwargs
@@ -155,16 +155,16 @@ class MemristiveFullyConnected(layers.Layer):
         conductance_drifting_variance = kwargs.get("conductance_drifting_variance", 0.05)
 
         # Converting neuronal inputs to voltages
-        voltages = self.k_V * x
+        voltages = self.k_v * x
 
         # Mapping network weights to conductances
         if self.uses_double_weights:
             conductances, max_weight = mapping.double_weights_to_conductances(
-                weights, self.G_off, self.G_on
+                weights, self.g_off, self.g_on
             )
         else:
             conductances, max_weight = mapping.weights_to_conductances(
-                weights, self.G_off, self.G_on, self.mapping_rule
+                weights, self.g_off, self.g_on, self.mapping_rule
             )
 
         if monitor:
@@ -218,8 +218,8 @@ class MemristiveFullyConnected(layers.Layer):
                 currents = tf.math.reduce_sum(individual_currents, 1)
 
         total_currents = currents[:, 0::2] - currents[:, 1::2]
-        k_cond = (self.G_on - self.G_off) / max_weight
-        y_disturbed = total_currents / (self.k_V * k_cond)
+        k_cond = (self.g_on - self.g_off) / max_weight
+        y_disturbed = total_currents / (self.k_v * k_cond)
 
         if monitor:
             tf.print(currents, output_stream=f"file://{filepath}/currents.txt", summarize=-1)

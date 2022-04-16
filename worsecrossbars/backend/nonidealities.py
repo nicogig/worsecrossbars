@@ -57,14 +57,14 @@ class StuckDistribution:
             self.num_of_weights = len(distrib)
         else:
             self.num_of_weights = kwargs.get("num_of_weights", None)
-            self.G_on = kwargs.get("G_on", None)
-            self.G_off = kwargs.get("G_off", None)
-            if self.num_of_weights is None or self.G_off is None or self.G_on is None:
+            self.g_on = kwargs.get("g_on", None)
+            self.g_off = kwargs.get("g_off", None)
+            if self.num_of_weights is None or self.g_off is None or self.g_on is None:
                 raise ValueError(
-                    "G_on, G_off, and num_of_weights must be supplied if no distrib is given!"
+                    "g_on, g_off, and num_of_weights must be supplied if no distrib is given!"
                 )
             self.distrib = (
-                tf.random.uniform([self.num_of_weights], minval=self.G_off, maxval=self.G_on)
+                tf.random.uniform([self.num_of_weights], minval=self.g_off, maxval=self.g_on)
                 .numpy()
                 .tolist()
             )
@@ -89,11 +89,15 @@ class StuckDistribution:
         else:
             mask = prob_mask < self.probability
 
-        count = tf.math.count_nonzero(tf.math.equal(indices, tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32)))
+        count = tf.math.count_nonzero(
+            tf.math.equal(indices, tf.constant(-1, shape=conductances.shape, dtype=tf.dtypes.int32))
+        )
         if count > 0:
-            indices.assign(tf.random.uniform(
-                conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
-            ))
+            indices.assign(
+                tf.random.uniform(
+                    conductances.shape, minval=0, maxval=self.num_of_weights, dtype=tf.int32
+                )
+            )
 
         altered_conductances = conductances
         for index, level in enumerate(self.distrib):
@@ -113,10 +117,10 @@ class StuckDistribution:
 class D2DVariability:
     """This class ..."""
 
-    def __init__(self, G_off: float, G_on: float, on_std: float, off_std: float) -> None:
+    def __init__(self, g_off: float, g_on: float, on_std: float, off_std: float) -> None:
         self.is_linearity_preserving = True
-        self.G_off = G_off
-        self.G_on = G_on
+        self.g_off = g_off
+        self.g_on = g_on
         self.on_std = on_std
         self.off_std = off_std
 
@@ -127,8 +131,8 @@ class D2DVariability:
     def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
 
         resistances = 1 / conductances
-        resistance_on = 1 / self.G_on
-        resistance_off = 1 / self.G_off
+        resistance_on = 1 / self.g_on
+        resistance_off = 1 / self.g_off
 
         log_std = tfp.math.interp_regular_1d_grid(
             resistances, resistance_on, resistance_off, [self.on_std, self.off_std]
@@ -148,16 +152,19 @@ class D2DVariability:
 class IVNonlinear:
     """This class ..."""
 
-    def __init__(self, V_ref: float, avg_gamma: float, std_gamma: float) -> None:
-        self.V_ref = V_ref
+    def __init__(self, v_ref: float, avg_gamma: float, std_gamma: float) -> None:
+        self.v_ref = v_ref
         self.avg_gamma = avg_gamma
         self.std_gamma = std_gamma
-        self.k_V = 2 * self.V_ref
+        self.k_v = 2 * self.v_ref
         self.is_linearity_preserving = False
 
     def __repr__(self) -> str:
 
-        return f"IVNonlinear (V_ref: {self.V_ref}; Avg_gamma: {self.avg_gamma}; Std_gamma: {self.std_gamma})"
+        return (
+            f"IVNonlinear (v_ref: {self.v_ref}; Avg_gamma: {self.avg_gamma}; "
+            + "Std_gamma: {self.std_gamma})"
+        )
 
     def calc_currents(
         self, voltages: tf.Tensor, conductances: tf.Tensor
@@ -182,12 +189,12 @@ class IVNonlinear:
         gammas = tf.random.truncated_normal(conductances.shape, self.avg_gamma, self.std_gamma)
 
         voltage_signs = tf.expand_dims(tf.sign(voltages), -1)
-        ohmic_currents = voltage_signs * self.V_ref * tf.expand_dims(conductances, 0)
-        v_v_ref_ratio = tf.expand_dims(tf.abs(voltages) / self.V_ref, -1)
+        ohmic_currents = voltage_signs * self.v_ref * tf.expand_dims(conductances, 0)
+        v_v_ref_ratio = tf.expand_dims(tf.abs(voltages) / self.v_ref, -1)
 
         log_gammas = tf.experimental.numpy.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
         currents = tf.math.reduce_sum(individual_currents, axis=1)
 
         return currents, individual_currents

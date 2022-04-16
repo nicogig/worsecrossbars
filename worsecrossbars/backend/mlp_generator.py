@@ -15,9 +15,9 @@ from worsecrossbars.backend.layers import MemristiveFullyConnected
 
 
 def mnist_mlp(
-    G_off: float,
-    G_on: float,
-    k_V: float,
+    g_off: float,
+    g_on: float,
+    k_v: float,
     nonidealities: list = [],
     number_hidden_layers: int = 2,
     neurons: List[int] = None,
@@ -47,9 +47,9 @@ def mnist_mlp(
     power, as well as to increase resilience to faulty memristive devices.
 
     Args:
-      G_off:
-      G_on:
-      k_V:
+      g_off:
+      g_on:
+      k_v:
       nonidealities:
       number_hidden_layers: Integer comprised between 1 and 4, number of hidden layers instantiated
         as part of the model.
@@ -85,11 +85,11 @@ def mnist_mlp(
             '"model_size" argument should be a string equal to "big", "regular", "small" or "tiny".'
         )
 
-    default_neurons = default_neurons[model_size]
+    selected_default_neurons = default_neurons[model_size]
 
     # Setting default argument values
     if neurons is None:
-        neurons = default_neurons[number_hidden_layers]
+        neurons = selected_default_neurons[number_hidden_layers]
     if model_name == "":
         model_name = f"MNIST_MLP_{number_hidden_layers}HL"
 
@@ -106,9 +106,9 @@ def mnist_mlp(
         MemristiveFullyConnected(
             784,
             neurons[0],
-            G_off,
-            G_on,
-            k_V,
+            g_off,
+            g_on,
+            k_v,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
             uses_double_weights=uses_double_weights,
@@ -127,9 +127,9 @@ def mnist_mlp(
             MemristiveFullyConnected(
                 neurons[layer_index],
                 neurons[layer_index + 1],
-                G_off,
-                G_on,
-                k_V,
+                g_off,
+                g_on,
+                k_v,
                 nonidealities=nonidealities,
                 conductance_drifting=conductance_drifting,
                 uses_double_weights=uses_double_weights,
@@ -146,9 +146,9 @@ def mnist_mlp(
         MemristiveFullyConnected(
             neurons[-1],
             10,
-            G_off,
-            G_on,
-            k_V,
+            g_off,
+            g_on,
+            k_v,
             nonidealities=nonidealities,
             conductance_drifting=conductance_drifting,
             uses_double_weights=uses_double_weights,

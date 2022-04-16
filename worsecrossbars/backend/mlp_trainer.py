@@ -8,13 +8,12 @@ from typing import Tuple
 from numpy import ndarray
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import History
-from tensorflow.keras.datasets import mnist
 from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
 from worsecrossbars.backend import weights_manipulation
 from worsecrossbars.backend.layers import MemristiveFullyConnected
-from worsecrossbars.backend import mapping
 
 
 def get_dataset(
@@ -74,6 +73,22 @@ def get_dataset(
     )
 
 
+def _steps_per_epoch(dataset_size: int, batch_size: int) -> int:
+    """This function returns the number of steps per epoch, based on the dataset and the batch size.
+
+    Args:
+      dataset_size: Size of the dataset.
+      batch_size: Size of the batch.
+
+    Returns:
+      steps_per_epoch: Number of steps per epoch.
+    """
+
+    steps_per_epoch = int(math.ceil(1.0 * dataset_size / batch_size))
+
+    return steps_per_epoch
+
+
 def train_mlp(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     model: Model,
@@ -81,7 +96,7 @@ def train_mlp(
     batch_size: int,
     horovod: bool = False,
     **kwargs
-) -> Tuple[List[ndarray], History]:
+) -> Tuple[List[ndarray], History, float]:
     """This function trains a given Keras model on the dataset provided to it.
 
     Args:
@@ -110,7 +125,6 @@ def train_mlp(
     hrs_lrs_ratio = kwargs.get("hrs_lrs_ratio", 5)
     number_conductance_levels = kwargs.get("number_conductance_levels", 10)
     excluded_weights_proportion = kwargs.get("excluded_weights_proportion", 0.015)
-    nonidealities = kwargs.get("nonidealities", [])
 
     if not isinstance(model, Model):
         raise ValueError('"model" argument should be a Keras model object.')
@@ -138,9 +152,6 @@ def train_mlp(
             '"excluded_weights_proportion" argument should be a float value between 0 and 1.'
         )
 
-    # Training with validation
-    compute_steps_per_epoch = lambda x: int(math.ceil(1.0 * x / batch_size))
-
     if horovod:
         import horovod.tensorflow as hvd
 
@@ -156,11 +167,11 @@ def train_mlp(
             verbose = 2
         else:
             verbose = 0
-        steps = (compute_steps_per_epoch(len(dataset[0][2])) * 2) // hvd.size()
+        steps = _steps_per_epoch(dataset[0][2].shape[0] * 2, batch_size) // hvd.size()
     else:
         callbacks = []
         verbose = 2
-        steps = compute_steps_per_epoch(len(dataset[0][2]))
+        steps = _steps_per_epoch(dataset[0][2].shape[0] * 2, batch_size)
 
     model.is_training = True
     mlp_history = model.fit(

@@ -1,15 +1,13 @@
 """simulation:
 A backend module used to simulate the effect of faulty devices on memristive ANN performance.
 """
-from typing import Tuple
 from typing import List
+from typing import Tuple
 from typing import Union
 
 import numpy as np
-from numpy import ndarray
 from keras import Model
-import tensorflow as tf
-from worsecrossbars.backend.layers import MemristiveFullyConnected
+from numpy import ndarray
 
 from worsecrossbars.backend.mlp_generator import mnist_mlp
 from worsecrossbars.backend.mlp_trainer import train_mlp
@@ -32,7 +30,7 @@ def _generate_linnonpres_nonidealities(
         if nonideality["type"] == "IVNonlinear":
             linnonpres_nonidealities.append(
                 IVNonlinear(
-                    V_ref=nonideality["parameters"][0],
+                    v_ref=nonideality["parameters"][0],
                     avg_gamma=nonideality["parameters"][1],
                     std_gamma=nonideality["parameters"][2],
                 )
@@ -42,8 +40,8 @@ def _generate_linnonpres_nonidealities(
         elif nonideality["type"] == "D2DVariability":
             linnonpres_nonidealities.append(
                 D2DVariability(
-                    simulation_parameters["G_off"],
-                    simulation_parameters["G_on"],
+                    simulation_parameters["g_off"],
+                    simulation_parameters["g_on"],
                     nonideality["parameters"][0],
                     nonideality["parameters"][1],
                 )
@@ -67,7 +65,7 @@ def _generate_linpres_nonidealities(
 
         elif nonideality["type"] == "StuckDistribution":
             # If only nonideality["parameters"][0] is a single integer, then this indicates the
-            # number of weights to create between G_off and G_on. Otherwise, if
+            # number of weights to create between g_off and g_on. Otherwise, if
             # nonideality["parameters"][0] is a list, this is passed as distrib to
             # StuckDistribution()
             if isinstance(nonideality["parameters"][0], list):
@@ -79,8 +77,8 @@ def _generate_linpres_nonidealities(
                 linpres_nonidealities.append(
                     StuckDistribution(
                         num_of_weights=nonideality["parameters"][0],
-                        G_off=simulation_parameters["G_off"],
-                        G_on=simulation_parameters["G_on"],
+                        g_off=simulation_parameters["g_off"],
+                        g_on=simulation_parameters["g_on"],
                     )
                 )
                 simulation_parameters["nonidealities"].remove(nonideality)
@@ -104,9 +102,9 @@ def _train_model(
 ) -> Tuple[Model, np.ndarray]:
 
     model = mnist_mlp(
-        simulation_parameters["G_off"],
-        simulation_parameters["G_on"],
-        simulation_parameters["k_V"],
+        simulation_parameters["g_off"],
+        simulation_parameters["g_on"],
+        simulation_parameters["k_v"],
         nonidealities=nonidealities,
         number_hidden_layers=simulation_parameters["number_hidden_layers"],
         noise_variance=simulation_parameters["noise_variance"],
@@ -139,7 +137,7 @@ def _train_model(
         model,
         epochs=epochs,
         batch_size=batch_size,
-        hrs_lrs_ratio=simulation_parameters["G_on"] / simulation_parameters["G_off"],
+        hrs_lrs_ratio=simulation_parameters["g_on"] / simulation_parameters["g_off"],
         horovod=horovod,
         **kwargs,
     )
@@ -178,9 +176,9 @@ def _simulate(
         if pre_trained:
             # Assigning ideal model and accuracies
             new_model = mnist_mlp(
-                simulation_parameters["G_off"],
-                simulation_parameters["G_on"],
-                simulation_parameters["k_V"],
+                simulation_parameters["g_off"],
+                simulation_parameters["g_on"],
+                simulation_parameters["k_v"],
                 nonidealities=nonidealities,
                 number_hidden_layers=simulation_parameters["number_hidden_layers"],
                 noise_variance=simulation_parameters["noise_variance"],

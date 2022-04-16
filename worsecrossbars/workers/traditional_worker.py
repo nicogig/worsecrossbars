@@ -4,10 +4,10 @@ Worsecrossbars' main module and entrypoint.
 import json
 import logging
 import os
+import platform
 import sys
 from pathlib import Path
 from typing import Tuple
-import platform
 
 import tensorflow as tf
 from numpy import ndarray
