@@ -17,7 +17,7 @@ from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
-from worsecrossbars.workers import traditional_worker
+from worsecrossbars.workers import workers
 
 
 def stop_handler(signum, _):
@@ -41,12 +41,14 @@ def stop_handler(signum, _):
 def main():
     """Main point of entry for the computing-side of the package."""
 
-    if command_line_args.multiGPU:
-        from worsecrossbars.workers import multi_gpu_worker
-
-        multi_gpu_worker.main(command_line_args, output_folder, json_object, teams, logger)
-    else:
-        traditional_worker.main(command_line_args, output_folder, json_object, teams, logger)
+    workers.main(
+        command_line_args,
+        output_folder,
+        json_object,
+        command_line_args.multiGPU,
+        teams=teams,
+        logger=logger,
+    )
 
 
 if __name__ == "__main__":
@@ -123,10 +125,13 @@ if __name__ == "__main__":
         json_object = read_external_json(str(json_path))
         validate_json(json_object)
 
+        # pylint: disable=invalid-name
         if command_line_args.teams:
             teams: Union[MSTeamsNotifier, None] = MSTeamsNotifier(read_webhook())
         else:
+
             teams = None
+        # pylint: enable=invalid-name
 
         # Attach Signal Handler
         signal.signal(signal.SIGINT, stop_handler)
