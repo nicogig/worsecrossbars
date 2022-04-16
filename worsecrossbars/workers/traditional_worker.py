@@ -2,7 +2,6 @@
 Worsecrossbars' main module and entrypoint.
 """
 import json
-import logging
 import os
 import platform
 import sys
@@ -15,6 +14,7 @@ from numpy import ndarray
 from worsecrossbars.backend.mlp_trainer import get_dataset
 from worsecrossbars.backend.simulation import run_simulations
 from worsecrossbars.utilities.dropbox_upload import DropboxUpload
+from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 
 
@@ -23,14 +23,15 @@ def worker(
     simulation_parameters: dict,
     _output_folder: str,
     _teams: MSTeamsNotifier = None,
-    _logger: logging.Logger = None,
+    _logger: Logging = None,
     _batch_size: int = 100,
 ):
     """A worker, an async class that handles the heavy-lifting computation-wise."""
 
     process_id = os.getpid()
 
-    _logger.write(f"Attempting simulation with process ID {process_id}")
+    if _logger:
+        _logger.write(f"Attempting simulation with process ID {process_id}")
 
     if _teams:
         _teams.send_message(
@@ -71,7 +72,8 @@ def worker(
             }
         json.dump(output_object, file, ensure_ascii=False, indent=4)
 
-    _logger.write(f"Saved accuracy data for simulation with process ID {process_id}")
+    if _logger:
+        _logger.write(f"Saved accuracy data for simulation with process ID {process_id}")
 
     if _teams:
         _teams.send_message(
@@ -89,8 +91,6 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
 
     dataset = get_dataset("mnist", 3)
 
-    # pool = []
-
     for index, simulation_parameters in enumerate(json_object["simulations"]):
 
         simulation_parameters["ID"] = index + 1
@@ -102,21 +102,6 @@ def main(command_line_args, output_folder, json_object, teams=None, logger=None)
 
         with tf.device(dev):
             worker(dataset, simulation_parameters, output_folder, teams, logger)
-
-        # if command_line_args.teams is None:
-        #    process = Process(
-        #        target=worker, args=[dataset, simulation_parameters, output_folder, None, logger]
-        #    )
-        # else:
-        #    process = Process(
-        #        target=worker,
-        #        args=[dataset, simulation_parameters, output_folder, teams, logger],
-        #    )
-        # process.start()
-        # pool.append(process)
-
-    # for process in pool:
-    #    process.join()
 
     if command_line_args.dropbox:
         dbx.upload()

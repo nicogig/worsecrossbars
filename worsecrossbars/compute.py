@@ -7,6 +7,7 @@ import platform
 import signal
 import sys
 from pathlib import Path
+from typing import Union
 
 from worsecrossbars.utilities.initial_setup import main_setup
 from worsecrossbars.utilities.io_operations import create_output_structure
@@ -123,7 +124,7 @@ if __name__ == "__main__":
         validate_json(json_object)
 
         if command_line_args.teams:
-            teams = MSTeamsNotifier(read_webhook())
+            teams: Union[MSTeamsNotifier, None] = MSTeamsNotifier(read_webhook())
         else:
             teams = None
 

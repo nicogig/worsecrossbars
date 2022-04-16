@@ -166,11 +166,11 @@ def _simulate(
         if horovod:
             import horovod.tensorflow as hvd
 
-            if hvd.rank() == 0:
+            if hvd.rank() == 0 and _logger:
                 _logger.write(
                     f"Performing simulation {simulation+1}. Nonidealities {nonidealities}"
                 )
-        else:
+        elif _logger:
             _logger.write(f"Performing simulation {simulation+1}. Nonidealities {nonidealities}")
 
         if pre_trained:
@@ -204,9 +204,9 @@ def _simulate(
                 horovod=horovod,
             )
 
-        if horovod and hvd.rank() == 0:
+        if horovod and hvd.rank() == 0 and _logger:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
-        else:
+        elif _logger:
             _logger.write(f"Finished. Accuracy {pre_discretisation_accuracy}")
 
         if simulation_parameters["discretisation"]:
@@ -283,9 +283,9 @@ def run_simulations(
             if horovod:
                 import horovod.tensorflow as hvd
 
-                if hvd.rank() == 0:
+                if hvd.rank() == 0 and logger:
                     logger.write(f"Training NAT model {model+1}.")
-            else:
+            elif logger:
                 logger.write(f"Training NAT model {model+1}.")
 
             trained_models.append(
