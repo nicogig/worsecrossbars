@@ -24,8 +24,7 @@ class Logging:
         pass
 
     def write(self, string="", level="INFO"):
-        """
-        Writes a given string to the log.
+        """This function writes a given string to the log.
 
         Args:
           string: The string to write.

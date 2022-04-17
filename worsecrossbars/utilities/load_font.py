@@ -1,7 +1,6 @@
 """load_font:
 A utility module used to load fonts for plotting
 """
-
 import os
 from pathlib import Path
 
