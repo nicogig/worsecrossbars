@@ -1,5 +1,4 @@
-"""
-logging_module:
+"""logging_module:
 An internal module used to create and write to a log file.
 """
 import os
@@ -8,11 +7,9 @@ from pathlib import Path
 
 
 class Logging:
-    """
-    A class holding the name and location of the log file.
+    """A class holding the name and location of the log file.
 
     Args:
-      simulation_parameters: The JSON dictionary object containing the simulation parameters.
       output_folder: The output folder of the module.
     """
 
@@ -32,7 +29,7 @@ class Logging:
 
         Args:
           string: The string to write.
-          special: Enables a bypass of `string` to write specific recurring strings.
+          level: The level (type) of the message.
         """
 
         write_string = (

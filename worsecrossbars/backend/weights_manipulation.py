@@ -8,14 +8,24 @@ import tensorflow as tf
 
 
 def bucketize_weights_layer(
-    w: tf.Tensor,
+    weights: tf.Tensor,
     hrs_lrs_ratio: float,
     number_conductance_levels: int,
     excluded_weights_proportion: float,
 ) -> tf.Tensor:
-    """"""
+    """This function maps ANN weights to real-world, discrete resistance levels.
 
-    flattened_weights = tf.reshape(w, [-1])
+    Args:
+      weights: A tensor of weights.
+      hrs_lrs_ratio: The ratio between high and low resistance levels.
+      number_conductance_levels: The number of conductance levels.
+      excluded_weights_proportion: The proportion of weights to be excluded.
+
+    Returns:
+      discretised_w: A tensor of weights mapped to real-world, discrete resistance levels.
+    """
+
+    flattened_weights = tf.reshape(weights, [-1])
 
     # Casting to float64 because Tensorflow Metal's sort() function does not work properly with
     # float32 tensors
@@ -35,9 +45,9 @@ def bucketize_weights_layer(
         w_min.numpy(), w_max.numpy(), number_conductance_levels, dtype=float
     ).tolist()
 
-    indices = tf.raw_ops.Bucketize(input=w, boundaries=cond_levels)
+    indices = tf.raw_ops.Bucketize(input=weights, boundaries=cond_levels)
 
-    discretised_w = copy.deepcopy(w)
+    discretised_w = copy.deepcopy(weights)
     mask = indices > len(cond_levels) - 1
     indices = tf.where(mask, len(cond_levels) - 1, indices)
 

@@ -35,5 +35,5 @@ class MSTeamsNotifier:
             msteams_message.color(color)
         try:
             msteams_message.send()
-        except Exception as e:
-            print(f"An exception was raised while sending a message: {e}")
+        except pymsteams.TeamsWebhookException as excp:
+            print(f"An exception was raised while sending a message: {excp}")

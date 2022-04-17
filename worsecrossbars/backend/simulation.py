@@ -164,7 +164,10 @@ def _simulate(
         print(f"Simulation #{simulation+1}, nonidealities: {nonidealities}")
 
         if horovod:
+            # pylint: disable=import-outside-toplevel
             import horovod.tensorflow as hvd
+
+            # pylint: enable=import-outside-toplevel
 
             if hvd.rank() == 0 and _logger:
                 _logger.write(
@@ -281,7 +284,10 @@ def run_simulations(
             print(f"Training NAT model {model+1}.")
 
             if horovod:
+                # pylint: disable=import-outside-toplevel
                 import horovod.tensorflow as hvd
+
+                # pylint: enable=import-outside-toplevel
 
                 if hvd.rank() == 0 and logger:
                     logger.write(f"Training NAT model {model+1}.")
@@ -302,7 +308,7 @@ def run_simulations(
 
         # Setting percentage of faulty devices
         for nonideality in nonidealities:
-            if isinstance(nonideality, StuckAtValue) or isinstance(nonideality, StuckDistribution):
+            if isinstance(nonideality, (StuckAtValue, StuckDistribution)):
                 _ = nonideality.update(percentage)
 
         if trained_models:

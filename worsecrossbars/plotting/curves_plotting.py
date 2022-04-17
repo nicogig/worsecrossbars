@@ -3,15 +3,15 @@ A plotting module used to generate training/validation and accuracy curves.
 """
 import argparse
 import json
-import os
 from pathlib import Path
 from typing import List
 from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.font_manager import FontProperties
 from numpy import ndarray
+
+from worsecrossbars.utilities.load_font import load_font
 
 
 def load_accuracy_data(
@@ -111,23 +111,6 @@ def load_training_validation_data(
             raise file_error
 
     return training_validation_list
-
-
-def load_font() -> FontProperties:
-    """This function loads the computern modern font used in the plots.
-
-    fpath:
-      Font path object pointing to the computern modern font.
-    """
-
-    if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
-        fpath = FontProperties(
-            fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18
-        )
-    else:
-        fpath = FontProperties(family="sans-serif", size=18)
-
-    return fpath
 
 
 def accuracy_curves(files: List[str], folder: str, **kwargs) -> None:

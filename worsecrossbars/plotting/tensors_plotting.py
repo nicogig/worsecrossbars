@@ -1,29 +1,12 @@
 """tensor_plotting:
 A module used to plot key tensors obtained from the simulations.
 """
-import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.font_manager import FontProperties
 
-
-def load_font() -> FontProperties:
-    """This function loads the computern modern font used in the plots.
-
-    Returns:
-      fpath: Font path object pointing to the computern modern font.
-    """
-
-    if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
-        fpath = FontProperties(
-            fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18
-        )
-    else:
-        fpath = FontProperties(family="sans-serif", size=18)
-
-    return fpath
+from worsecrossbars.utilities.load_font import load_font
 
 
 def plot_tensor(figname: str, filepath: Path, xlabel: str) -> None:
@@ -43,8 +26,11 @@ def plot_tensor(figname: str, filepath: Path, xlabel: str) -> None:
 
     items = []
 
+    # pylint: disable=unspecified-encoding
     with open(filepath) as file:
         lines = file.readlines()
+
+    # pylint: enable=unspecified-encoding
 
     for line in lines:
 
@@ -79,8 +65,6 @@ def plot_tensor(figname: str, filepath: Path, xlabel: str) -> None:
     plt.tight_layout()
     plt.savefig(f"{figname}.png", dpi=300)
 
-    return None
-
 
 if __name__ == "__main__":
 
@@ -100,7 +84,7 @@ if __name__ == "__main__":
     ]
     xlabels = ["Weight", "Conductance (μS)", "Conductance (μS)", "Current (A)", "Layer output"]
 
-    for file in zip(filenames, fignames, xlabels):
+    for file_tuple in zip(filenames, fignames, xlabels):
 
-        path = Path.home().joinpath("worsecrossbars", "tensors", file[0])
-        plot_tensor(figname=file[1], filepath=path, xlabel=file[2])
+        path = Path.home().joinpath("worsecrossbars", "tensors", file_tuple[0])
+        plot_tensor(figname=file_tuple[1], filepath=path, xlabel=file_tuple[2])

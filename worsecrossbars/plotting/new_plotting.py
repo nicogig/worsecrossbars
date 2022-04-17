@@ -1,31 +1,13 @@
 import argparse
-import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.font_manager import FontProperties
 
 from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.json_handlers import validate_json
 from worsecrossbars.utilities.json_schemas import PLOT_SCHEMA
-
-
-def load_font() -> FontProperties:
-    """This function loads the computern modern font used in the plots.
-
-    fpath:
-      Font path object pointing to the computern modern font.
-    """
-
-    if os.path.exists(Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf")):
-        fpath = FontProperties(
-            fname=Path.home().joinpath("worsecrossbars", "utils", "cmunrm.ttf"), size=18
-        )
-    else:
-        fpath = FontProperties(family="sans-serif", size=18)
-
-    return fpath
+from worsecrossbars.utilities.load_font import load_font
 
 
 def plot(json_object: dict):

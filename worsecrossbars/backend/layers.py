@@ -45,6 +45,16 @@ class MemristiveFullyConnected(layers.Layer):
             trainable=False,
         )
 
+        # Instantiating other attributes in __init__
+        self.w_pos = tf.Variable()
+        self.w_neg = tf.Variable()
+        self.b_pos = tf.Variable()
+        self.b_neg = tf.Variable()
+        self.weights = tf.Variable()
+        self.biases = tf.Variable()
+        self.out = tf.Variable()
+        self.built = False
+
         super().__init__()
 
     def get_output_shape_for(self, input_shape):
@@ -53,7 +63,7 @@ class MemristiveFullyConnected(layers.Layer):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.neurons_out)
 
-    def build(self, input_shape):
+    def build(self, _input_shape):
 
         stdv = 1 / np.sqrt(self.neurons_in)
 
@@ -93,14 +103,14 @@ class MemristiveFullyConnected(layers.Layer):
 
         else:
 
-            self.w = self.add_weight(
+            self.weights = self.add_weight(
                 shape=(self.neurons_in, self.neurons_out),
                 initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=stdv),
                 name="weights",
                 trainable=True,
             )
 
-            self.b = self.add_weight(
+            self.biases = self.add_weight(
                 shape=(self.neurons_out,),
                 initializer=tf.keras.initializers.Constant(value=0.0),
                 name="biases",
@@ -109,13 +119,13 @@ class MemristiveFullyConnected(layers.Layer):
 
         self.built = True
 
-    def call(self, x, mask=None):
+    def call(self, x_in, _mask=None):
         """"""
 
         if not self.uses_double_weights and self.nonidealities == []:
-            return tf.tensordot(x, self.w, axes=1) + self.b
+            return tf.tensordot(x_in, self.weights, axes=1) + self.biases
 
-        inputs = tf.concat([x, tf.ones([tf.shape(x)[0], 1])], 1)
+        inputs = tf.concat([x_in, tf.ones([tf.shape(x_in)[0], 1])], 1)
 
         # Calculating layers outputs
         self.out = self.memristive_outputs(inputs, self.combine_weights(), monitor=False)
@@ -139,13 +149,13 @@ class MemristiveFullyConnected(layers.Layer):
             )
         else:
 
-            bias = tf.expand_dims(self.b, 0)
-            combined_weights = tf.concat([self.w, bias], 0)
+            bias = tf.expand_dims(self.biases, 0)
+            combined_weights = tf.concat([self.weights, bias], 0)
 
         return combined_weights
 
     @tf.function
-    def memristive_outputs(self, x, weights, **kwargs):
+    def memristive_outputs(self, x_in, weights, **kwargs):
         """"""
 
         # tf.print(self.nonidealities, output_stream=sys.stdout)
@@ -155,7 +165,7 @@ class MemristiveFullyConnected(layers.Layer):
         conductance_drifting_variance = kwargs.get("conductance_drifting_variance", 0.05)
 
         # Converting neuronal inputs to voltages
-        voltages = self.k_v * x
+        voltages = self.k_v * x_in
 
         # Mapping network weights to conductances
         if self.uses_double_weights:
