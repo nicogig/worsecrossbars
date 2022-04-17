@@ -46,13 +46,13 @@ class MemristiveFullyConnected(layers.Layer):
         )
 
         # Instantiating other attributes in __init__
-        self.w_pos = tf.Variable()
-        self.w_neg = tf.Variable()
-        self.b_pos = tf.Variable()
-        self.b_neg = tf.Variable()
-        self.weights = tf.Variable()
-        self.biases = tf.Variable()
-        self.out = tf.Variable()
+        self.w_pos = None
+        self.w_neg = None
+        self.b_pos = None
+        self.b_neg = None
+        self.weights = None
+        self.biases = None
+        self.out = None
         self.built = False
 
         super().__init__()
