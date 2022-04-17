@@ -105,6 +105,7 @@ def train_mlp(
       model: Keras model which is to be trained
       epochs: Positive integer, number of epochs used in training.
       batch_size: Positive integer, number of batches used in training.
+      horovod: Boolean, indicating whether the training should be done on a Horovod cluster.
       **kwargs: Valid keyword arguments are listed below
         - discretise: Boolean, specifies whether the network weights should be discrete or not.
         - hrs_lrs_ratio:
@@ -153,7 +154,10 @@ def train_mlp(
         )
 
     if horovod:
+        # pylint: disable=import-outside-toplevel
         import horovod.tensorflow as hvd
+
+        # pylint: enable=import-outside-toplevel
 
         scaled_lr = 0.001 * hvd.size()
         callbacks = [

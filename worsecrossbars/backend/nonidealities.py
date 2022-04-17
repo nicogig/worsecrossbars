@@ -8,7 +8,7 @@ import tensorflow_probability as tfp
 
 
 class StuckAtValue:
-    """This class ..."""
+    """"""
 
     def __init__(self, value: float, probability: float = 0.0) -> None:
         self.value = value
@@ -42,11 +42,10 @@ class StuckAtValue:
         """"""
 
         self.probability = probability
-        return None
 
 
 class StuckDistribution:
-    """This class ..."""
+    """"""
 
     def __init__(self, probability: float = 0.0, distrib: list = None, **kwargs) -> None:
 
@@ -111,11 +110,10 @@ class StuckDistribution:
         """"""
 
         self.probability = probability
-        return None
 
 
 class D2DVariability:
-    """This class ..."""
+    """"""
 
     def __init__(self, g_off: float, g_on: float, on_std: float, off_std: float) -> None:
         self.is_linearity_preserving = True
@@ -129,6 +127,7 @@ class D2DVariability:
         return f"D2DVariability (On_std: {self.on_std}; Off_std: {self.off_std})"
 
     def alter_conductances(self, conductances: tf.Tensor, **kwargs) -> tf.Tensor:
+        """"""
 
         resistances = 1 / conductances
         resistance_on = 1 / self.g_on
@@ -150,7 +149,7 @@ class D2DVariability:
 
 
 class IVNonlinear:
-    """This class ..."""
+    """"""
 
     def __init__(self, v_ref: float, avg_gamma: float, std_gamma: float) -> None:
         self.v_ref = v_ref
@@ -194,7 +193,7 @@ class IVNonlinear:
 
         log_gammas = tf.experimental.numpy.log2(gammas)
 
-        individual_currents = ohmic_currents * v_v_ref_ratio ** log_gammas
+        individual_currents = ohmic_currents * v_v_ref_ratio**log_gammas
         currents = tf.math.reduce_sum(individual_currents, axis=1)
 
         return currents, individual_currents

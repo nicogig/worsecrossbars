@@ -1,10 +1,9 @@
-"""compute:
-Worsecrossbars' main module and entrypoint.
+"""workers:
+Module containing the workers used to parallelise the simulations.
 """
 import json
 import os
 import platform
-import sys
 from pathlib import Path
 from typing import Tuple
 
@@ -18,7 +17,6 @@ from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 
 
-# Unified Worker
 def worker(
     dataset: Tuple[Tuple[ndarray, ndarray, ndarray, ndarray], Tuple[ndarray, ndarray]],
     simulation_parameters: dict,
@@ -91,7 +89,6 @@ def worker(
             )
 
 
-# Main
 def main(command_line_args, output_folder, json_object, horovod, **kwargs):
     """Main point of entry for the computing-side of the package."""
 
@@ -143,4 +140,4 @@ def main(command_line_args, output_folder, json_object, horovod, **kwargs):
                 color="0060ff",
             )
 
-    sys.exit(0)
+    raise SystemExit(0)

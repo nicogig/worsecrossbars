@@ -7,10 +7,8 @@ import sys
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
-from worsecrossbars.utilities.json_schemas import simulation_schema
 
-
-def validate_json(extracted_json: dict, json_schema: dict = simulation_schema) -> None:
+def validate_json(extracted_json: dict, json_schema: dict) -> None:
     """Validate a given JSON object against a standard schema.
 
     Args:

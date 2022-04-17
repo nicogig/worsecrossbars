@@ -15,6 +15,7 @@ from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.io_operations import read_webhook
 from worsecrossbars.utilities.io_operations import user_folders
 from worsecrossbars.utilities.json_handlers import validate_json
+from worsecrossbars.utilities.json_schemas import SIMULATION_SCHEMA
 from worsecrossbars.utilities.logging_module import Logging
 from worsecrossbars.utilities.msteams_notifier import MSTeamsNotifier
 from worsecrossbars.workers import workers
@@ -123,7 +124,7 @@ if __name__ == "__main__":
         # Get the JSON supplied, parse it, validate it against a known schema.
         json_path = Path.cwd().joinpath(command_line_args.config)
         json_object = read_external_json(str(json_path))
-        validate_json(json_object)
+        validate_json(json_object, SIMULATION_SCHEMA)
 
         # pylint: disable=invalid-name
         if command_line_args.teams:

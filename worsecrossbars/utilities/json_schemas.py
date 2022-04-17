@@ -2,7 +2,7 @@
 A module containing the JSON schemas used for plotting and simulation JSONs.
 """
 
-plot_schema = {
+PLOT_SCHEMA = {
     "type": "object",
     "properties": {
         "plots": {
@@ -18,7 +18,7 @@ plot_schema = {
     },
 }
 
-simulation_schema = {
+SIMULATION_SCHEMA = {
     "type": "object",
     "properties": {
         "simulations": {

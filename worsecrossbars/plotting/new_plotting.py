@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 
 from worsecrossbars.utilities.io_operations import read_external_json
 from worsecrossbars.utilities.json_handlers import validate_json
-from worsecrossbars.utilities.json_schemas import plot_schema
+from worsecrossbars.utilities.json_schemas import PLOT_SCHEMA
 
 
 def load_font() -> FontProperties:
@@ -101,6 +101,6 @@ if __name__ == "__main__":
     print(f"Reading the json file from {json_path}")
     json_object = read_external_json(str(json_path))
 
-    validate_json(json_object, plot_schema)
+    validate_json(json_object, PLOT_SCHEMA)
 
     plot(json_object)
