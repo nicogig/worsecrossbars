@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 from pathlib import Path
 
 import numpy as np
@@ -44,16 +45,6 @@ class MemristiveFullyConnected(layers.Layer):
             tf.constant(-1, shape=(neurons_in + 1, neurons_out * 2), dtype=tf.dtypes.int32),
             trainable=False,
         )
-
-        # Instantiating other attributes in __init__
-        self.w_pos = None
-        self.w_neg = None
-        self.b_pos = None
-        self.b_neg = None
-        self.weights = None
-        self.biases = None
-        self.out = None
-        self.built = False
 
         super().__init__()
 
@@ -241,3 +232,6 @@ class MemristiveFullyConnected(layers.Layer):
             tf.print(y_disturbed, output_stream=f"file://{filepath}/y_disturbed.txt", summarize=-1)
 
         return y_disturbed
+
+
+# pylint: enable=attribute-defined-outside-init
